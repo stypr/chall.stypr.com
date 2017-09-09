@@ -51,8 +51,11 @@
 		}
 
 		private function parse_rank(string $username): int{
-			$res = $this->db->query("SELECT x.* FROM (SELECT @rank:=@rank+1 AS rank, user_id FROM user p,(SELECT @rank:=0)r WHERE user_permission !=9 ".
-									"ORDER BY user_score DESC, user_last_solved ASC, user_join_date ASC)x WHERE x.user_id='$username'", 1);
+			// I failed logics and efficiency. this should be a TODO
+			$res = $this->db->query("SELECT x.* FROM (".
+									"SELECT @rank:=@rank+1 AS rank, user_id FROM user p,(SELECT @rank:=0)r".
+									"WHERE user_permission !=9 ORDER BY user_score DESC, user_last_solved ASC".
+									", user_join_date ASC)x WHERE x.user_id='$username'", 1);
 			if($res && is_array($res)){
 				return (int)$res['rank'];
 			}else{
@@ -65,7 +68,9 @@
 			$player = new Player;
 			$player->user_no = (int)$res['user_no'];
 			$player->user_id = (string)$res['user_id'];
-			$player->user_rank = (int)((@$res['rank']) ? $res['rank'] : $this->parse_rank($player->user_id));
+			$player->user_rank = (int)((@$res['rank']) ?
+										($res['rank']) :
+										($this->parse_rank($player->user_id)));
 			$player->user_pw = (string)$res['user_pw'];
 			$player->user_nickname = (string)$res['user_nickname'];
 			$player->user_score = (int)$res['user_score'];
@@ -160,17 +165,53 @@
 	class ChallengeInfo implements ChallengeInterface {
 		protected $db;
 		public function __construct($db) { $this->db = $db; }
+
+		private function parse_challenge(array $res): Challenge{
+ 			$challenge = new Challenge;
+			$challenge->challenge_id = (int)$res['challenge_id'];
+			$challenge->challenge_name = (string)$res['challenge_name'];
+			$challenge->challenge_desc = (string)$res['challenge_desc'];
+			$challenge->challenge_score = (int)$res['challenge_score'];
+			$challenge->challenge_flag = (string)$res['challenge_flag'];
+			$challenge->challenge_rate = (float)$res['challenge_rate'];
+			$challenge->challenge_solve_count = (int)$res['challenge_solve_count'];
+			$challenge->challenge_is_open = (int)$res['challenge_is_open'];
+			$challenge->challenge_by = (string)$res['challenge_by'];
+			return $challenge;
+		}
 		public function get_by_name(string $name): Challenge {
+			$name = $this->db->filter($name);
+			$res = $this->db->query("SELECT * FROM chal WHERE challenge_name='$name'", 1);
+			return ($res) ? $res : new Challenge;
 		}
 		public function get_by_flag(string $flag): Challenge {
+			// get by flag
+			$flag = $this->db->filter($flag);
+			// this routine adds/removes prefix and suffixes depending on the input.
+			$FLAG_PREFIX = "flag"; // this one --> flag{...}
+			$start = 0; $end = 0;
+			if(!substr_count($flag, "flag{")) $flag = "flag{" . $flag;
+			if(!substr_count($flag, "}")) $flag = $flag . "}";
+			if(substr_count(strtolower($flag), "flag{") >= 2){
+				$flag = substr($flag, strripos($flag, "flag{"));
+				$end = stripos($flag, "}");
+				$flag = substr($flag, 0, $end + 1);
+			}
+			$res = $this->db->query("SELECT * FROM chal WHERE challenge_flag='$flag'".
+									"AND challenge_is_open=1", 1);
+			return ($res) ? parse_challenge($res) : new Challenge;
 		}
 		public function get_list(bool $all=false): array {
 			// Loads list of challenges.
 			// list only available challenges if $all is false
-
+			$where = ($all) ? ('challenge_is_open') : (1);
+			$query = "SELECT * FROM chal WHERE challenge_is_open=";
+			$res = $this->db->query($query.$where,2);
+			for($i=0;$i<count($res);$i++){ $res[$i] = $this->parse_challenge($res[$i]); }
+			return ($res) ? $res : Array();
 		}
 		public function get_solver(Challenge $chall): array{
-
+			
 		}
 		public function set(Challenge $chall): bool{
 		}
