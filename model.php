@@ -16,9 +16,9 @@
 		public $user_pw;
 		public $user_nickname;
 		public $user_score;
-		public $user_sign_date;
+		public $user_join_date;
 		public $user_auth_date;
-		public $user_sign_ip;
+		public $user_join_ip;
 		public $user_auth_ip;
 		public $user_last_solved;
 		public $user_comment;
@@ -30,7 +30,7 @@
 		public function get_ranker(): array;
 		public function get_by_username(string $username): Player;
 		public function get_by_nickname(string $nickname): Player;
-		public function set(Player $player): Player;
+		public function set(Player $player);
 	}
 
 	class PlayerInfo implements PlayerInterface {
@@ -65,13 +65,14 @@
 			$player = new Player;
 			$player->user_no = (int)$res['user_no'];
 			$player->user_id = (string)$res['user_id'];
-			$player->user_rank = (int)(($res['rank']) ? $res['rank'] : $this->parse_rank($player->user_id));
+			$player->user_rank = (int)((@$res['rank']) ? $res['rank'] : $this->parse_rank($player->user_id));
 			$player->user_pw = (string)$res['user_pw'];
 			$player->user_nickname = (string)$res['user_nickname'];
 			$player->user_score = (int)$res['user_score'];
 			$player->user_join_date = (string)$res['user_join_date'];
 			$player->user_auth_date = (string)$res['user_auth_date'];
-			$player->user_ip = (string)$res['user_auth_ip'];
+			$player->user_join_ip = (string)$res['user_join_ip'];
+			$player->user_auth_ip = (string)$res['user_auth_ip'];
 			$player->user_last_solved = (string)$res['user_last_solved'];
 			$player->user_comment = (string)$res['user_comment'];
 			$player->user_permission = (int)$res['user_permission'];
@@ -101,7 +102,7 @@
 			return ($res) ? ($this->parse_info($res)) : (new Player);
 		}
 
-		public function set(Player $player): Player{
+		public function set(Player $player){
 			$user_check = $this->get_by_username($player->user_id);
 			$player = $this->input_filter($player);
 			if($user_check->user_id === $player->user_id){
@@ -109,21 +110,36 @@
 				$diff_curr = get_object_vars($player);
 				$diff_prev = get_object_vars($user_check);
 				$diff = array_diff($diff_curr, $diff_prev);
-				$q = 'UPDATE user SET ';
+				$query = "UPDATE user SET ";
 				foreach($diff as $key => $val){
-					$q .= $key . '=\'' . $val . '\' ';
+					$query .= $key . "='" . $val . "', ";
 				}
-				$q .= "WHERE username='$player->user_id'";
-				$this->db->query($q);
+				$query = substr($query, 0, -2); // remove last two trailing characters
+				$query .= "WHERE username='$player->user_id'";
+				$this->db->query($query);
 			}else{
 				// insert by query
+				$key=""; $val ="";
+				$p = get_object_vars($player);
+				$p['user_no'] = null;
+				unset($p['user_rank']); // user_rank is not the column!
+				foreach($p as $k => $v){
+					$key .= "$k,";
+					$val .= ($val)? "'$v'," : "NULL,"; // check null.
+				}
+				$key = substr($key, 0, -1);
+				$val = substr($val, 0, -1);
+				$query="INSERT INTO user ($key) VALUES($val)";
+				echo $query;
+				$this->db->query($query);
 			}
-			return $player;
 		}
 	}
 
+	/* Challenge Information */
 	class Challenge {
 		public $challenge_id;
+		public $challenge_name;
 		public $challenge_desc;
 		public $challenge_score;
 		public $challenge_flag;
@@ -133,14 +149,38 @@
 		public $challenge_by;
 	}
 
+	interface ChallengeInterface {
+		public function get_list(bool $all=false): array;
+		public function get_solver(Challenge $chall): array;
+		public function get_by_name(string $name): Challenge;
+		public function get_by_flag(string $flag): Challenge;
+		public function set(Challenge $chall): bool;
+	}
+
+	class ChallengeInfo implements ChallengeInterface {
+		protected $db;
+		public function __construct($db) { $this->db = $db; }
+		public function get_by_name(string $name): Challenge {
+		}
+		public function get_by_flag(string $flag): Challenge {
+		}
+		public function get_list(bool $all=false): array {
+			// Loads list of challenges.
+			// list only available challenges if $all is false
+
+		}
+		public function get_solver(Challenge $chall): array{
+
+		}
+		public function set(Challenge $chall): bool{
+		}
+	}
+
 	class Logging {
 		public $log_no;
 		public $log_id;
 		public $log_challenge;
 		public $log_auth;
 	}
-
-
-	
 
 ?>
