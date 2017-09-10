@@ -1,12 +1,7 @@
 <?php
-
-	require("query.php");
-
-	// not implemented as yet. (should probably be there in future)
-	class Badges {
-		public $badge_id;
-		public $badge_list;
-	}
+	/* Model classes
+	it's all in a mess, you can give me feedback about it.
+	*/
 
 	/* Player Information */
 	class Player {
@@ -34,7 +29,8 @@
 
 	class PlayerInfo implements PlayerInterface {
 		protected $db;
-		protected $user_controllable = ['user_id', 'user_pw', 'user_nickname', 'user_last_solved', 'user_comment'];
+		protected $user_controllable = ['user_id', 'user_pw',
+										'user_nickname', 'user_last_solved', 'user_comment'];
 		public function __construct($db) { $this->db = $db; }
 		private function input_filter(Player $player): Player{
 			$v = array_keys(get_class_vars("Player"));
@@ -78,7 +74,8 @@
 			// get top 50 user info.
 			$res = $this->db->query("SELECT p.*, @user_rank := @user_rank + 1 AS rank FROM user p,".
 									" (SELECT @user_rank := 0) r WHERE user_permission != 9".
-									" ORDER BY user_score DESC, user_last_solved ASC, user_join_date ASC LIMIT 50", 2);
+									" ORDER BY user_score DESC, user_last_solved ASC, ".
+									" user_join_date ASC LIMIT 50", 2);
 			for($i=0;$i<count($res);$i++){ $res[$i] = $this->parse_info($res[$i]); }
 			return $res;
 		}
