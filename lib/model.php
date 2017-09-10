@@ -1,7 +1,7 @@
 <?php
+
 	/* Model classes
-	it's all in a mess, you can give me feedback about it.
-	*/
+	it's all in a mess, you can give me feedback about it. */
 
 	/* Player Information */
 	class Player {
@@ -21,6 +21,7 @@
 	}
 
 	interface PlayerInterface {
+		public function get_count(): int;
 		public function get_ranker(): array;
 		public function get_by_username(string $username): Player;
 		public function get_by_nickname(string $nickname): Player;
@@ -91,6 +92,11 @@
 			$res = $this->db->query("SELECT * FROM user WHERE user_nickname='$nick'", 1);
 			return ($res) ? ($this->parse_info($res)) : (new Player);
 		}
+		public function get_count(): int{
+			// get total count
+			$res = $this->db->query("SELECT COUNT(*) AS count FROM user", 1);
+			return ($res) ? ((int)$res['count']) : 0;
+		}
 		public function set(Player $player){
 			$user_check = $this->get_by_username($player->user_id);
 			$player = $this->input_filter($player);
@@ -152,6 +158,7 @@
 		public function get_solver(Challenge $chall): array;
 		public function get_by_name(string $name): Challenge;
 		public function get_by_flag(string $flag): Challenge;
+		public function get_count(): int;
 		public function set(Challenge $chall): bool;
 	}
 
@@ -202,6 +209,11 @@
 			$log = new LoggingInfo($this->db);
 			var_dump($log->get_by_challenge($chall->challenge_name));
 			return Array();
+		}
+		public function get_count(): int{
+			// get total count
+			$res = $this->db->query("SELECT COUNT(*) AS count FROM chal", 1);
+			return ($res) ? ((int)$res['count']) : 0;
 		}
 		public function set(Challenge $chall): bool{
 			// insert if new, update if non-exist
