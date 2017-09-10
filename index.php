@@ -1,4 +1,5 @@
 <?php
+	/*
 	function shutDownFunction() {
 	    $error = error_get_last();
 	    // fatal error, E_ERROR === 1
@@ -10,6 +11,7 @@
 	}
 	register_shutdown_function('shutDownFunction');
 	//*/
+	/* Index page */
 
 	require("lib/query.php");
 	require("lib/init.php");

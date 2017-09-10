@@ -16,12 +16,12 @@
 	assert(strlen(__HASH_SALT__) >= 60) || die("Your service is insecure!");
 
 	// init query
-    $query = new Query();
+	$query = new Query();
 	$query->connect(__DB_HOST__, __DB_USER__, __DB_PASS__, __DB_BASE__);
-    if($query->check() == false) die("SQL server's down :(");
+	if($query->check() == false) die("SQL server's down :(");
 
 	// basic stuff..
-    function redirect($page){
+	function redirect($page){
 		header("Location: /".$page);
 		exit;
 	}

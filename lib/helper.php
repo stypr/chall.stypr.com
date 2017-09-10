@@ -1,8 +1,6 @@
 <?php
-	/*
-	Helper Class
-	Classes that enhances features etc.
-	*/
+	/* Helper Class
+	Classes for enhancing features */
 	class Badge {
 		public $badge_id;
 		public $badge_list;

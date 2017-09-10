@@ -1,6 +1,8 @@
 <?php
+
 	/* Query module
 	PHP MySQL module made for my projects, for a quick development. */
+
     class Query{
         private $conn, $mysqli;
 
@@ -77,9 +79,9 @@
                         }else{
                             return mysql_real_escape_string($_filter, $this->conn);
                         }
-                    }
-                case "auth":
-                    return preg_replace("/[^a-zA-Z0-9-_!@#$.%^&*(){}가-힣]/", "", $str);
+					}
+				case "auth":
+					return preg_replace("/[^a-zA-Z0-9-_!@$.%^&*(){}가-힣]/", "", $str);
             }
         }
 
