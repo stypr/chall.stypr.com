@@ -3,8 +3,7 @@
 	/* Controller classes
 	Nothing to comment. commenting irritates me! */
 
-
-	/* Default features for controller */
+	/* Default features for controllers; Abstract class */
 	class Controller {
 		protected $db;
 		public function is_auth(){
@@ -62,5 +61,26 @@
 				die("template for modify");
 			}
 		}
+	}
+
+	/* Status Controller */
+	class StatusController extends Controller {
+		public function ScoreboardAction(){}
+		public function ChallengeAction(){}
+		public function HackerAction(){}
+	}
+
+	/* Challenge Controller */
+	class ChallengeController extends Controller {
+		public function ListAction(){}
+		public function AuthAction(){}
+		public function RateAction(){}
+	}
+
+	/* WeChall Controller */
+	class WeChallController extends Controller {
+		public function ListUserAction(){}
+		public function RankAction(){}
+		public function PushAction(){}
 	}
 ?>
