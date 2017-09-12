@@ -1,0 +1,3 @@
+# don't include important and useless files
+lib/exclude/*
+.*.swp
