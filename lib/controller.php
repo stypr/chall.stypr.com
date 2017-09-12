@@ -6,6 +6,12 @@
 	/* Default features for controllers; Abstract class */
 	class Controller {
 		protected $db;
+
+		public function DefaultAction(){
+			// default action for all controllers.
+
+		}
+
 		public function is_auth(){
 			// check if authenticated
 			$session = $_SESSION['username'] . $_SERVER['REMOTE_ADDR'];
@@ -82,5 +88,9 @@
 		public function ListUserAction(){}
 		public function RankAction(){}
 		public function PushAction(){}
+	}
+
+	class DefaultController extends Controller {
+
 	}
 ?>

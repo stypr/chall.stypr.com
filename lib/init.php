@@ -3,9 +3,12 @@
 	/* Basic Initialization
 	This file MUST be initialized from the very beginning of every pages. */
 
+	// hide errors
 	ini_set("display_errors", "off");
 	error_reporting(0);
-	require("exclude/config.php");
+
+	// load config, once.
+	require_once("exclude/config.php");
 
 	// thx to madbat2
 	session_set_cookie_params(3600 * 48);
@@ -28,4 +31,20 @@
 	function secure_hash(string $str): string {
 		return sha1(sha1(md5($str)) . __HASH_SALT__);
 	}
+
+	// simple method to return error.
+	function return_error() {
+		http_response_code(404);
+		$template = new Template();
+		$template->include("error");
+	}
+
+	// fatal catcher
+	function shutdown_function(){
+		$error = error_get_last();
+		// fatal error, E_ERROR === 1
+		if ($error['type'] === E_ERROR) return_error();
+    }
+    register_shutdown_function('shutdown_function');
+
 ?>

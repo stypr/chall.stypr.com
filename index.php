@@ -1,44 +1,33 @@
 <?php
-	/*
-	function shutDownFunction() {
-	    $error = error_get_last();
-	    // fatal error, E_ERROR === 1
-	    if ($error['type'] === E_ERROR) {
-			echo "OK!";
-			var_dump($error);
-			exit;
-	    }
-	}
-	register_shutdown_function('shutDownFunction');
-	//*/
 	/* Index page */
 
-	require("lib/query.php");
-	require("lib/init.php");
-	require("lib/model.php");
-	require("lib/helper.php");
-	require("lib/controller.php");
+init:
+	require_once("lib/template.php");
+	require_once("lib/query.php");
+	require_once("lib/init.php");
+	require_once("lib/model.php");
+	require_once("lib/helper.php");
+	require_once("lib/controller.php");
 
+loader:
 	// index.php?module=user&action=login
-	$module_list = ["user", "challenge", "status"];
+	$module_list = ["user", "challenge", "status", "wechall", "default"];
 
 	try{
-		$controller_val = (string)$_GET['controller'];
-		$action_val = (string)$_GET['action'];
+		// type def and set default
+		$controller_val = isset($_GET['controller']) ? (string)$_GET['controller'] : "default";
+		$action_val = isset($_GET['action']) ? (string)$_GET['action'] : "default";
 
+		// load class and method
 		$controller = ucfirst($controller_val) . "Controller";
 		$action = ucfirst($action_val). "Action";
-
 		if(in_array($controller_val, $module_list, true)){
 			$controller = new $controller;
 			$controller->$action();
-		}else{
-			goto err;
+			exit;
 		}
-	}catch(Exception $e){ goto err; }
-	exit;
+	}catch(Exception $e){ }
 
 err:
-	die("wtf");
-
+	return_error();
 ?>
