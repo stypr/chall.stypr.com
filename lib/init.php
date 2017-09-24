@@ -41,7 +41,9 @@
 
 	// fatal catcher
 	function shutdown_function(){
+		global $query;
 		$error = error_get_last();
+		unset($query);
 		// fatal error, E_ERROR === 1
 		if ($error['type'] === E_ERROR) return_error();
     }

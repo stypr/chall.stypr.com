@@ -6,11 +6,11 @@
     class Query{
         private $conn, $mysqli;
 
-        function check(){
+        public function check(){
             return ($this->conn) ? True : False;
         }
 
-        function connect($host, $username, $password, $db=""){
+        public function connect($host, $username, $password, $db=""){
             // @return //
             if($this->mysqli){
                 $this->conn = mysqli_connect($host, $username, $password, $db);
@@ -22,7 +22,7 @@
             }
         }
 
-        function query($query, $result=0){
+        public function query($query, $result=0){
             // $result: 0 -> no return, 1 -> return_assoc, 2 -> return_array //
             if(!$this->conn) return false;
             if($this->mysqli){
@@ -58,7 +58,7 @@
             }
         }
 
-        function filter($str, $type='sql'){
+        public function filter($str, $type='sql'){
             switch($type){
                 case "url":
                     return preg_replace("/[^a-zA-Z0-9-_&\/]/", "", $str);
@@ -85,7 +85,7 @@
             }
         }
 
-        function __construct(){
+        public function __construct(){
             if(function_exists("mysqli_connect")){
                 $this->mysqli = true;
             }else{
@@ -93,7 +93,7 @@
             }
         }
 
-        function __destruct(){
+        public function __destruct(){
             if($this->conn){
                 if($this->mysqli){
                     mysqli_close($this->conn);
