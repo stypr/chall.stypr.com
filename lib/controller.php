@@ -21,7 +21,14 @@
 			return false;
 		}
 
-		public function __construct($db){
+		public function output_json($data){
+			// return result as json
+			header("Content-Type: application/json;charset=utf-8");
+			echo json_encode($data);
+			exit;
+		}
+		
+		public function __construct(){
 			global $query;
 			$this->db = $query;
 		}
@@ -34,9 +41,12 @@
 		private function register_account(){}
 		private function modify_account(){}
 		private function forgot_account(){}
-
+		
+		public function CheckAction(){
+			$this->output_json($this->is_auth());
+		}
 		public function LoginAction(){
-			if($this->is_auth()) die("wtf");
+			if($this->is_auth()) $this->output_json(false);
 			if($_POST){
 				$this->login_account();
 			}else{
@@ -44,7 +54,7 @@
 			}
 		}
 		public function RegisterAction(){
-			if($this->is_auth()) die("wtf");
+			if($this->is_auth()) $this->output_json(false);
 			if($_POST){
 				$this->register_account();
 			}else{
@@ -52,7 +62,7 @@
 			}
 		}
 		public function ForgotAction(){
-			if($this->is_auth()) die("wtf");
+			if($this->is_auth()) $this->output_json(false);
 			if($_POST){
 				$this->forgot_account();
 			}else{
@@ -60,12 +70,17 @@
 			}
 		}
 		public function ModifyAction(){
-			if(!$this->is_auth()) die("wtf");
+			if(!$this->is_auth()) $this->output_json(false);
 			if($_POST){
 				$this->modify_account();
 			}else{
 				die("template for modify");
 			}
+		}
+		public function GetAction(){
+			if(!$this->is_auth()) $this->output_json(false);
+			$player = new Player();
+			$this->output_json($player->get_by_username($_SESSION['username']));
 		}
 	}
 
@@ -90,7 +105,13 @@
 		public function PushAction(){}
 	}
 
+	/* Default Controller */
 	class DefaultController extends Controller {
-
+		public function DefaultAction(){
+			// load static page
+			$template = new Template();
+			$template->include("index");
+		}
 	}
+
 ?>
