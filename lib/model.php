@@ -173,6 +173,7 @@
 			}
 			return $challenge;
 		}
+
 		public function get_by_name(string $name): Challenge {
 		$name = $this->db->filter($name);
 			$res = $this->db->query("SELECT * FROM chal WHERE challenge_name='$name'", 1);
@@ -268,6 +269,8 @@
 	}
 
 	interface LoggingInterface {
+		public function get_first_list(): array;
+		public function get_last_list(): array;
 		public function get_by_username(string $name): array;
 		public function get_by_type(string $type): array;
 		public function get_by_challenge(string $chall): array;
@@ -285,6 +288,19 @@
 			}
 			return $log;
 		}
+		public function get_first_list(): array {
+            $res = $this->db->query("SELECT * FROM log WHERE log_type='Correct'" .
+				"GROUP BY log_challenge ORDER BY log_date", 2);
+			for($i=0;$i<count($res);$i++){ $res[$i] = $this->parse_log($res[$i]); }
+			return ($res) ? $res : Array();
+		}
+		public function get_last_list(): array {
+			$chall = $this->db->filter($chall);
+            $res = $this->db->query("SELECT * FROM log x WHERE (log_no) in ".
+				"(SELECT MAX(log_no) FROM log WHERE log_type='Correct' GROUP BY log_challenge DESC)", 2);
+			for($i=0;$i<count($res);$i++){ $res[$i] = $this->parse_log($res[$i]); }
+			return ($res) ? $res : Array();
+		}
 		public function get_by_username(string $name): array {
 			$name = $this->db->filter($name);
 			$res = $this->db->query("SELECT * FROM log WHERE log_id='$name'", 2);
@@ -294,7 +310,6 @@
 		public function get_by_type(string $type): array {
 			$type = $this->db->filter($type);
 			$res = $this->db->query("SELECT * FROM log WHERE log_type='$type'", 2);
-			var_dump($res);
 			for($i=0;$i<count($res);$i++){ $res[$i] = $this->parse_log($res[$i]); }
 			return ($res) ? $res : Array();
 		}

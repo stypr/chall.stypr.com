@@ -45,7 +45,10 @@
 		$error = error_get_last();
 		unset($query);
 		// fatal error, E_ERROR === 1
-		if ($error['type'] === E_ERROR) return_error();
+		if ($error['type'] === E_ERROR){
+			//var_dump($error);
+			return_error();
+		}
     }
     register_shutdown_function('shutdown_function');
 
