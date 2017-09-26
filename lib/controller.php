@@ -78,17 +78,75 @@
 			}
 		}
 		public function GetAction(){
+			global $query;
 			if(!$this->is_auth()) $this->output_json(false);
-			$player = new Player();
+			$player = new PlayerInfo($query);
 			$this->output_json($player->get_by_username($_SESSION['username']));
 		}
 	}
 
 	/* Status Controller */
 	class StatusController extends Controller {
-		public function ScoreboardAction(){}
-		public function ChallengeAction(){}
-		public function HackerAction(){}
+		public function ScoreboardAction(){
+			global $query;
+			$player = new PlayerInfo($query);
+			$log = new LoggingInfo($query);
+
+			// get breakthrough count for players
+			$break = $log->get_first_list();
+			$_break = [];
+			for($i=0;$i<count($break);$i++){
+				$_break_user = ($break[$i]->log_id);
+				$_break[$_break_user] = $_break[$_break_user]+1;
+			}
+
+			$ranker = $player->get_ranker();
+			// TODO: parse only important data~
+			$result = [];
+			for($i=0;$i<count($ranker);$i++){
+				$user = $ranker[$i]->user_id;
+				$_break_count = $_break[$user] ? $_break[$user] : '';
+
+				$result[] = ['nickname' => $ranker[$i]->user_nickname,
+					'score' => $ranker[$i]->user_score,
+					'break_count' => $_break_count,
+					'comment' => $ranker[$i]->user_comment,
+					'last_solved' => $ranker[$i]->user_last_solved];
+			}
+			$this->output_json($result);
+		}
+		public function ChallengeAction(){
+			global $query;
+			$player = new PlayerInfo($query);
+			$log = new LoggingInfo($query);
+			$chall = new ChallengeInfo($query);
+			$chall_list = $chall->get_list();
+			//var_dump($chall_list);
+			$result = [];
+			for($i=0;$i<count($chall_list);$i++){
+				// get breakthrough and last-solved by log
+				$_name = $chall_list[$i]->challenge_name;
+				$_log = $log->get_by_challenge($_name);
+
+				$_break = null;
+				$_break_log = $_log[0]->log_id;
+				$_last = null;
+				$_last = end($_log)->log_date;
+
+				if($_break_log) $_break = $player->get_by_username($_break_log)->user_nickname;
+				
+				$result[] = ['id' => $chall_list[$i]->challenge_id,
+					'name' => $chall_list[$i]->challenge_name,
+					'solver' => $chall_list[$i]->challenge_solve_count,
+					'break' => $_break,
+					'author' => $chall_list[$i]->challenge_by,
+					'last-solved' => $_last,
+					'rate' => $chall_list[$i]->challenge_rate];
+			}
+			$this->output_json($result);
+		}
+		public function AuthAction(){}
+		public function FameAction(){}
 	}
 
 	/* Challenge Controller */
