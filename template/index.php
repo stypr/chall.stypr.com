@@ -3,7 +3,7 @@
 	<meta charset="utf-8">
 		<title>Stereotyped Challenges</title>
 		<meta name="viewport" content="initial-scale=1, user-scalable=0">
-		<link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+		<!--<link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">-->
 		<link href="//cdnjs.cloudflare.com/ajax/libs/octicons/4.4.0/font/octicons.css" rel="stylesheet" type="text/css">
 		<link rel="stylesheet" href="//unpkg.com/primer-css@9.4.0/build/build.css">
 		<style>
@@ -11,7 +11,12 @@
 			#container {background:#fff;}
 			.right { float: right; }
 			.selector-language { margin-bottom: 30px; }
-			#scoreboard td, #scoreboard th { padding:3px; text-align:center; }
+			#break-stat td, #scoreboard td { padding:5px; text-align:center; border-right:0; border-left:0; }
+			#break-info td {text-align:center; border-right:0; font-size:13pt; font-weight:bold;}
+			#break-info th {border:0; }
+			#break-stat { margin:0; }
+			#scoreboard th {text-align:center; border-right:0; font-size:13pt; }
+			#scoreboard {border-right:0; border-left:0; border-top: 0;}
 			.table>thead>tr>td.info,.table>tbody>tr>td.info,.table>tfoot>tr>td.info,.table>thead>tr>th.info,.table>tbody>tr>th.info,.table>tfoot>tr>th.info,.table>thead>tr.info>td,.table>tbody>tr.info>td,.table>tfoot>tr.info>td,.table>thead>tr.info>th,.table>tbody>tr.info>th,.table>tfoot>tr.info>th{background-color:#d9edf7}.table-hover>tbody>tr>td.info:hover,.table-hover>tbody>tr>th.info:hover,.table-hover>tbody>tr.info:hover>td,.table-hover>tbody>tr:hover>.info,.table-hover>tbody>tr.info:hover>th{background-color:#c4e3f3}
 			.table-hover>tbody>tr:hover{background-color:#f5f5f5}
 		</style>
@@ -37,35 +42,50 @@
 
 		/* Helper functions */
 		var add_data = function(t, d){ $(t).append(d); }
-		var new_data = function(t, d=''){ $(t).html(d); }
+		var new_data = function(t, d){ if(!d)d=''; $(t).html(d); }
 		var output_intl = function(s){
 			// I'm actually considering about adding japanese and chinese too..
 			langmap = {
+				
 				'logout': {'en': 'logout', 'ko': '로그아웃'},
 				'login': {'en': 'Sign In', 'ko': '로그인'},
 				'home': {'en': 'Home', 'ko': '메인'},
 				'chall': {'en': 'Challenge', 'ko': '문제'},
 				'chat': {'en': 'Chat', 'ko': '채팅방'},
 				'status': {'en': 'Status', 'ko': '현황판'},
+
+				'nickname': {'en': 'Nickname', 'ko': '닉네임'},
+				'score': {'en': 'Score', 'ko': '점수'},
+				'comment': {'en': 'Comment', 'ko': '정보'}, 
+				'last_solved': {'en': 'Last Solved', 'ko': '최근 풀이시간'},
+
 				'stat-player': {'en': 'Scoreboard', 'ko': '순위'},
 				'stat-chall': {'en': 'Chall Info', 'ko': '문제 정보'},
 				'stat-auth': {'en': 'Solve Log', 'ko': '인증 로그'},
-				'stat-pwner': {'en': 'Hall of Fame', 'ko': '명예의 전당'},
-				'nickname': {'en': 'Nickname', 'ko': '닉네임'},
-				'score': {'en': 'Score', 'ko': '점수'},
-				'comment': {'en': 'Comment', 'ko': '코멘트'}, 
-				'last_solved': {'en': 'Last Solved', 'ko': '최근 풀이시간'},
+				'stat-fame': {'en': 'Hall of Fame', 'ko': '명예의 전당'},
+
+				'chall-solver': {'en': 'Solvers', 'ko': '풀이자'},
+				'chall-player-count': {'en': 'players', 'ko': '명'},
+				'chall-solve-date': {'en': 'Solved at', 'ko': '풀은 시간'},
+
 				'error-nope': {'en': 'Nope!', 'ko': '응 아니야~'},
 				'error-nope-info': {'en': 'The page you are looking for is not found. Better check elsewhere :p', 
 								'ko': '찾으시는 페이지을 찾을 수 없었습니다. 다른 곳을 확인해보세요 :p'},
 				'error-auth': {'en': 'You need to sign in to view this page.', 'ko': '이 페이지를 보시려면 로그인 하셔야 합니다.'},
 
+
 			}
 			return langmap[s][CURRENT_LANG];
 		}
 
-
 		/* Feature functions */
+		var load_main = function(){
+			// TBD: I need to translate the content.. lolz
+			new_data("#content", "<h1>Stereotyped Challenges</h1><h2>Redefine your web hacking techniques today!</h2><br><br>" +
+				"This website provides advanced web-based hacking challenges, which would require you to think and solve logically. Please try other wargame communities if you find difficulty in solving challenges.<br><br>"+
+				"The rules of this website are simple — Make sure that other users can enjoy the wargame. DO NOT bruteforce challenges and DO NOT post your solutions on the internet. Solving challenges would become worthless if solutions are posted everywhere."+
+				"Sharing a small bit of hints for challenges would be the most appropriate to help others.");
+		}
 		var load_status = function(p){
 			// add tab
 			new_data("#content", "<div class='tabnav'><nav class='tabnav-tabs' id='content-tabs'></nav></div>" + 
@@ -73,32 +93,76 @@
 			new_data("#content-tabs", '<a href="#/status/player" class="tabnav-tab" sub-id="player">' + output_intl('stat-player') + '</a>' +
 				'<a href="#/status/chall" class="tabnav-tab" sub-id="chall">' + output_intl('stat-chall') + '</a>' +
 				'<a href="#/status/auth" class="tabnav-tab" sub-id="auth">' + output_intl('stat-auth') + '</a>' +
-				'<a href="#/status/fame" class="tabnav-tab" sub-id="pwner">' + output_intl('stat-pwner') + '</a>' +
+				'<a href="#/status/fame" class="tabnav-tab" sub-id="fame">' + output_intl('stat-fame') + '</a>' +
 				'</nav>');
 			// auto-select tab
 			if(!p) p = 'player';
 			$(".tabnav-tab[sub-id='"+p+"']").addClass("selected");
-			console.log('are you still triggering this shit?');
 
 			// content by the tab
 			switch(p){
 				case 'fame':
+					// TBD: probably will develop on freetime..	
+					new_data("#output-layer");
+					add_data("#output-layer", '<table class="data-table" id="pwner"></table>');
+					
 					break;
 				case 'auth':
+					$.get('?controller=status&action=auth', function(d){
+						new_data("#output-layer");
+						add_data("#output-layer", '<table class="data-table table-hover" id="scoreboard" style="font-size:10pt;">' +
+							'<thead><tr>'+
+							'<th align=center>#</th><th align=center>'+output_intl('nickname')+'</th>' +
+							'<th align=center>'+output_intl('chall')+'</th>' +
+							'<th align=center>'+output_intl('chall-solve-date')+'</th>'+
+							'</tr></thead><tbody id="log-list"></tbody></table>');
+						for(var i=0;i<d.length;i++){
+							_log = d[i];
+							add_data("#log-list", '<tr onclick="location.replace(\'#/profile/'+_log['nick']+'\')">' +
+								'<td>'+_log['no']+'</td><td>'+_log['nick'] + '</td>' +
+								'<td>'+_log['chall']+'</td>' + 
+								'<td>'+_log['date']+'</td>' +
+								'</tr>');
+						}
+					});
 					break;
 				case 'chall':
 					$.get('?controller=status&action=challenge', function(d){
-						add_data("#output-layer", d);
+						new_data("#output-layer");
+						for(var i=0;i<d.length;i++){
+							_top = d[i]['break'];
+							_top_break = '';
+							try{
+								for(var j=0;j<_top.length;j++){
+									_top_break += '<tr><td>#'+(_top[j]['rank'])+'</td><td>'+_top[j]['user']+'</td><td>'+_top[j]['date']+'</td></tr>';
+								}
+							}catch(e){ }
+							if(!_top_break){
+								_top_break = '<tr><td colspan=4><h2 align=center>...</h2></td></tr>';
+							}
+							add_data("#output-layer", '<div class="Box mb-3"><div class="Box-header pt-2 pb-2">' +
+								'<h3 class="Box-title">'+ d[i]['name'] +' <span class="right">' + d[i]['score']+ 'pt</span></h3></div>'+
+								'<div class="Box-body"><table class="data-table mt-0" id="break-info" style="font-size:12pt;">' +
+								'<th>'+output_intl('chall-solver')+'</th><td>' + d[i]['solver']+ ' ' +
+								''+output_intl('chall-player-count')+'</td><th>'+output_intl('last_solved')+'</th> '+
+								'<td>' + d[i]['last-solved'] + '</td></tr></table>' +
+								'<table class="data-table mt-2" id="break-stat"><tr><td width=8>&nbsp;<font color=red>'+
+								'<span class="octicon octicon-flame"></span></font></td>'+
+								'<td>'+output_intl('nickname')+'</td><td>'+output_intl('chall-solve-date')+'</td></tr>' +
+								_top_break +
+								'</td></tr></table>');
+						}
+						
 					});
 					break;
 				case 'player':
 				default:
 					$.get('?controller=status&action=scoreboard', function(d){
-						add_data("#output-layer", '<table class="data-table table-hover" id="scoreboard" style="font-size:10pt;">' +
+						new_data("#output-layer", '<table class="data-table table-hover" id="scoreboard" style="font-size:10pt;">' +
 							'<thead><tr>'+
-							'<th align=center>&#8226;</th><th align=center>'+output_intl('nickname')+'</th>' +
+							'<th align=center></th><th align=center>'+output_intl('nickname')+'</th>' +
 							'<th align=center>'+output_intl('score')+'</th>' +
-							'<th align=center>&nbsp;<span class="octicon octicon-flame"></span></th>' +
+							'<th align=center>&nbsp;<font color=red><span class="octicon octicon-flame"></span></font></th>' +
 							'<th align=center>'+output_intl('comment')+'</th>'+
 							'<th align=center>'+output_intl('last_solved')+'</th>'+
 							'</tr></thead><tbody id="ranker-list"></tbody></table>');
@@ -188,14 +252,16 @@
 			add_data("#sidebar-menu", "<li page-id='" + _sub + "'><a href='#/status' class='filter-item'></a></li>");
 			add_data("#sidebar-menu>li[page-id='"+_sub+"']>a",  output_intl(_sub) +
 				"<span class='octicon octicon-graph right'></span>");
-			_sub = 'chall';
-			add_data("#sidebar-menu", "<li page-id='" + _sub + "'><a href='#/chall' class='filter-item'></a></li>");
-			add_data("#sidebar-menu>li[page-id='"+_sub+"']>a",  output_intl(_sub) +
-				"<span class='octicon octicon-browser right'></span>");
-			_sub = 'chat';
-			add_data("#sidebar-menu", "<li page-id='" + _sub + "'><a href='#/chat' class='filter-item'></a></li>");
-			add_data("#sidebar-menu>li[page-id='"+_sub+"']>a",  output_intl(_sub) +
-				"<span class='octicon octicon-comment-discussion right'></span>");
+			if(IS_AUTH){
+				_sub = 'chall';
+				add_data("#sidebar-menu", "<li page-id='" + _sub + "'><a href='#/chall' class='filter-item'></a></li>");
+				add_data("#sidebar-menu>li[page-id='"+_sub+"']>a",  output_intl(_sub) +
+					"<span class='octicon octicon-bug right'></span>");
+				_sub = 'chat';
+				add_data("#sidebar-menu", "<li page-id='" + _sub + "'><a href='#/chat' class='filter-item'></a></li>");
+				add_data("#sidebar-menu>li[page-id='"+_sub+"']>a",  output_intl(_sub) +
+					"<span class='octicon octicon-comment-discussion right'></span>");
+			}
 			// adding click events //
 			$("#sidebar-menu > li > a").unbind("click");
 			$("#sidebar-menu > li > a").click(function(){
@@ -230,9 +296,10 @@
 					break;
 				case '':
 					$("#sidebar-menu>li[page-id='home']>a").addClass("selected");
+					load_main();
 					break;
 				default:
-					set_error(403);
+					set_error(404);
 					console.log(_url);
 			}
 		};
