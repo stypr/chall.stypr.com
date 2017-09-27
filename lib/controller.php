@@ -93,11 +93,12 @@
 			$log = new LoggingInfo($query);
 
 			// get breakthrough count for players
-			$break = $log->get_first_list();
+			$break = $log->get_break_list();
 			$_break = [];
 			for($i=0;$i<count($break);$i++){
 				$_break_user = ($break[$i]->log_id);
-				$_break[$_break_user] = $_break[$_break_user]+1;
+				$_break_point = ($break[$i]->rank);
+				$_break[$_break_user] = $_break[$_break_user]+(4-$_break_point);
 			}
 
 			$ranker = $player->get_ranker();
@@ -118,34 +119,55 @@
 		public function ChallengeAction(){
 			global $query;
 			$player = new PlayerInfo($query);
+			$player_nick = $player->get_nickname();
 			$log = new LoggingInfo($query);
 			$chall = new ChallengeInfo($query);
 			$chall_list = $chall->get_list();
-			//var_dump($chall_list);
+			$_break = $log->get_break_list();
+			$break = [];
+			for($i=0;$i<count($_break);$i++){
+				$_break_chall = $_break[$i]->log_challenge;
+				$_break_user = $player_nick[$_break[$i]->log_id];
+				$_break_date = $_break[$i]->log_date;
+				$_break_rank = $_break[$i]->rank;
+				$break[$_break_chall][] = ['user' => $_break_user, 'date' => $_break_date, 'rank' => $_break_rank];
+			}
 			$result = [];
 			for($i=0;$i<count($chall_list);$i++){
 				// get breakthrough and last-solved by log
 				$_name = $chall_list[$i]->challenge_name;
 				$_log = $log->get_by_challenge($_name);
-
 				$_break = null;
 				$_break_log = $_log[0]->log_id;
 				$_last = null;
 				$_last = end($_log)->log_date;
-
-				if($_break_log) $_break = $player->get_by_username($_break_log)->user_nickname;
 				
 				$result[] = ['id' => $chall_list[$i]->challenge_id,
 					'name' => $chall_list[$i]->challenge_name,
+					'score' => $chall_list[$i]->challenge_score,
 					'solver' => $chall_list[$i]->challenge_solve_count,
-					'break' => $_break,
+					'break' => $break[$chall_list[$i]->challenge_name],
 					'author' => $chall_list[$i]->challenge_by,
 					'last-solved' => $_last,
 					'rate' => $chall_list[$i]->challenge_rate];
 			}
 			$this->output_json($result);
 		}
-		public function AuthAction(){}
+		public function AuthAction(){
+			global $query;
+			$player = new PlayerInfo($query);
+			$player_nick = $player->get_nickname();
+			$log = new LoggingInfo($query);
+			$log_list = $log->get_by_type('Correct');
+			$result = [];
+			for($i=(count($log_list)-1);$i>0;$i--){
+				$result[] = ['no' => $log_list[$i]->log_no,
+					'nick' => $player_nick[$log_list[$i]->log_id],
+					'chall' => $log_list[$i]->log_challenge,
+					'date' => $log_list[$i]->log_date];
+			}
+			$this->output_json($result);
+		}
 		public function FameAction(){}
 	}
 

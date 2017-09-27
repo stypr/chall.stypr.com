@@ -23,6 +23,7 @@
 	interface PlayerInterface {
 		public function get_count(): int;
 		public function get_ranker(): array;
+		public function get_nickname(): array;
 		public function get_by_username(string $username): Player;
 		public function get_by_nickname(string $nickname): Player;
 		public function set(Player $player);
@@ -79,6 +80,13 @@
 									" user_join_date ASC LIMIT 50", 2);
 			for($i=0;$i<count($res);$i++){ $res[$i] = $this->parse_info($res[$i]); }
 			return $res;
+		}
+		public function get_nickname(): array {
+			// get all id and nickname and make a dict :)
+			$res = $this->db->query("SELECT user_id, user_nickname FROM user", 2);
+			$tbl = [];
+			for($i=0;$i<count($res);$i++){ $tbl[$res[$i][0]] = $res[$i][1]; }
+			return ($tbl) ? $tbl : [];
 		}
 		public function get_by_username(string $username): Player{
 			// get_by_username
@@ -271,6 +279,7 @@
 	interface LoggingInterface {
 		public function get_first_list(): array;
 		public function get_last_list(): array;
+		public function get_break_list(): array;
 		public function get_by_username(string $name): array;
 		public function get_by_type(string $type): array;
 		public function get_by_challenge(string $chall): array;
@@ -289,15 +298,25 @@
 			return $log;
 		}
 		public function get_first_list(): array {
+			// lists first solvers of challenges
             $res = $this->db->query("SELECT * FROM log WHERE log_type='Correct'" .
 				"GROUP BY log_challenge ORDER BY log_date", 2);
 			for($i=0;$i<count($res);$i++){ $res[$i] = $this->parse_log($res[$i]); }
 			return ($res) ? $res : Array();
 		}
 		public function get_last_list(): array {
-			$chall = $this->db->filter($chall);
+			// lists last solvers of challenges
             $res = $this->db->query("SELECT * FROM log x WHERE (log_no) in ".
 				"(SELECT MAX(log_no) FROM log WHERE log_type='Correct' GROUP BY log_challenge DESC)", 2);
+			for($i=0;$i<count($res);$i++){ $res[$i] = $this->parse_log($res[$i]); }
+			return ($res) ? $res : Array();
+		}
+		public function get_break_list(): array{
+			// lists top 3 solvers of challenges
+            $res = $this->db->query("SELECT log_challenge, log_id, log_date, rank FROM ".
+				"(SELECT log_challenge, log_id, log_date,".
+				"ROW_NUMBER() OVER (PARTITION BY log_challenge ORDER BY log_date ASC)".
+				"AS rank FROM log)x WHERE rank <= 3 ORDER BY log_challenge, rank; ", 2);
 			for($i=0;$i<count($res);$i++){ $res[$i] = $this->parse_log($res[$i]); }
 			return ($res) ? $res : Array();
 		}
