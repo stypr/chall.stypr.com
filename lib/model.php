@@ -126,7 +126,7 @@
 					}
 					// remove last two trailling characters
 					$query = substr($query, 0, -2);
-					$query .= "WHERE username='$player->user_id'";
+					$query .= "WHERE user_id='$player->user_id'";
 					$r = $this->db->query($query);
 				}
 			}else{

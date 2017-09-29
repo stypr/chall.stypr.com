@@ -37,7 +37,49 @@
 	/* User Controller */
 	class UserController extends Controller {
 		// login, register, modify, forgot
-		private function login_account(){}
+		private function login_account(){
+			global $query;
+			$player = new PlayerInfo($query);
+			$nickname = $this->db->filter($_POST['nickname'], 'auth');
+			$password = $this->db->filter($_POST['password'], 'auth');
+			$ip = $query->filter($_SERVER['REMOTE_ADDR'], 'auth');
+
+			if((strlen($nickname) >= 3 && strlen($nickname) <= 100) &&
+				(strlen($password) >= 4 && strlen($password) <= 100)){
+				// I give very lenient options to users.
+				// emails are accepted, yet the nickname is the first priority.
+				$check_by_nick = $player->get_by_nickname($nickname);
+				$check_by_mail = $player->get_by_username($nickname);
+				if(!$check_by_nick->user_nickname && !$check_by_mail->user_nickname) return false;
+				if($check_by_nick->user_nickname){
+					$_nick = $check_by_nick->user_nickname;
+					$_pass = $check_by_nick->user_pw;
+				}else{
+					$_nick = $check_by_mail->user_nickname;
+					$_pass = $check_by_nick->user_pw;
+				}
+				if(!$_nick || !$_pass) return false;
+
+				$password = secure_hash($password);
+				if($_nick === $nickname &&
+					$_pass === $password){
+					// on success, log access and set authentication
+					$_user = $player->get_by_nickname($_nick);
+					$_user->user_auth_date = date("Y-m-d H:i:s");
+					$_user->user_auth_ip = $this->db->filter($_SERVER['REMOTE_ADDR']);
+					$player->set($_user);
+					// set auth..
+					$_SESSION['username'] = $_user->user_id;
+					$_SESSION['nickname'] = $_user->user_nickname;
+					$_SESSION['session'] = secure_hash($_SESSION['username'] . $_SERVER['REMOTE_ADDR']);
+					return true;
+				}else{
+					return false;
+				}
+			}else{
+				return false;
+			}
+		}
 		private function register_account(){}
 		private function modify_account(){}
 		private function forgot_account(){}
@@ -47,11 +89,14 @@
 		}
 		public function LoginAction(){
 			if($this->is_auth()) $this->output_json(false);
-			if($_POST){
-				$this->login_account();
-			}else{
-				die("template for login");
-			}
+			if($_POST) $this->output_json($this->login_account());
+			$this->output_json(false);
+		}
+		public function LogoutAction(){
+			if(!$this->is_auth()) $this->output_json(false);
+			$_SESSION = [];
+			session_destroy();
+			$this->output_json(true);
 		}
 		public function RegisterAction(){
 			if($this->is_auth()) $this->output_json(false);

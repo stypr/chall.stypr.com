@@ -17,12 +17,13 @@
 			#break-stat { margin:0; }
 			#scoreboard th {text-align:center; border-right:0; font-size:13pt; }
 			#scoreboard {border-right:0; border-left:0; border-top: 0;}
-			.table>thead>tr>td.info,.table>tbody>tr>td.info,.table>tfoot>tr>td.info,.table>thead>tr>th.info,.table>tbody>tr>th.info,.table>tfoot>tr>th.info,.table>thead>tr.info>td,.table>tbody>tr.info>td,.table>tfoot>tr.info>td,.table>thead>tr.info>th,.table>tbody>tr.info>th,.table>tfoot>tr.info>th{background-color:#d9edf7}.table-hover>tbody>tr>td.info:hover,.table-hover>tbody>tr>th.info:hover,.table-hover>tbody>tr.info:hover>td,.table-hover>tbody>tr:hover>.info,.table-hover>tbody>tr.info:hover>th{background-color:#c4e3f3}
+			.new-comer{padding:15px 20px;text-align:center;border:1px solid #d8dee2;border-radius:5px}
+		.auth-form{width:400px;margin:60px auto}.auth-form .password-note{margin:15px 0;text-align:center}.auth-form-header{position:relative;padding:10px 20px;margin:0;color:#fff;text-shadow:0 -1px 0 rgba(0,0,0,0.3);background-color:#829aa8;border:1px solid #768995;border-radius:3px 3px 0 0}.auth-form-header h1{font-size:16px}.auth-form-header h1 a{color:#fff}.auth-form-header .octicon{position:absolute;top:10px;right:20px;color:rgba(0,0,0,0.4);text-shadow:0 1px 0 rgba(255,255,255,0.1)}.auth-form-message{max-height:180px;padding:10px 20px;margin-bottom:20px;overflow-y:scroll;border:1px solid #d8dee2;border-radius:3px}.auth-form-body{padding:20px;font-size:14px;background-color:#fff;border:1px solid #d8dee2;border-radius:3px;}.auth-form-body .input-block{margin-top:5px;margin-bottom:15px}.auth-form-body p{margin:0 0 10px}.two-factor-help{position:relative;padding:10px 10px 10px 36px;margin:60px 0 auto auto;border:1px solid #eaeaea;border-radius:3px}.two-factor-help h4{margin-top:0;margin-bottom:5px}.two-factor-help .octicon-device-mobile{position:absolute;top:10px;left:10px}.two-factor-help .octicon-key{position:absolute;left:10px}.two-factor-help .btn-sm{float:right}.two-factor-help ul{list-style-type:none}.u2f-send-code-spinner{position:relative;bottom:2px;display:none;vertical-align:bottom}.loading .u2f-send-code-spinner{display:inline}.u2f-login-spinner{position:relative;top:2px}.u2f-auth-header{padding-bottom:10px;margin-bottom:20px;border-bottom:1px solid #eaeaea}.u2f-auth-form-body{padding:30px 30px 20px;text-align:center}	.table>thead>tr>td.info,.table>tbody>tr>td.info,.table>tfoot>tr>td.info,.table>thead>tr>th.info,.table>tbody>tr>th.info,.table>tfoot>tr>th.info,.table>thead>tr.info>td,.table>tbody>tr.info>td,.table>tfoot>tr.info>td,.table>thead>tr.info>th,.table>tbody>tr.info>th,.table>tfoot>tr.info>th{background-color:#d9edf7}.table-hover>tbody>tr>td.info:hover,.table-hover>tbody>tr>th.info:hover,.table-hover>tbody>tr.info:hover>td,.table-hover>tbody>tr:hover>.info,.table-hover>tbody>tr.info:hover>th{background-color:#c4e3f3}
 			.table-hover>tbody>tr:hover{background-color:#f5f5f5}
 		</style>
 	</head>
 	<body>
-		<div id="container" class="container-lg clearfix px-3 pt-3 pb-4">
+		<div id="container" class="container-lg clearfix px-3 pt-3 pb-4 mt-4 mb-4">
 			<div id="language" class="col-12 selector-language"><div class="right"><select id="language-select"><option>en</option><option>ko</option></select></div></div>
 			<div id="sidebar" class="col-3 float-left pr-3"></div>
 			<div id="content" class="col-9 float-left pl-2"></div>
@@ -47,7 +48,7 @@
 			// I'm actually considering about adding japanese and chinese too..
 			langmap = {
 				
-				'logout': {'en': 'logout', 'ko': '로그아웃'},
+				'logout': {'en': 'Sign Out', 'ko': '로그아웃'},
 				'login': {'en': 'Sign In', 'ko': '로그인'},
 				'home': {'en': 'Home', 'ko': '메인'},
 				'chall': {'en': 'Challenge', 'ko': '문제'},
@@ -64,28 +65,87 @@
 				'stat-auth': {'en': 'Solve Log', 'ko': '인증 로그'},
 				'stat-fame': {'en': 'Hall of Fame', 'ko': '명예의 전당'},
 
-				'chall-solver': {'en': 'Solvers', 'ko': '풀이자'},
+				'chall-solver': {'en': 'Solvers', 'ko': '풀은 인원'},
 				'chall-player-count': {'en': 'players', 'ko': '명'},
 				'chall-solve-date': {'en': 'Solved at', 'ko': '풀은 시간'},
 
+				'auth-nick': {'en': 'Nickname', 'ko': '닉네임'},
+				'auth-pass': {'en': 'Password', 'ko': '비밀번호'},
+				'auth-forgot': {'en': 'Forgot password?', 'ko': '비밀번호를 잊으셨나요?'},
+				'auth-reg-new': {'en': 'New Here?', 'ko': '처음 방문하셨나요?'},
+				'auth-reg-create': {'en': 'Create an account', 'ko': '계정을 생성하세요'},
+				'auth-loading': {'en': 'Checking...', 'ko': '확인 중...'},
+				'auth-wrong': {'en': 'Incorrect Credentials.', 'ko': '계정정보가 일치하지 않습니다.'},
+
 				'error-nope': {'en': 'Nope!', 'ko': '응 아니야~'},
 				'error-nope-info': {'en': 'The page you are looking for is not found. Better check elsewhere :p', 
-								'ko': '찾으시는 페이지을 찾을 수 없었습니다. 다른 곳을 확인해보세요 :p'},
+								'ko': '접속하신 페이지를 찾을 수 없습니다. 다른 곳을 확인해보세요 :p'},
 				'error-auth': {'en': 'You need to sign in to view this page.', 'ko': '이 페이지를 보시려면 로그인 하셔야 합니다.'},
-
+				'error-wtf': {'en': 'You\'re already signed in.', 'ko': '이미 로그인 하신 상태입니다.'},
 
 			}
 			return langmap[s][CURRENT_LANG];
 		}
 
-		/* Feature functions */
+		/* Action functions */
+		function act_user_auth(){
+			// user auth event
+			$("#output-message").removeClass("flash-error");
+			$("#output-message").addClass("flash-info");
+			$("#output-message").addClass("flash");
+			$("#output-message").html(output_intl("auth-loading"));
+			_input = {'nickname': $("#nickname").val(), 'password': $("#password").val()};
+			$.post("?controller=user&action=login", _input, function(d){
+				if(d == true){
+					main();
+					window.location.hash = '#/';
+				}else{
+					$("#output-message").addClass("flash");
+					$("#output-message").addClass("flash-error");
+					$("#output-message").html(output_intl("auth-wrong"));
+				}
+			});
+
+			return false;
+		}
+
+		/* Content functions */
+		var load_user = function(p){
+			switch(p){
+				case "login":
+					if(IS_AUTH){ set_error(418); break; }
+					new_data("#content", '<div class="row column centered one-half auth-form">'+
+						'<div id="output-message" class="mb-2"></div><form class="auth-form-body" onsubmit="return act_user_auth();">'+
+						'<label for="nickname">'+output_intl('auth-nick')+'</label>'+
+						'<input class="form-control input-block" tabindex=1 name="nickname" id="nickname" type="text" placeholder="stypr, neko, superuser, ...">'+
+						'<label for="password">'+output_intl('auth-pass')+' <a href="/#user/find" class=right>'+output_intl('auth-forgot')+'</a></label>'+
+						'<input class="form-control input-block" tabindex=2 id="password" name="password" placeholder="Password" type="password">'+
+						'<button class="btn btn-block btn-primary" tabindex=3 id="signin_button" type="submit">Sign in</button>'+
+						'</form><br><p class="new-comer">'+output_intl('auth-reg-new')+
+						' <a href="#/user/register" data-ga-click="Sign in, switch to sign up">'+output_intl('auth-reg-create')+'</a>.</p>');
+					break;
+				case "logout":
+					if(!IS_AUTH){ set_error(403); break; }
+					$.get("?controller=user&action=logout", function(d){
+						main();
+						window.location.hash = '#/';
+					});
+				case "register":
+					break;
+				case "find":
+				default:
+					set_error(404);
+					break;
+			}
+		};
+
 		var load_main = function(){
 			// TBD: I need to translate the content.. lolz
 			new_data("#content", "<h1>Stereotyped Challenges</h1><h2>Redefine your web hacking techniques today!</h2><br><br>" +
 				"This website provides advanced web-based hacking challenges, which would require you to think and solve logically. Please try other wargame communities if you find difficulty in solving challenges.<br><br>"+
 				"The rules of this website are simple — Make sure that other users can enjoy the wargame. DO NOT bruteforce challenges and DO NOT post your solutions on the internet. Solving challenges would become worthless if solutions are posted everywhere."+
 				"Sharing a small bit of hints for challenges would be the most appropriate to help others.");
-		}
+		};
 		var load_status = function(p){
 			// add tab
 			new_data("#content", "<div class='tabnav'><nav class='tabnav-tabs' id='content-tabs'></nav></div>" + 
@@ -182,12 +242,17 @@
 	
 		/* Basic functions for init/route */
 		var set_error = function(t){
+			// this does not follow the HTTP standard, please don't judge me.
 			switch(t){
-				case 403:
+				case 418: // wtf?
+					new_data("#content", "<div class='flash flash-warning'><h5>"+output_intl("error-wtf")+"</h5></div><br>" +
+						"<img src='./static/image/error.jpg' width=100%>");
+					break;
+				case 403: // unauthorized
 					new_data("#content", "<div class='flash flash-error'><h5>"+output_intl("error-auth")+"</h5></div><br>" +
 						"<img src='./static/image/error.jpg' width=100%>");
 					break;
-				case 404:
+				case 404: // not found
 				default:
 					new_data("#content", "<div class='flash flash-error'><h4>"+output_intl("error-nope")+"</h4>"+output_intl("error-nope-info")+"</div><br>" +
 						"<img src='./static/image/error.jpg' width=100%>");
@@ -200,7 +265,7 @@
 				success: function(d){
 					res = $.parseJSON(d);
 					if(res != IS_AUTH){
-						res = IS_AUTH;
+						IS_AUTH = res;
 					}
 				},
 				async: false,
@@ -239,7 +304,7 @@
 					"<span class='octicon octicon-sign-out right'></span>");
 			}else{
 				_sub = 'login';
-				add_data("#sidebar-menu", "<li page-id='" + _sub + "'><a href='#/user/signin' class='filter-item'></a></li>");
+				add_data("#sidebar-menu", "<li page-id='" + _sub + "'><a href='#/user/login' class='filter-item'></a></li>");
 				add_data("#sidebar-menu>li[page-id='"+_sub+"']>a",  output_intl(_sub) +
 					"<span class='octicon octicon-sign-in right'></span>");
 			}
@@ -280,6 +345,7 @@
 				case 'user':
 					_d = IS_AUTH && 'logout' || 'login';
 					$("#sidebar-menu>li[page-id='"+_d+"']>a").addClass("selected");
+					load_user(_url[2]);
 					break;
 				case 'status':
 					$("#sidebar-menu>li[page-id='status']>a").addClass("selected");
