@@ -23,8 +23,16 @@
 		</style>
 	</head>
 	<body>
-		<div id="container" class="container-lg clearfix px-3 pt-3 pb-4 mt-4 mb-4">
-			<div id="language" class="col-12 selector-language"><div class="right"><select id="language-select"><option>en</option><option>ko</option></select></div></div>
+		<div id="container" class="container-xl clearfix px-3 pt-3 pb-4 mt-4 mb-4">
+			<div id="language" class="col-12 selector-language">
+			<div class="right">
+					<span class="octicon octicon-globe"></span>&nbsp;
+					<select id="language-select">
+						<option>en</option>
+						<option>ko</option>
+					</select>
+				</div>
+			</div>
 			<div id="sidebar" class="col-3 float-left pr-3"></div>
 			<div id="content" class="col-9 float-left pl-2"></div>
 		</div>
@@ -32,10 +40,12 @@
 	<!-- Loader TBD -->
 	<script src="//unpkg.com/jquery@3.2.1/dist/jquery.js"></script>
 	<script>
-		/* jquery is enough for the javascript framework..
-		This is the remastered code of old code :p
-		You may make pull requests for any fixes/improvements.
+		/* 
+			jquery is enough for the only javascript framework..
+			This is the remastered code of my old code(or commits) :p
+			You may make pull requests for any fixes/improvements.
 		*/
+
 		/* Global variables */
 		var CURRENT_PAGE = null;
 		var CURRENT_LANG = null;
@@ -44,13 +54,17 @@
 		/* Helper functions */
 		var add_data = function(t, d){ $(t).append(d); }
 		var new_data = function(t, d){ if(!d)d=''; $(t).html(d); }
+		var check_string = function(str, min=0, max=30){
+			var _regexp = '^[a-zA-Z0-9-_!@$.%^&*()가-힣]{'+min+','+max+'}$';
+			var _check = new RegExp(_regexp).test(str);
+			return _check;
+		}
 		var output_intl = function(s){
 			// I'm actually considering about adding japanese and chinese too..
 			langmap = {
-				
 				'logout': {'en': 'Sign Out', 'ko': '로그아웃'},
 				'login': {'en': 'Sign In', 'ko': '로그인'},
-				'home': {'en': 'Home', 'ko': '메인'},
+				'intro': {'en': 'Intro', 'ko': '소개'},
 				'chall': {'en': 'Challenge', 'ko': '문제'},
 				'chat': {'en': 'Chat', 'ko': '채팅방'},
 				'status': {'en': 'Status', 'ko': '현황판'},
@@ -71,21 +85,51 @@
 
 				'auth-nick': {'en': 'Nickname', 'ko': '닉네임'},
 				'auth-pass': {'en': 'Password', 'ko': '비밀번호'},
+				'auth-remember': {'en': 'Remember nickname', 'ko': '닉네임 기억하기'},
 				'auth-forgot': {'en': 'Forgot password?', 'ko': '비밀번호를 잊으셨나요?'},
 				'auth-reg-new': {'en': 'New Here?', 'ko': '처음 방문하셨나요?'},
 				'auth-reg-create': {'en': 'Create an account', 'ko': '계정을 생성하세요'},
 				'auth-loading': {'en': 'Checking...', 'ko': '확인 중...'},
 				'auth-wrong': {'en': 'Incorrect Credentials.', 'ko': '계정정보가 일치하지 않습니다.'},
+				'auth-login': {'en': 'Sign In', 'ko': '로그인'},
+
+				'reg-head': {'en': 'Create your wargame account', 'ko': '새 워게임 계정을 생성하세요'},
+				'reg-input-email': {'en': 'Email Address', 'ko': '이메일 주소'}, 
+				'reg-info-email': {'en': 'You may want to link your email on wechall. We promise not to share your email to anyone.',
+					'ko': 'WeChall에 랭킹 등록시 필요합니다. 이 정보는 다른 이에게 제공하지 않습니다.'},
+				'reg-info-nickname': {'en': 'This is the idetifier of your account. You need this to log into your account.',
+					'ko': '생성하시는 계정의 아이디입니다. 로그인 하실 때 필요합니다.'},
+				'reg-info-password': {'en': 'Please try to use a secure password, even if we hash passwords with salts.',
+					'ko': '자체적으로 데이터를 암호화하지만, 가급적 안전한 비밀번호를 사용해주세요.'},
+				'reg-submit': {'en': 'Create an account', 'ko': '계정 생성하기'},
+				'reg-note': {'en': 'Quick Note', 'ko': '참고사항'},
+				'reg-note-1': {'en': 'Please contact directly to the administrator for any account related assisstance. If you want to change your password, We will provide you a hash generator and will change the password by hands.',
+					'ko': '계정 관련 문의는 관리자에게 직접 문의해주시면 됩니다. 비밀번호 변경에 어려움이 있는 경우, 관리자가 비밀번호를 암호화 해줄 수 있는 페이지를 통해 수동으로 변경해드립니다.'},
+				'reg-note-2': {'en': 'Please DO NOT flood or DDoS any challenges for a long period of time. Play nice and be generous to others. Otherwise you will be banned from this website forever.',
+					'ko': '오랜 시간동안 문제 서비스에 플로딩 혹은 DDoS를 가하지 마시기 바랍니다. 착하고 자비로운 사람이 됩시다. 이 규칙을 어길시 워게임에서 영구 밴처리 됩니다.'},
+				'reg-note-3': {'en': 'The service encrypts password with salts on it. But still, make sure to use secure passwords for your wargame credential. Please remember that the secure password does not mean personal passwords or frequently-used password.',
+					'ko': '비밀번호는 salt가 추가된 상태로 암호화됩니다. 그렇다 하여도, 워게임 계정은 비교적 안전한 비밀번호를 사용해주세요. 여기서 안전함이란 자주쓰는 비밀번호 혹은 개인적인 비밀번호를 사용하라는 의미가 아닙니다.'},
+				'reg-deny-nick': {'en':'You cannot use this nickname.', 'ko':'입력하신 닉네임을 사용하실 수 없습니다.'},
+				'reg-deny-user': {'en':'You cannot use this email address.', 'ko':'입력하신 이메일을 사용하실 수 없습니다.'},
+				'reg-deny-pass': {'en':'You cannot use this password.', 'ko':'입력하신 비밀번호를 사용하실 수 없습니다.'},
+				'reg-deny-dup-nick': {'en': 'The nickname is already registered',
+					'ko': '입력하신 닉네임은 이미 가입되어 있습니다'},
+				'reg-deny-dup-mail': {'en': 'The mail address is already registered.',
+					'ko': '입력하신 메일 주소는 이미 가입되어 있습니다.'},
+				'reg-deny-format-mail': {'en': 'Invalid format for an e-mail address.',  'ko': '이메일 주소가 잘못되었습니다.'},
+				'reg-deny-size': {'en': 'Impossible!', 'ko': '불가능 ㄹㅇ루다가'},
+				'reg-deny-unknown': {'en': 'An unexpected error has been occured. Please contact administrator for more information',
+					'ko': '예상치 못한 오류가 발생하였습니다. 자세한 정보는 관리자에게 문의하시기 바랍니다.'},
 
 				'error-nope': {'en': 'Nope!', 'ko': '응 아니야~'},
 				'error-nope-info': {'en': 'The page you are looking for is not found. Better check elsewhere :p', 
 								'ko': '접속하신 페이지를 찾을 수 없습니다. 다른 곳을 확인해보세요 :p'},
 				'error-auth': {'en': 'You need to sign in to view this page.', 'ko': '이 페이지를 보시려면 로그인 하셔야 합니다.'},
 				'error-wtf': {'en': 'You\'re already signed in.', 'ko': '이미 로그인 하신 상태입니다.'},
-
 			}
 			return langmap[s][CURRENT_LANG];
 		}
+
 
 		/* Action functions */
 		function act_user_auth(){
@@ -97,15 +141,71 @@
 			_input = {'nickname': $("#nickname").val(), 'password': $("#password").val()};
 			$.post("?controller=user&action=login", _input, function(d){
 				if(d == true){
-					main();
+					if($("#remember-nick").prop('checked')){
+						localStorage.setItem('current_nick', _input['nickname']);
+					}else{
+						localStorage.setItem('current_nick', null);
+					}
+					IS_AUTH = true;
 					window.location.hash = '#/';
+					main();
 				}else{
 					$("#output-message").addClass("flash");
 					$("#output-message").addClass("flash-error");
 					$("#output-message").html(output_intl("auth-wrong"));
 				}
 			});
+			return false;
+		}
+		function act_user_register(){
+			// user register event
+			$("#output-message").removeClass("flash-error");
+			$("#output-message").addClass("flash-info");
+			$("#output-message").addClass("flash");
+			$("#output-message").html(output_intl("auth-loading"));
+			_input = {'username': $("#username").val(), 'nickname': $("#nickname").val(), 'password': $("#password").val()};
 
+			if(!check_string(_input['username'], 5, 100)){ 
+				$("#output-message").addClass("flash-error");
+				$('#output-message').html(output_intl('reg-deny-user')+'<br>' +
+					'<pre>RegExp: ^[a-zA-Z0-9-_!@$.%^&*()가-힣]{8, 100}$</pre>');
+				return false;
+			}
+			if(!check_string(_input['nickname'], 3, 20)){
+				$('#output-message').html(output_intl('reg-deny-nick')+'<br>' +
+					'<pre>RegExp: ^[a-zA-Z0-9-_!@$.%^&*()가-힣]{3, 20}$</pre>');
+				return false;
+			}
+			if(!check_string(_input['password'], 4, 100)){
+				$('#output-message').html(output_intl('reg-deny-pass')+'<br>' +
+					'<pre>RegExp: ^[a-zA-Z0-9-_!@$.%^&*()가-힣]{4, 100}$</pre>');
+				return false;
+			}
+			console.log(_input);
+			$.post("?controller=user&action=register", _input, function(d){
+				switch(d){
+					case "duplicate_nick":
+						$('#output-message').html(output_intl('reg-deny-dup-nick'));
+						return false;
+					case "duplicate_mail":
+						$('#output-message').html(output_intl('reg-deny-dup-mail'));
+						return false;
+					case "email_format":
+						$('#output-message').html(output_intl('reg-deny-format-mail'));
+						return false;
+					case "size": // error by length
+						$('#output-message').html(output_intl('reg-deny-size'));
+						return false;
+					case "true":
+						// get back to login on successful.
+						window.location.hash = '#/user/login';
+						main();
+						return false;
+					default:
+						$('#output-message').html(output_intl('reg-deny-unknown'));
+						return false;
+				}
+			});
 			return false;
 		}
 
@@ -115,22 +215,61 @@
 				case "login":
 					if(IS_AUTH){ set_error(418); break; }
 					new_data("#content", '<div class="row column centered one-half auth-form">'+
-						'<div id="output-message" class="mb-2"></div><form class="auth-form-body" onsubmit="return act_user_auth();">'+
+						'<form class="auth-form-body" onsubmit="return act_user_auth();">'+
 						'<label for="nickname">'+output_intl('auth-nick')+'</label>'+
 						'<input class="form-control input-block" tabindex=1 name="nickname" id="nickname" type="text" placeholder="stypr, neko, superuser, ...">'+
-						'<label for="password">'+output_intl('auth-pass')+' <a href="/#user/find" class=right>'+output_intl('auth-forgot')+'</a></label>'+
+						'<label for="password">'+output_intl('auth-pass')+' <a href="#/user/find" class=right>'+output_intl('auth-forgot')+'</a></label>'+
 						'<input class="form-control input-block" tabindex=2 id="password" name="password" placeholder="Password" type="password">'+
-						'<button class="btn btn-block btn-primary" tabindex=3 id="signin_button" type="submit">Sign in</button>'+
+						'<input class="form-checkbox" id="remember-nick" type="checkbox"> '+output_intl('auth-remember')+
+						'<button class="btn btn-block btn-primary" tabindex=3 id="signin_button" type="submit">'+output_intl('auth-login')+'</button>'+
 						'</form><br><p class="new-comer">'+output_intl('auth-reg-new')+
 						' <a href="#/user/register" data-ga-click="Sign in, switch to sign up">'+output_intl('auth-reg-create')+'</a>.</p>');
+						_nick = localStorage.getItem('current_nick');
+						if(_nick){
+							$("#remember-nick").prop('checked', true);
+							$("#nickname").val(_nick);
+						}
 					break;
 				case "logout":
 					if(!IS_AUTH){ set_error(403); break; }
+					window.location.hash = '#/';
 					$.get("?controller=user&action=logout", function(d){
+						IS_AUTH = false;
+						window.location.hash = '#/user/login';
 						main();
-						window.location.hash = '#/';
 					});
+					break;
 				case "register":
+					new_data("#content", '<div class="columns">'+
+						'<div class="two-thirds column">'+
+						'<h2 class="setup-form-title mb-3">'+output_intl('reg-head')+'</h2>'+
+						'<form onsubmit="return act_user_register();">'+
+						'<dl class="form-group"><dt class="input-label">'+
+						'<label autocapitalize="off" autofocus="autofocus" for="username">'+output_intl('reg-input-email')+'</label>'+
+						'</dt><dd>'+
+						'<input autocapitalize="off" autofocus="autofocus" class="form-control" id="username" name="username" size="30" type="email" />'+
+						'<p class="note">'+output_intl('reg-info-email')+'</p>'+
+						'</dd></dl>'+
+						'<dl class="form-group"><dt class="input-label">'+
+						'<label autocapitalize="off" for="nickname">'+output_intl('nickname')+'</label>'+
+						'</dt><dd>'+
+						'<input autocapitalize="off" class="form-control" name="nickname" size="30" type="text" id="nickname">'+
+						'<p class="note">'+output_intl('reg-info-nickname')+'</p>'+
+						'</dd></dl>'+
+						'<dl class="form-group"><dt class="input-label">'+
+						'<label autocapitalize="off" for="password">'+output_intl('auth-pass')+'</label>'+
+						'</dt><dd>'+
+						'<input autocapitalize="off" class="form-control" name="password" size="30" type="password" id="password">'+
+						'<p class="note">'+output_intl('reg-info-password')+'</p>'+
+						'</dd></dl>'+
+						'<div id="output-message" class="mb-2" ></div>'+
+						'<input type="submit" class="btn btn-primary" id="signup_button" value="'+output_intl('reg-submit')+'">'+
+						'</form></div>'+
+						'<div class="one-third column"><h2>'+output_intl('reg-note')+'</h2><br>'+
+						'<li>'+output_intl('reg-note-1')+'</li><br>' +
+						'<li>'+output_intl('reg-note-2')+'</li><br>' +
+						'<li>'+output_intl('reg-note-3')+'</li><br>' +
+						'</div></div>');
 					break;
 				case "find":
 				default:
@@ -309,7 +448,7 @@
 					"<span class='octicon octicon-sign-in right'></span>");
 			}
 			add_data("#sidebar-menu", "<hr>");
-			_sub = 'home';
+			_sub = 'intro';
 			add_data("#sidebar-menu", "<li page-id='" + _sub + "'><a href='#/' class='filter-item'></a></li>");
 			add_data("#sidebar-menu>li[page-id='"+_sub+"']>a",  output_intl(_sub) +
 				"<span class='octicon octicon-home right'></span>");
@@ -361,7 +500,7 @@
 					$("#sidebar-menu>li[page-id='status']>a").addClass("selected");
 					break;
 				case '':
-					$("#sidebar-menu>li[page-id='home']>a").addClass("selected");
+					$("#sidebar-menu>li[page-id='intro']>a").addClass("selected");
 					load_main();
 					break;
 				default:

@@ -5,7 +5,7 @@
 
 	/* Player Information */
 	class Player {
-		public $user_no = "";
+		public $user_no;
 		public $user_id;
 		public $user_pw;
 		public $user_nickname;
@@ -137,7 +137,7 @@
 				unset($p['user_rank']); // user_rank is not the column!
 				foreach($p as $k => $v){
 					$key .= "$k,";
-					$val .= ($val)? "'$v'," : "NULL,"; // check null.
+					$val .= (isset($v) && $v !== null && $v !== '') ? "'$v'," : "NULL,"; // check null.
 				}
 				$key = substr($key, 0, -1);
 				$val = substr($val, 0, -1);
@@ -216,7 +216,7 @@
 		public function get_solver(Challenge $chall): array{
 			// is a TODO again; this is inefficient
 			$log = new LoggingInfo($this->db);
-			var_dump($log->get_by_challenge($chall->challenge_name));
+			//($log->get_by_challenge($chall->challenge_name));
 			return Array();
 		}
 		public function get_count(): int{
@@ -255,7 +255,7 @@
 				$p['chall_no'] = null;
 				foreach($p as $k => $v){
 					$key .= "$k,";
-					$val .= ($val)? "'$v'," : "NULL,";
+					$val .= (isset($v) && $v !== null && $v !== '') ? "'$v'," : "NULL,"; // check null.
 				}
 				$key = substr($key, 0, -1);
 				$val = substr($val, 0, -1);
@@ -366,7 +366,7 @@
 				$p['log_date'] = ($p['log_date']) ? $p['log_date'] : date("Y-m-d H:i:s");
 				foreach($p as $k => $v){
 					$key .= "$k,";
-					$val .= ($val)? "'$v'," : "NULL,";
+					$val .= (isset($v) && $v !== null && $v !== '') ? "'$v'," : "NULL,"; // check null.
 				}
 				$key = substr($key, 0, -1);
 				$val = substr($val, 0, -1);
