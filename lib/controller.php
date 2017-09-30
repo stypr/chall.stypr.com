@@ -38,12 +38,10 @@
 	class UserController extends Controller {
 		// login, register, modify, forgot
 		private function login_account(){
-			global $query;
-			$player = new PlayerInfo($query);
+			$player = new PlayerInfo($this->db);
 			$nickname = $this->db->filter($_POST['nickname'], 'auth');
 			$password = $this->db->filter($_POST['password'], 'auth');
-			$ip = $query->filter($_SERVER['REMOTE_ADDR'], 'auth');
-
+			$ip = $this->db->filter($_SERVER['REMOTE_ADDR'], 'auth');
 			if((strlen($nickname) >= 3 && strlen($nickname) <= 100) &&
 				(strlen($password) >= 4 && strlen($password) <= 100)){
 				// I give very lenient options to users.
@@ -56,17 +54,15 @@
 					$_pass = $check_by_nick->user_pw;
 				}else{
 					$_nick = $check_by_mail->user_nickname;
-					$_pass = $check_by_nick->user_pw;
+					$_pass = $check_by_mail->user_pw;
 				}
 				if(!$_nick || !$_pass) return false;
-
-				$password = secure_hash($password);
-				if($_nick === $nickname &&
-					$_pass === $password){
+				$encrypted_password = secure_hash($password);
+				if($_pass === $encrypted_password && $_pass != ''){
 					// on success, log access and set authentication
 					$_user = $player->get_by_nickname($_nick);
 					$_user->user_auth_date = date("Y-m-d H:i:s");
-					$_user->user_auth_ip = $this->db->filter($_SERVER['REMOTE_ADDR']);
+					$_user->user_auth_ip = $ip;
 					$player->set($_user);
 					// set auth..
 					$_SESSION['username'] = $_user->user_id;
@@ -80,7 +76,40 @@
 				return false;
 			}
 		}
-		private function register_account(){}
+		private function register_account(){
+			$player = new PlayerInfo($this->db);
+			$username = $this->db->filter($_POST['username'], 'auth');
+			$nickname = $this->db->filter($_POST['nickname'], 'auth');
+			$password = $this->db->filter($_POST['password'], 'auth');
+			$ip = $this->db->filter($_SERVER['REMOTE_ADDR'], 'auth');
+
+			if((strlen($username) >= 5 && strlen($username) <= 100) && 
+				(strlen($password) >= 4 && strlen($password) <= 100) &&
+				(strlen($nickname) >= 3 && strlen($nickname) <= 20)){
+				$check_by_nick = $player->get_by_nickname($nickname);
+				$check_by_mail = $player->get_by_username($username);
+				if($check_by_nick->user_nickname) $this->output_json('duplicate_nick');
+				if($check_by_mail->user_nickname) $this->output_json('duplicate_mail');
+				if(!filter_var($username, FILTER_VALIDATE_EMAIL)){
+					$this->output_json('email_format');
+				}
+				$encrypted_password = secure_hash($password);
+				// generate new player
+				$new_player = new Player();
+				$new_player->user_id = $username;
+				$new_player->user_pw = $encrypted_password;
+				$new_player->user_nickname = $nickname;
+				$new_player->user_score = 0;
+				$new_player->user_join_date = date("Y-m-d H:i:s");
+				$new_player->user_join_ip = $ip;
+				$new_player->user_permission = 0;
+				$player->set($new_player);
+				$this->output_json('true');
+
+			}else{
+				$this->output_json('size');
+			}
+		}
 		private function modify_account(){}
 		private function forgot_account(){}
 		
@@ -100,11 +129,8 @@
 		}
 		public function RegisterAction(){
 			if($this->is_auth()) $this->output_json(false);
-			if($_POST){
-				$this->register_account();
-			}else{
-				die("template for register");
-			}
+			if($_POST) $this->register_account();
+			$this->output_json(false);
 		}
 		public function ForgotAction(){
 			if($this->is_auth()) $this->output_json(false);
@@ -123,9 +149,8 @@
 			}
 		}
 		public function GetAction(){
-			global $query;
 			if(!$this->is_auth()) $this->output_json(false);
-			$player = new PlayerInfo($query);
+			$player = new PlayerInfo($this->db);
 			$this->output_json($player->get_by_username($_SESSION['username']));
 		}
 	}
@@ -133,21 +158,20 @@
 	/* Status Controller */
 	class StatusController extends Controller {
 		public function ScoreboardAction(){
-			global $query;
-			$player = new PlayerInfo($query);
-			$log = new LoggingInfo($query);
+			$player = new PlayerInfo($this->db);
+			$log = new LoggingInfo($this->db);
 
 			// get breakthrough count for players
 			$break = $log->get_break_list();
+			$ranker = $player->get_ranker();
+			// calculate breakthrough points of users on each challenges.
 			$_break = [];
 			for($i=0;$i<count($break);$i++){
 				$_break_user = ($break[$i]->log_id);
 				$_break_point = ($break[$i]->rank);
 				$_break[$_break_user] = $_break[$_break_user]+(4-$_break_point);
 			}
-
-			$ranker = $player->get_ranker();
-			// TODO: parse only important data~
+			// retrieve top rankers
 			$result = [];
 			for($i=0;$i<count($ranker);$i++){
 				$user = $ranker[$i]->user_id;
@@ -162,11 +186,10 @@
 			$this->output_json($result);
 		}
 		public function ChallengeAction(){
-			global $query;
-			$player = new PlayerInfo($query);
+			$player = new PlayerInfo($this->db);
 			$player_nick = $player->get_nickname();
-			$log = new LoggingInfo($query);
-			$chall = new ChallengeInfo($query);
+			$log = new LoggingInfo($this->db);
+			$chall = new ChallengeInfo($this->db);
 			$chall_list = $chall->get_list();
 			$_break = $log->get_break_list();
 			$break = [];
@@ -199,10 +222,9 @@
 			$this->output_json($result);
 		}
 		public function AuthAction(){
-			global $query;
-			$player = new PlayerInfo($query);
+			$player = new PlayerInfo($this->db);
 			$player_nick = $player->get_nickname();
-			$log = new LoggingInfo($query);
+			$log = new LoggingInfo($this->db);
 			$log_list = $log->get_by_type('Correct');
 			$result = [];
 			for($i=(count($log_list)-1);$i>0;$i--){
