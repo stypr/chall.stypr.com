@@ -48,11 +48,13 @@
 		private function parse_rank(string $username): int{
 			// I failed logics and efficiency. this should be a TODO
 			$res = $this->db->query("SELECT x.* FROM (".
-									"SELECT @rank:=@rank+1 AS rank, user_id FROM user p,(SELECT @rank:=0)r".
-									"WHERE user_permission !=9 ORDER BY user_score DESC, user_last_solved ASC".
-									", user_join_date ASC)x WHERE x.user_id='$username'", 1);
+									"SELECT @user_rank:=@user_rank+1 AS user_rank, user_id FROM user p,(SELECT @user_rank:=0)r ".
+									"WHERE user_permission !=9 ORDER BY user_score DESC, user_last_solved ASC,".
+									"user_join_date ASC)x WHERE x.user_id='$username'", 1);
+
+
 			if($res && is_array($res)){
-				return (int)$res['rank'];
+				return (int)$res['user_rank'];
 			}else{
 				return 0;
 			}
@@ -67,14 +69,14 @@
 				$player->$control = (string) $player->$control;
 			}
 			// customized input
-			$player->user_rank = (int)((@$res['rank']) ?
-										($res['rank']) :
+			$player->user_rank = (int)((@$res['user_rank']) ?
+										($res['user_rank']) :
 										($this->parse_rank($player->user_id)));
 			return $player;
 		}
 		public function get_ranker(): array {
 			// get top 50 user info.
-			$res = $this->db->query("SELECT p.*, @user_rank := @user_rank + 1 AS rank FROM user p,".
+			$res = $this->db->query("SELECT p.*, @user_rank := @user_rank + 1 AS user_rank FROM user p,".
 									" (SELECT @user_rank := 0) r WHERE user_permission != 9".
 									" ORDER BY user_score DESC, user_last_solved ASC, ".
 									" user_join_date ASC LIMIT 50", 2);
@@ -313,10 +315,10 @@
 		}
 		public function get_break_list(): array{
 			// lists top 3 solvers of challenges
-            $res = $this->db->query("SELECT log_challenge, log_id, log_date, rank FROM ".
-				"(SELECT log_challenge, log_id, log_date,".
+            $res = $this->db->query("SELECT log_no, log_challenge, log_id, log_date, rank FROM ".
+				"(SELECT log_no, log_challenge, log_id, log_date,".
 				"ROW_NUMBER() OVER (PARTITION BY log_challenge ORDER BY log_date ASC)".
-				"AS rank FROM log)x WHERE rank <= 3 ORDER BY log_challenge, rank; ", 2);
+				"AS rank FROM log WHERE log_type='Correct')x WHERE rank <= 3 ORDER BY log_challenge, rank; ", 2);
 			for($i=0;$i<count($res);$i++){ $res[$i] = $this->parse_log($res[$i]); }
 			return ($res) ? $res : Array();
 		}
