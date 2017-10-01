@@ -169,7 +169,7 @@
 			for($i=0;$i<count($break);$i++){
 				$_break_user = ($break[$i]->log_id);
 				$_break_point = ($break[$i]->rank);
-				$_break[$_break_user] = $_break[$_break_user]+(4-$_break_point);
+				$_break[$_break_user] += 4-$_break_point;
 			}
 			// retrieve top rankers
 			$result = [];
@@ -181,7 +181,8 @@
 					'score' => $ranker[$i]->user_score,
 					'break_count' => $_break_count,
 					'comment' => $ranker[$i]->user_comment,
-					'last_solved' => $ranker[$i]->user_last_solved];
+					'last_solved' => $ranker[$i]->user_last_solved
+				];
 			}
 			$this->output_json($result);
 		}
@@ -198,7 +199,10 @@
 				$_break_user = $player_nick[$_break[$i]->log_id];
 				$_break_date = $_break[$i]->log_date;
 				$_break_rank = $_break[$i]->rank;
-				$break[$_break_chall][] = ['user' => $_break_user, 'date' => $_break_date, 'rank' => $_break_rank];
+				$break[$_break_chall][] = ['user' => $_break_user,
+					'date' => $_break_date,
+					'rank' => $_break_rank
+				];
 			}
 			$result = [];
 			for($i=0;$i<count($chall_list);$i++){
@@ -217,7 +221,8 @@
 					'break' => $break[$chall_list[$i]->challenge_name],
 					'author' => $chall_list[$i]->challenge_by,
 					'last-solved' => $_last,
-					'rate' => $chall_list[$i]->challenge_rate];
+					'rate' => $chall_list[$i]->challenge_rate
+				];
 			}
 			$this->output_json($result);
 		}
@@ -231,11 +236,73 @@
 				$result[] = ['no' => $log_list[$i]->log_no,
 					'nick' => $player_nick[$log_list[$i]->log_id],
 					'chall' => $log_list[$i]->log_challenge,
-					'date' => $log_list[$i]->log_date];
+					'date' => $log_list[$i]->log_date
+				];
 			}
 			$this->output_json($result);
 		}
 		public function FameAction(){}
+		public function ProfileAction(){
+			$player = new PlayerInfo($this->db);
+			$log = new LoggingInfo($this->db);
+			$chall = new ChallengeInfo($this->db);
+			$_GET['nickname'] = (!$_GET['nickname']) ? ($_SESSION['nickname']) : ($_GET['nickname']);
+			$nickname = $this->db->filter($_GET['nickname'], "auth");
+			// check if viewed by admin
+			if($_SESSION['username']){
+				$_check = $player->get_by_username($_SESSION['username']);
+				if($_check->user_permission == 9) $admin_mode = true;
+			}
+			$admin_mode = false;
+			// retreive by nickname
+			$profile = $player->get_by_nickname($nickname);
+			if(!$profile->user_nickname) $this->output_json(false);
+
+			// get breakpoints -> add that to solved challenges
+			$break = $log->get_break_list();
+			$_break = [];
+			for($i=0;$i<count($break);$i++){
+				$_break_user = ($break[$i]->log_id);
+				$_break_chall = ($break[$i]->log_challenge);
+				$_break_rank = ($break[$i]->rank);
+				$_break_point = 4-$_break_rank;
+				//$_break_user
+				if($_break_user === $profile->user_id){
+					$_break[$_break_chall] = [
+						'break_point' => $_break_point,
+						'break_rank' => $_break_rank,
+					];
+				}
+			}
+			$normal = $log->get_by_username($profile->user_id);
+			$_normal = [];
+			for($i=0;$i<count($normal);$i++){
+				$_chall = $chall->get_by_name($normal[$i]->log_challenge);
+				$_normal[] = ['chall_name' => $normal[$i]->log_challenge,
+					'chall_solve_date' => $normal[$i]->log_date,
+					'chall_score' => $_chall->challenge_score,
+					'chall_break' => $_break[$normal[$i]->log_challenge],
+				];
+			}
+
+			// only list the domain name, unless viewed by admin.
+			if(!$admin_mode) $email = '@'. explode('@', $profile->user_id)[1];
+			$result = ['nick' => $profile->user_nickname,
+				'username' => $email,
+				'comment' => $profile->user_comment,
+				'join_date' => explode(' ', $profile->user_join_date)[0],
+				'rank' => $profile->user_rank, 
+				'score' => $profile->user_score,
+				'badge' => null, // tbd
+				// the service uses gravatar, you can customize it if you wish to.
+				'profile_picture' => 'https://www.gravatar.com/avatar/'.
+					md5($profile->user_id) . '?v=3&s=200&'.
+					'd=//github.com/identicons/'.rand(1,500).'.png',
+				'solved' => $_normal,
+			];
+
+			$this->output_json($result);
+		}
 	}
 
 	/* Challenge Controller */
