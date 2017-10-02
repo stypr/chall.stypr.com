@@ -64,7 +64,7 @@
                     return preg_replace("/[^a-zA-Z0-9-_&\/]/", "", $str);
                 case "sql":
                     if($this->conn){
-                        $_filter = preg_replace("/[^a-zA-Z0-9-_:+!@#$.%^+&*(){}:\.\ <>가-힣]/", "", $str);
+                        $_filter = preg_replace("/[^a-zA-Z0-9-_:+!@#$.%^+&*(){}:\/\.\ <>가-힣]/", "", $str);
                         if($this->mysqli){
                             return mysqli_real_escape_string($this->conn, $_filter);
                         }else{
