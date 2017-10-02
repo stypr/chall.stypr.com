@@ -8,23 +8,27 @@
 		<link rel="stylesheet" href="//unpkg.com/primer-css@9.4.0/build/build.css">
 		<style>
 			body {background: #333;}
-			#container {background:#fff;}
+			#container { background:#fff; }
 			.right { float: right; }
-			.selector-language { margin-bottom: 30px; }
-			.profile-image { border:2px solid #ccc; border-radius:2px;margin-top:5px; margin-right:10px; }
+			.selector-language { margin-bottom: 40px; }
+			.profile td{ margin:0; padding:0; line-height:80%; }
+			.profile-nickname { font-size: 13pt; }
+			.profile-score { font-size: 8pt; }
+			.profile-panel * { text-align:center; margin:auto; float:middle; }
+			.profile-image { border:2px solid #ccc; border-radius:2px; margin-top:5px; margin-right:10px; width:40px; height:40px; background-color:#fff; }
+			.footer { background-color:#eee; padding:5px; text-align:center; }
 			#break-stat td, #scoreboard td { padding:5px; text-align:center; border-right:0; border-left:0; }
 			#break-info td {text-align:center; border-right:0; font-size:13pt; font-weight:bold;}
 			#break-info th {border:0; }
 			#break-stat { margin:0; }
 			#scoreboard th {text-align:center; border-right:0; font-size:13pt; }
 			#scoreboard {border-right:0; border-left:0; border-top: 0;}
-			.new-comer{padding:15px 20px;text-align:center;border:1px solid #d8dee2;border-radius:5px}
-		.auth-form{width:400px;margin:60px auto}.auth-form .password-note{margin:15px 0;text-align:center}.auth-form-header{position:relative;padding:10px 20px;margin:0;color:#fff;text-shadow:0 -1px 0 rgba(0,0,0,0.3);background-color:#829aa8;border:1px solid #768995;border-radius:3px 3px 0 0}.auth-form-header h1{font-size:16px}.auth-form-header h1 a{color:#fff}.auth-form-header .octicon{position:absolute;top:10px;right:20px;color:rgba(0,0,0,0.4);text-shadow:0 1px 0 rgba(255,255,255,0.1)}.auth-form-message{max-height:180px;padding:10px 20px;margin-bottom:20px;overflow-y:scroll;border:1px solid #d8dee2;border-radius:3px}.auth-form-body{padding:20px;font-size:14px;background-color:#fff;border:1px solid #d8dee2;border-radius:3px;}.auth-form-body .input-block{margin-top:5px;margin-bottom:15px}.auth-form-body p{margin:0 0 10px}.two-factor-help{position:relative;padding:10px 10px 10px 36px;margin:60px 0 auto auto;border:1px solid #eaeaea;border-radius:3px}.two-factor-help h4{margin-top:0;margin-bottom:5px}.two-factor-help .octicon-device-mobile{position:absolute;top:10px;left:10px}.two-factor-help .octicon-key{position:absolute;left:10px}.two-factor-help .btn-sm{float:right}.two-factor-help ul{list-style-type:none}.u2f-send-code-spinner{position:relative;bottom:2px;display:none;vertical-align:bottom}.loading .u2f-send-code-spinner{display:inline}.u2f-login-spinner{position:relative;top:2px}.u2f-auth-header{padding-bottom:10px;margin-bottom:20px;border-bottom:1px solid #eaeaea}.u2f-auth-form-body{padding:30px 30px 20px;text-align:center}	.table>thead>tr>td.info,.table>tbody>tr>td.info,.table>tfoot>tr>td.info,.table>thead>tr>th.info,.table>tbody>tr>th.info,.table>tfoot>tr>th.info,.table>thead>tr.info>td,.table>tbody>tr.info>td,.table>tfoot>tr.info>td,.table>thead>tr.info>th,.table>tbody>tr.info>th,.table>tfoot>tr.info>th{background-color:#d9edf7}.table-hover>tbody>tr>td.info:hover,.table-hover>tbody>tr>th.info:hover,.table-hover>tbody>tr.info:hover>td,.table-hover>tbody>tr:hover>.info,.table-hover>tbody>tr.info:hover>th{background-color:#c4e3f3}
-			.table-hover>tbody>tr:hover{background-color:#f5f5f5}
+
+			.new-comer{padding:15px 20px;text-align:center;border:1px solid #d8dee2;border-radius:5px}.auth-form{width:400px;margin:60px auto}.auth-form .password-note{margin:15px 0;text-align:center}.auth-form-header{position:relative;padding:10px 20px;margin:0;color:#fff;text-shadow:0 -1px 0 rgba(0,0,0,0.3);background-color:#829aa8;border:1px solid #768995;border-radius:3px 3px 0 0}.auth-form-header h1{font-size:16px}.auth-form-header h1 a{color:#fff}.auth-form-header .octicon{position:absolute;top:10px;right:20px;color:rgba(0,0,0,0.4);text-shadow:0 1px 0 rgba(255,255,255,0.1)}.auth-form-message{max-height:180px;padding:10px 20px;margin-bottom:20px;overflow-y:scroll;border:1px solid #d8dee2;border-radius:3px}.auth-form-body{padding:20px;font-size:14px;background-color:#fff;border:1px solid #d8dee2;border-radius:3px;}.auth-form-body .input-block{margin-top:5px;margin-bottom:15px}.auth-form-body p{margin:0 0 10px}.two-factor-help{position:relative;padding:10px 10px 10px 36px;margin:60px 0 auto auto;border:1px solid #eaeaea;border-radius:3px}.two-factor-help h4{margin-top:0;margin-bottom:5px}.two-factor-help .octicon-device-mobile{position:absolute;top:10px;left:10px}.two-factor-help .octicon-key{position:absolute;left:10px}.two-factor-help .btn-sm{float:right}.two-factor-help ul{list-style-type:none}.u2f-send-code-spinner{position:relative;bottom:2px;display:none;vertical-align:bottom}.loading .u2f-send-code-spinner{display:inline}.u2f-login-spinner{position:relative;top:2px}.u2f-auth-header{padding-bottom:10px;margin-bottom:20px;border-bottom:1px solid #eaeaea}.u2f-auth-form-body{padding:30px 30px 20px;text-align:center}	.table>thead>tr>td.info,.table>tbody>tr>td.info,.table>tfoot>tr>td.info,.table>thead>tr>th.info,.table>tbody>tr>th.info,.table>tfoot>tr>th.info,.table>thead>tr.info>td,.table>tbody>tr.info>td,.table>tfoot>tr.info>td,.table>thead>tr.info>th,.table>tbody>tr.info>th,.table>tfoot>tr.info>th{background-color:#d9edf7}.table-hover>tbody>tr>td.info:hover,.table-hover>tbody>tr>th.info:hover,.table-hover>tbody>tr.info:hover>td,.table-hover>tbody>tr:hover>.info,.table-hover>tbody>tr.info:hover>th{background-color:#c4e3f3}.table-hover>tbody>tr:hover{background-color:#f5f5f5}
 		</style>
 	</head>
 	<body>
-		<div id="container" class="container-xl clearfix px-3 pt-3 pb-4 mt-4 mb-4">
+		<div id="container" class="container-lg clearfix px-3 pt-3 pb-4 mt-4">
 			<div id="language" class="col-12 selector-language">
 			<div class="right">
 					<span class="octicon octicon-globe"></span>&nbsp;
@@ -36,7 +40,9 @@
 			</div>
 			<div id="sidebar" class="col-3 float-left pr-3"></div>
 			<div id="content" class="col-9 float-left pl-2"></div>
+			
 		</div>
+		<div class="footer container-lg mb-4 ">footer &hearts;</div>
 	</div>
 	<!-- Loader TBD -->
 	<script src="//unpkg.com/jquery@3.2.1/dist/jquery.js"></script>
@@ -50,6 +56,7 @@
 		/* Global variables */
 		var CURRENT_PAGE = null;
 		var CURRENT_LANG = null;
+		var CURRENT_USER = null;
 		var IS_AUTH = false;
 
 		/* Helper functions */
@@ -66,15 +73,15 @@
 			langmap = {
 				'logout': {'en': 'Sign Out', 'ko': '로그아웃'},
 				'login': {'en': 'Sign In', 'ko': '로그인'},
-				'intro': {'en': 'Intro', 'ko': '소개'},
+				'intro': {'en': 'Welcome', 'ko': '환영'},
 				'chall': {'en': 'Challenge', 'ko': '문제'},
 				'chat': {'en': 'Chat', 'ko': '채팅방'},
-				'status': {'en': 'Status', 'ko': '현황판'},
+				'status': {'en': 'Scoreboard', 'ko': '랭킹'},
 
 				'nickname': {'en': 'Nickname', 'ko': '닉네임'},
 				'score': {'en': 'Score', 'ko': '점수'},
 				'pt': {'en': 'pt', 'ko': '점'},
-				'comment': {'en': 'Comment', 'ko': '정보'}, 
+				'comment': {'en': 'Comment', 'ko': '소개'}, 
 				'last_solved': {'en': 'Last Solved', 'ko': '최근 풀이시간'},
 
 				'stat-player': {'en': 'Scoreboard', 'ko': '순위'},
@@ -100,10 +107,19 @@
 				'profile-score-suffix': {'en': '', 'ko': ' 보유 중'},
 				'profile-clear': {'en': 'Cleared', 'ko': '푼 문제'},
 				'profile-break': {'en': 'Breakthrough', 'ko': '먼저 푼 문제'},
-
 				'profile-no-solve-head': {'en': 'No Information', 'ko': '정보 없음'},
 				'profile-no-solve-body': {'en': 'This user did not solve any challenges yet.',
 					'ko': '이 사용자는 아직 한 문제도 풀지 못하였습니다.'},
+
+
+				'edit-new-pass': {'en': 'New Password', 'ko': '새 비밀번호'},
+				'edit-password-tip': {'en': 'You do not need to write anything unless if you wish to change it.',
+					'ko': '비밀번호 변경을 하고싶지 않은 경우 작성하실 필요가 없습니다.'},
+				'edit-comment-tip': {'en': 'Introduce a little bit about yourself',
+					'ko': '자신에 대해 간단히 소개해주세요.'},
+				'edit-submit': {'en': 'Change Info', 'ko': '변경'},
+				'edit-success': {'en': 'Change successful.', 'ko': '변경이 완료되었습니다.'},
+				'edit-fail': {'en': 'Change failed. Try again later.', 'ko': '변경에 실패하였습니다. 나중에 다시 시도하세요.'},
 
 				'reg-head': {'en': 'Create your wargame account', 'ko': '새 워게임 계정을 생성하세요'},
 				'reg-input-email': {'en': 'Email Address', 'ko': '이메일 주소'}, 
@@ -119,11 +135,12 @@
 					'ko': '계정 관련 문의는 관리자에게 직접 문의해주시면 됩니다. 비밀번호 변경에 어려움이 있는 경우, 관리자가 비밀번호를 암호화 해줄 수 있는 페이지를 통해 수동으로 변경해드립니다.'},
 				'reg-note-2': {'en': 'Please DO NOT flood or DDoS any challenges for a long period of time. Play nice and be generous to others. Otherwise you will be banned from this website forever.',
 					'ko': '오랜 시간동안 문제 서비스에 플로딩 혹은 DDoS를 가하지 마시기 바랍니다. 착하고 자비로운 사람이 됩시다. 이 규칙을 어길시 워게임에서 영구 밴처리 됩니다.'},
-				'reg-note-3': {'en': 'The service encrypts password with salts on it. But still, make sure to use secure passwords for your wargame credential. Please remember that the secure password does not mean personal passwords or frequently-used password.',
+				'reg-note-3': {'en': 'The service encrypts password with salts on it. But still, make sure to use secure passwords for your wargame credential. Here, a secure password should be made with the exception of personal passwords and frequently-used passwords.',
 					'ko': '비밀번호는 salt가 추가된 상태로 암호화됩니다. 그렇다 하여도, 워게임 계정은 비교적 안전한 비밀번호를 사용해주세요. 여기서 안전함이란 자주쓰는 비밀번호 혹은 개인적인 비밀번호를 사용하라는 의미가 아닙니다.'},
-				'reg-deny-nick': {'en':'You cannot use this nickname.', 'ko':'입력하신 닉네임을 사용하실 수 없습니다.'},
-				'reg-deny-user': {'en':'You cannot use this email address.', 'ko':'입력하신 이메일을 사용하실 수 없습니다.'},
-				'reg-deny-pass': {'en':'You cannot use this password.', 'ko':'입력하신 비밀번호를 사용하실 수 없습니다.'},
+				'reg-deny-nick': {'en':'You cannot use this nickname.', 'ko':'입력하신 닉네임은 사용하실 수 없습니다.'},
+				'reg-deny-user': {'en':'You cannot use this email address.', 'ko':'입력하신 이메일은 사용하실 수 없습니다.'},
+				'reg-deny-pass': {'en':'You cannot use this password.', 'ko':'입력하신 비밀번호는 사용하실 수 없습니다.'},
+				'reg-deny-comment': {'en': 'You cannot use this content.', 'ko': '입력하신 내용은 사용하실 수 없습니다.'},
 				'reg-deny-dup-nick': {'en': 'The nickname is already registered',
 					'ko': '입력하신 닉네임은 이미 가입되어 있습니다'},
 				'reg-deny-dup-mail': {'en': 'The mail address is already registered.',
@@ -164,6 +181,44 @@
 					$("#output-message").addClass("flash");
 					$("#output-message").addClass("flash-error");
 					$("#output-message").html(output_intl("auth-wrong"));
+				}
+			});
+			return false;
+		}
+		function act_user_edit(){
+			// user auth event
+			$("#output-message").removeClass("flash-error");
+			$("#output-message").addClass("flash-info");
+			$("#output-message").addClass("flash");
+			$("#output-message").html(output_intl("auth-loading"));
+			_input = {'password': $("#password").val(), 'comment': $("#comment").val()};
+			if(_input['password']){
+				if(!check_string(_input['password'], 4, 100)){
+					$('#output-message').html(output_intl('reg-deny-pass')+'<br>' +
+						'<pre>RegExp: ^[a-zA-Z0-9-_!@$.%^&*()가-힣]{4, 100}$</pre>');
+					return false;
+				}
+				if(!(new RegExp("^[a-zA-Z0-9-_:+!@#$.%^&*(){}:\/.\ <>가-힣]{0,50}$").test(_input['comment']))){
+					$('#output-message').html(output_intl('reg-deny-comment')+'<br>' +
+						'<pre>RegExp: ^[a-zA-Z0-9-_:+!@#$.%^&*(){}:\/.\ <>가-힣]{0,50}$</pre>');
+					return false;
+				}
+			}
+			$.post("?controller=user&action=edit", _input, function(d){
+				if(d == true){
+					if($("#remember-nick").prop('checked')){
+						localStorage.setItem('current_nick', _input['nickname']);
+					}else{
+						localStorage.setItem('current_nick', null);
+					}
+					IS_AUTH = true;
+					$("#output-message").addClass("flash");
+					$("#output-message").addClass("flash-info");
+					$("#output-message").html(output_intl("edit-success"));
+				}else{
+					$("#output-message").addClass("flash");
+					$("#output-message").addClass("flash-error");
+					$("#output-message").html(output_intl("edit-fail"));
 				}
 			});
 			return false;
@@ -291,21 +346,39 @@
 					_solve_html+
 					'</div>'+
 					''+
-					'<div class="one-fifth column">'+
+					'<div class="one-fifth column"><center>'+
 					'<img class="avatar" src="'+d['profile_picture']+'" width=100%>'+
-					'<center><font size=2>'+
-					'<span class="octicon octicon-lock" style="margin-top:5pt;"></span>'+d['username']+'<br>'+
+					'<font size=2><span class="octicon octicon-lock" style="margin-top:5pt;"></span>'+d['username']+'<br>'+
 					'Since '+d['join_date']+'.</font><br><br>'+
-					'<pre style="letter-spacing:-1px">'+d['comment']+'</pre></center>'+
+					'<code style="letter-spacing:-1px; white-space: pre-wrap;">'+d['comment']+'</pre></center>'+
 					'</div>');
 			});
 		}
 		var load_user = function(p){
 			switch(p){
+				case "edit":
+					if(!IS_AUTH){ set_error(403); break; }
+					if(!CURRENT_USER['comment']) CURRENT_USER['comment'] = '';
+					new_data("#content", '<div class="row column centered">'+
+						'<div id="output-message" class="mb-2" ></div>'+
+						'<form class="auth-form-body" onsubmit="return act_user_edit();">'+
+						'<label for="username">'+output_intl('reg-input-email')+'</label>'+
+						'<input class="form-control input-block disabled" tabindex=1 name="username" id="username" type="text" disabled value='+CURRENT_USER['username']+'>'+
+						'<label for="nickname">'+output_intl('auth-nick')+'</label>'+
+						'<input class="form-control input-block disabled" tabindex=1 name="nickname" id="nickname" type="text" disabled value='+CURRENT_USER['nick']+'>'+
+						'<label for="password">'+output_intl('edit-new-pass')+'</label>'+
+						'<input class="form-control input-block" tabindex=2 id="password" name="password" placeholder="Password" type="password">'+
+						'<p class="note">'+output_intl('edit-password-tip')+'</p>'+
+						'<label for="password">'+output_intl('comment')+'</label>'+
+						'<input class="form-control input-block" tabindex=3 id="comment" name="comment" value="'+CURRENT_USER['comment']+'" placeholder="'+output_intl('edit-comment-tip')+'">'+
+						'<button class="btn btn-block btn-primary" tabindex=4 id="edit_button" type="submit">'+output_intl('edit-submit')+'</button>'+
+						'</form>');
+					break;
 				case "login":
 					if(IS_AUTH){ set_error(418); break; }
-					new_data("#content", '<div class="row column centered one-half auth-form">'+
+					new_data("#content", '<div class="row column centered">'+
 						'<form class="auth-form-body" onsubmit="return act_user_auth();">'+
+						'<div id="output-message" class="mb-2" ></div>'+
 						'<label for="nickname">'+output_intl('auth-nick')+'</label>'+
 						'<input class="form-control input-block" tabindex=1 name="nickname" id="nickname" type="text" placeholder="stypr, neko, superuser, ...">'+
 						'<label for="password">'+output_intl('auth-pass')+' <a href="#/user/find" class=right>'+output_intl('auth-forgot')+'</a></label>'+
@@ -315,7 +388,7 @@
 						'</form><br><p class="new-comer">'+output_intl('auth-reg-new')+
 						' <a href="#/user/register" data-ga-click="Sign in, switch to sign up">'+output_intl('auth-reg-create')+'</a>.</p>');
 						_nick = localStorage.getItem('current_nick');
-						if(_nick){
+						if(_nick && _nick != 'null'){
 							$("#remember-nick").prop('checked', true);
 							$("#nickname").val(_nick);
 						}
@@ -495,6 +568,7 @@
 				if(res != IS_AUTH){
 					IS_AUTH = res;
 				}
+				set_layout();
 			});
 		};
 		var set_language = function(){
@@ -523,11 +597,12 @@
 			add_data("#sidebar", "<ul class='filter-list' id='sidebar-menu'></ul>");
 	
 			$.get('?controller=status&action=profile', function(d){
+				CURRENT_USER = d;
 				if(IS_AUTH){
 					_sub = 'edit';
 					add_data("#sidebar-menu", "<li page-id='" + _sub + "'><a href='#/user/edit' class='filter-item'>"+
-						"<table><tr><td rowspan=2><img src="+d['profile_picture']+" width=40 class='profile-image'>&nbsp;</td>"+
-						"<td style='font-size:13pt;'>"+d['nick']+"</td></tr><tr><td style='font-size:8pt;'>"+d['score']+output_intl('pt')+"</td></tr></table>"+
+						"<table class='profile'><tr><td rowspan=2><img src="+d['profile_picture']+" width=40 class='profile-image'>&nbsp;</td>"+
+						"<td class='profile-nickname'>"+d['nick']+"</td></tr><tr><td class='profile-score'>"+d['score']+output_intl('pt')+"</td></tr></table>"+
 						"</a></li>");
 					_sub = 'logout';
 					add_data("#sidebar-menu", "<li page-id='" + _sub + "'><a href='#/user/logout' class='filter-item'></a></li>");
@@ -607,11 +682,10 @@
 		};
 		/* Init function */
 		function main(){
-			set_auth();
-			set_language();
 			CURRENT_PAGE = location.hash.slice(1) || '/';
-			// initialize on first load
-			set_layout();
+			set_language();
+			// order of execution: set_auth() -> set_layout() -> set_route() 
+			set_auth();
 			// hash_change handler
 			$(window).on('hashchange',function(){ 
 				CURRENT_PAGE = location.hash.slice(1);
@@ -623,4 +697,4 @@
 		$(document).ready(main);
 	</script>
 	</body>
-</html>
+</html>>

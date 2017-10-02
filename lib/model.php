@@ -32,7 +32,7 @@
 	class PlayerInfo implements PlayerInterface {
 		protected $db;
 		protected $user_controllable = ['user_id', 'user_pw',
-										'user_nickname', 'user_last_solved', 'user_comment'];
+										'user_nickname', 'user_last_solved'];
 		public function __construct($db) { $this->db = $db; }
 		private function input_filter(Player $player): Player{
 			$v = array_keys(get_class_vars("Player"));

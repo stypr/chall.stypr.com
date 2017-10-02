@@ -110,7 +110,16 @@
 				$this->output_json('size');
 			}
 		}
-		private function modify_account(){}
+		private function modify_account(){
+			if(isset($_POST['password'])) $password = $this->db->filter($_POST['password'], 'auth');
+			if(isset($_POST['comment'])) $comment = $this->db->filter($_POST['comment'], 'memo');
+			$player = new PlayerInfo($this->db);
+			$user = $player->get_by_username($_SESSION['username']);
+			if($password) $user->user_pw = secure_hash($password);
+			if($comment) $user->user_comment = $comment;
+			$player->set($user);
+			$this->output_json(true);
+		}
 		private function forgot_account(){}
 		
 		public function CheckAction(){
@@ -140,7 +149,7 @@
 				die("template for forgot");
 			}
 		}
-		public function ModifyAction(){
+		public function EditAction(){
 			if(!$this->is_auth()) $this->output_json(false);
 			if($_POST){
 				$this->modify_account();
@@ -249,11 +258,13 @@
 			$_GET['nickname'] = (!$_GET['nickname']) ? ($_SESSION['nickname']) : ($_GET['nickname']);
 			$nickname = $this->db->filter($_GET['nickname'], "auth");
 			// check if viewed by admin
+			$admin_mode = false;
 			if($_SESSION['username']){
 				$_check = $player->get_by_username($_SESSION['username']);
-				if($_check->user_permission == 9) $admin_mode = true;
+				if($_check->user_permission == 9 || $_SESSION['username'] == $_check->user_username){
+					$admin_mode = true;
+				}
 			}
-			$admin_mode = false;
 			// retreive by nickname
 			$profile = $player->get_by_nickname($nickname);
 			if(!$profile->user_nickname) $this->output_json(false);
@@ -286,7 +297,11 @@
 			}
 
 			// only list the domain name, unless viewed by admin.
-			if(!$admin_mode) $email = '@'. explode('@', $profile->user_id)[1];
+			if(!$admin_mode){
+				$email = '@'. explode('@', $profile->user_id)[1];
+			}else{
+				$email = $profile->user_id;
+			}
 			$result = ['nick' => $profile->user_nickname,
 				'username' => $email,
 				'comment' => $profile->user_comment,
