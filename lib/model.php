@@ -87,7 +87,7 @@
 			// get all id and nickname and make a dict :)
 			$res = $this->db->query("SELECT user_id, user_nickname FROM user", 2);
 			$tbl = [];
-			for($i=0;$i<count($res);$i++){ $tbl[$res[$i][0]] = $res[$i][1]; }
+			for($i=0;$i<count($res);$i++){ $tbl[$res[$i]['user_id']] = $res[$i]['user_nickname']; }
 			return ($tbl) ? $tbl : [];
 		}
 		public function get_by_username(string $username): Player{
