@@ -18,17 +18,30 @@
 			.profile-image { border:2px solid #ccc; border-radius:2px; margin-top:5px; margin-right:10px; width:40px; height:40px; background-color:#fff; }
 			.footer { background-color:#eee; padding:5px; text-align:center; }
 			#break-stat td, #scoreboard td { padding:5px; text-align:center; border-right:0; border-left:0; }
-			#break-info td {text-align:center; border-right:0; font-size:13pt; font-weight:bold;}
-			#break-info th {border:0; }
+			#break-info * { padding:20px 5px; }
+			#break-info td { text-align:left; border-right:0; font-size:12pt; font-weight:bold;}
+			#break-info th {border:0; font-size:11pt; width:120px; text-align:right; }
+			@media (max-width: 1024px) {
+				#sidebar { position:absolute; top:0; height: 62px; background-color:#eee; width:100%; left:0}
+				#sidebar > ul { display:inline; }
+				#sidebar * { border-radius:0; }
+				#sidebar > ul > li { display:inline-block; float:right; padding-top: 13px; }
+				#sidebar > ul > li:first-child { float:left;  padding:0;}
+				#content { width:100%; }
+				#sidebar hr { display:none; }
+				#language { margin-top: 30px;}
+			}
+
 			#break-stat { margin:0; }
-			#scoreboard th {text-align:center; border-right:0; font-size:13pt; }
+			#scoreboard th {text-align:center; border-right:0; font-size:12pt; }
 			#scoreboard {border-right:0; border-left:0; border-top: 0;}
 
+			.counter { float:right; border:1px solid #ccc;  padding:1px 5px; border-radius:5px; background-color: #eee; margin-left: 3px; }
 			.new-comer{padding:15px 20px;text-align:center;border:1px solid #d8dee2;border-radius:5px}.auth-form{width:400px;margin:60px auto}.auth-form .password-note{margin:15px 0;text-align:center}.auth-form-header{position:relative;padding:10px 20px;margin:0;color:#fff;text-shadow:0 -1px 0 rgba(0,0,0,0.3);background-color:#829aa8;border:1px solid #768995;border-radius:3px 3px 0 0}.auth-form-header h1{font-size:16px}.auth-form-header h1 a{color:#fff}.auth-form-header .octicon{position:absolute;top:10px;right:20px;color:rgba(0,0,0,0.4);text-shadow:0 1px 0 rgba(255,255,255,0.1)}.auth-form-message{max-height:180px;padding:10px 20px;margin-bottom:20px;overflow-y:scroll;border:1px solid #d8dee2;border-radius:3px}.auth-form-body{padding:20px;font-size:14px;background-color:#fff;border:1px solid #d8dee2;border-radius:3px;}.auth-form-body .input-block{margin-top:5px;margin-bottom:15px}.auth-form-body p{margin:0 0 10px}.two-factor-help{position:relative;padding:10px 10px 10px 36px;margin:60px 0 auto auto;border:1px solid #eaeaea;border-radius:3px}.two-factor-help h4{margin-top:0;margin-bottom:5px}.two-factor-help .octicon-device-mobile{position:absolute;top:10px;left:10px}.two-factor-help .octicon-key{position:absolute;left:10px}.two-factor-help .btn-sm{float:right}.two-factor-help ul{list-style-type:none}.u2f-send-code-spinner{position:relative;bottom:2px;display:none;vertical-align:bottom}.loading .u2f-send-code-spinner{display:inline}.u2f-login-spinner{position:relative;top:2px}.u2f-auth-header{padding-bottom:10px;margin-bottom:20px;border-bottom:1px solid #eaeaea}.u2f-auth-form-body{padding:30px 30px 20px;text-align:center}	.table>thead>tr>td.info,.table>tbody>tr>td.info,.table>tfoot>tr>td.info,.table>thead>tr>th.info,.table>tbody>tr>th.info,.table>tfoot>tr>th.info,.table>thead>tr.info>td,.table>tbody>tr.info>td,.table>tfoot>tr.info>td,.table>thead>tr.info>th,.table>tbody>tr.info>th,.table>tfoot>tr.info>th{background-color:#d9edf7}.table-hover>tbody>tr>td.info:hover,.table-hover>tbody>tr>th.info:hover,.table-hover>tbody>tr.info:hover>td,.table-hover>tbody>tr:hover>.info,.table-hover>tbody>tr.info:hover>th{background-color:#c4e3f3}.table-hover>tbody>tr:hover{background-color:#f5f5f5}
 		</style>
 	</head>
 	<body>
-		<div id="container" class="container-lg clearfix px-3 pt-3 pb-4 mt-4">
+		<div id="container" class="container-xl clearfix px-3 pt-3 pb-4 mt-4">
 			<div id="language" class="col-12 selector-language">
 			<div class="right">
 					<span class="octicon octicon-globe"></span>&nbsp;
@@ -42,7 +55,7 @@
 			<div id="content" class="col-9 float-left pl-2"></div>
 			
 		</div>
-		<div class="footer container-lg mb-4 ">footer &hearts;</div>
+		<div class="footer container-xl mb-4 ">footer &hearts;</div>
 	</div>
 	<!-- Loader TBD -->
 	<script src="//unpkg.com/jquery@3.2.1/dist/jquery.js"></script>
@@ -89,10 +102,16 @@
 				'stat-auth': {'en': 'Solve Log', 'ko': '인증 로그'},
 				'stat-fame': {'en': 'Hall of Fame', 'ko': '명예의 전당'},
 
+				'chall-by': {'en': 'Author', 'ko': '제작자'},
 				'chall-solver': {'en': 'Solvers', 'ko': '풀은 인원'},
 				'chall-player-count': {'en': 'players', 'ko': '명'},
 				'chall-solve-date': {'en': 'Solved at', 'ko': '풀은 시간'},
 
+				'chall-auth-check': {'en': 'Checking the flag..', 'ko': '플래그 확인 중 입니다.'},
+				'chall-auth-invalid': {'en': 'The format for the flag is invalid. Please try again.', 'ko': '플래그 형식이 비정상적입니다. 다시 입력해주세요'},
+				'chall-auth-wrong': {'en': 'Incorrect flag.', 'ko': '불일치한 플래그입니다.'},
+
+				'auth': {'en': 'auth', 'ko': '인증'},
 				'auth-nick': {'en': 'Nickname', 'ko': '닉네임'},
 				'auth-pass': {'en': 'Password', 'ko': '비밀번호'},
 				'auth-remember': {'en': 'Remember nickname', 'ko': '닉네임 기억하기'},
@@ -110,7 +129,6 @@
 				'profile-no-solve-head': {'en': 'No Information', 'ko': '정보 없음'},
 				'profile-no-solve-body': {'en': 'This user did not solve any challenges yet.',
 					'ko': '이 사용자는 아직 한 문제도 풀지 못하였습니다.'},
-
 
 				'edit-new-pass': {'en': 'New Password', 'ko': '새 비밀번호'},
 				'edit-password-tip': {'en': 'You do not need to write anything unless if you wish to change it.',
@@ -160,6 +178,30 @@
 		}
 
 		/* Action functions */
+		function act_chall_auth(){
+			_input = {'flag': $("#flag").val() }
+			$("#output-message").removeClass("flash-error");
+			$("#output-message").addClass("flash-info");
+			$("#output-message").addClass("flash");
+			$("#output-message").html(output_intl("chall-auth-check"));
+            var check_flag = new RegExp("^[a-zA-Z0-9-_:+!@#$.%^&*(){}:\/.\ <>가-힣]{0,100}$").test(_input['flag']);
+            if(!check_flag){
+				$("#output-message").addClass("flash");
+				$("#output-message").addClass("flash-error");
+				$("#output-message").html(output_intl("chall-auth-invalid"));
+                return false;
+            }
+			$.post("?controller=challenge&action=auth", _input, function(d){
+				if(d == true){
+					main();
+				}else{
+					$("#output-message").addClass("flash");
+					$("#output-message").addClass("flash-error");
+					$("#output-message").html(output_intl("chall-auth-wrong"));
+				}
+			});
+			return false;
+		}
 		function act_user_auth(){
 			// user auth event
 			$("#output-message").removeClass("flash-error");
@@ -275,6 +317,39 @@
 		}
 
 		/* Content functions */
+
+		var load_chall = function(p){
+			new_data('#content', '<div class="row column centered">'+
+				'<div id="output-message"></div><form onsubmit="return act_chall_auth()">'+
+				'<div class="input-group columns">'+
+				'<div class="two-thirds p-2 column">'+
+				'<input class="form-control" placeholder="Answer format: flag{ ... }" autocomplete="off" id="flag" name="flag" style="width:100%; font-family:monospace;"></div>'+
+				'<div class="one-third p-2 column"><span class="input-group-button">'+
+				'<button class="btn btn-primary one-third" style="width:100%;" type="submit">'+
+				'<span class="octicon octicon-key"> '+output_intl('auth')+'</span>'+
+				'</button></div>'+
+				'</div><hr style="border:0;">');
+			$.get("?controller=challenge&action=list", function(d){
+				// ascending order
+				d=d.sort(function(a,b){
+					if(a.challenge_score == b.challenge_score) return 0;
+					return a.challenge_score > b.challenge_score ? 1 : -1;
+				});
+				/*
+				// filter unsolved
+				d=d.filter(function(a){
+					return a.challenge_solved === false;
+				}); */
+				console.log(d);
+				for(var i=0;i<d.length;i++){
+					add_data("#content", '<div class="Box mb-3"><div class="Box-header pt-2 pb-2 Box-header--blue">' +
+						'<h3 class="Box-title"><span class="octicon octicon-bug">&nbsp;</span>'+ d[i]['challenge_name'] +' <span class="right">' + d[i]['challenge_score']+ 'pt</span></h3></div>'+
+						'<div class="Box-body">' + d[i]['challenge_desc']+
+						'</form></div></div>');
+				}
+				
+			});
+		};
 		var load_profile = function(p){
 			$.get("?controller=status&action=profile&nickname=" + p, function(d){
 				_solve = [];
@@ -504,8 +579,9 @@
 								_top_break = '<tr><td colspan=4><h2 align=center>...</h2></td></tr>';
 							}
 							add_data("#output-layer", '<div class="Box mb-3"><div class="Box-header pt-2 pb-2">' +
-								'<h3 class="Box-title">'+ d[i]['name'] +' <span class="right">' + d[i]['score']+ 'pt</span></h3></div>'+
-								'<div class="Box-body"><table class="data-table mt-0" id="break-info" style="font-size:12pt;">' +
+								'<h3 class="Box-title">'+ d[i]['name'] +' <span class="right">' + d[i]['score']+output_intl('pt')+'</span></h3></div>'+
+								'<div class="Box-body"><table class="data-table mt-0" id="break-info">' +
+								'<th>'+output_intl('chall-by')+'</th><td>' + d[i]['author']+'</td>'+
 								'<th>'+output_intl('chall-solver')+'</th><td>' + d[i]['solver']+ ' ' +
 								''+output_intl('chall-player-count')+'</td><th>'+output_intl('last_solved')+'</th> '+
 								'<td>' + d[i]['last-solved'] + '</td></tr></table>' +
@@ -646,11 +722,9 @@
 
 		};
 		var set_route = function(){
+			console.log('wtf..?');
 			_url = (typeof CURRENT_PAGE === "string" && CURRENT_PAGE !== "") && CURRENT_PAGE.split('/') || ["", ""];
 			switch(_url[1]){
-				case 'chall':
-					$("#sidebar-menu>li[page-id='"+_url[1]+"']>a").addClass("selected");
-					break;
 				case 'user':
 					_d = IS_AUTH && 'logout' || 'login';
 					if(_url[2] == 'edit'){ _d = 'edit'; }
@@ -666,6 +740,7 @@
 					break;
 				case 'chall':
 					$("#sidebar-menu>li[page-id='chall']>a").addClass("selected");
+					load_chall(_url[2]);
 					break;
 				case 'profile':
 					$("#sidebar-menu>li[page-id='status']>a").addClass("selected");
@@ -687,6 +762,7 @@
 			// order of execution: set_auth() -> set_layout() -> set_route() 
 			set_auth();
 			// hash_change handler
+			$(window).unbind('hashchange');
 			$(window).on('hashchange',function(){ 
 				CURRENT_PAGE = location.hash.slice(1);
 				$("#sidebar-menu .selected").removeClass("selected");

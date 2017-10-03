@@ -1,10 +1,10 @@
 <?php
 
 	/* Query module
-	PHP MySQL module made for my projects, for a quick development. */
+	Used just for chall.stypr.com project, only works with mysqli */
 
     class Query{
-        private $conn, $mysqli;
+        private $conn;
 
         public function check(){
             return ($this->conn) ? True : False;
@@ -12,49 +12,30 @@
 
         public function connect($host, $username, $password, $db=""){
             // @return //
-            if($this->mysqli){
-                $this->conn = mysqli_connect($host, $username, $password, $db);
-                if(!$this->conn) return mysqli_connect_errno();
-            }else{
-                $this->conn = mysql_connect($host, $username, $password);
-                mysql_select_db($db, $this->conn);
-                if(!$this->conn) return mysql_error();
-            }
+            $this->conn = mysqli_connect($host, $username, $password, $db);
+            if(!$this->conn) return mysqli_connect_errno();
         }
 
         public function query($query, $result=0){
-            // $result: 0 -> no return, 1 -> return_assoc, 2 -> return_array //
+            /* $result
+				0 returns bool
+				1 returns associative array of a single row
+				2 returns arrays of associative arrays of rows
+			*/
             if(!$this->conn) return false;
-            if($this->mysqli){
-                $_query = mysqli_query($this->conn, $query);
-                if(!$_query) return false;
-                switch($result){
-                    case 2:
-                        $_result = Array();
-                        while($_result_temp = mysqli_fetch_array($_query)){
-                            $_result[] = $_result_temp;
-                        }
-                        return $_result;
-                    case 1:
-                        return mysqli_fetch_assoc($_query);
-                    default:
-                        return true;
-                }
-            }else{
-                $_query = mysql_query($query, $this->conn);
-                if(!$_query) return false;
-                switch($result){
-                    case 2:
-                        $_result = Array();
-                        while($_result_temp = mysql_fetch_array($_query, MYSQL_ASSOC)){
-                            $_result[] = $_result_temp;
-                        }
-                        return $_result;
-                    case 1:
-                        return mysql_fetch_assoc($_query);
-                    default:
-                        return true;
-                }
+            $_query = mysqli_query($this->conn, $query);
+            if(!$_query) return false;
+            switch($result){
+                case 2:
+                    $_result = Array();
+                    while($_result_temp = mysqli_fetch_assoc($_query)){
+                        $_result[] = $_result_temp;
+                    }
+                    return $_result;
+                case 1:
+                    return mysqli_fetch_assoc($_query);
+                default:
+                    return true;
             }
         }
 
@@ -65,20 +46,12 @@
                 case "sql":
                     if($this->conn){
                         $_filter = preg_replace("/[^a-zA-Z0-9-_:+!@#$.%^+&*(){}:\/\.\ <>가-힣]/", "", $str);
-                        if($this->mysqli){
-                            return mysqli_real_escape_string($this->conn, $_filter);
-                        }else{
-                            return mysql_real_escape_string($_filter, $this->conn);
-                        }
+                        return mysqli_real_escape_string($this->conn, $_filter);
                     }
                 case "memo":
                     if($this->conn){
                         $_filter = htmlspecialchars(preg_replace("/[^a-zA-Z0-9-_:+!@#$.%^&*(){}:\/.\ <>가-힣]/", "", $str));
-                        if($this->mysqli){
-                            return mysqli_real_escape_string($this->conn, $_filter);
-                        }else{
-                            return mysql_real_escape_string($_filter, $this->conn);
-                        }
+                        return mysqli_real_escape_string($this->conn, $_filter);
 					}
 				case "auth":
 					return preg_replace("/[^a-zA-Z0-9-_!@$\.%^&*(){}가-힣]/", "", $str);
@@ -86,20 +59,14 @@
         }
 
         public function __construct(){
-            if(function_exists("mysqli_connect")){
-                $this->mysqli = true;
-            }else{
-                $this->mysqli = false;
+            if(!function_exists("mysqli_connect")){
+                die('php_mysqli extension is not installed. :(');
             }
         }
 
         public function __destruct(){
             if($this->conn){
-                if($this->mysqli){
-                    mysqli_close($this->conn);
-                }else{
-                    mysql_close($this->conn);
-                }
+                mysqli_close($this->conn);
             }
         }
     }

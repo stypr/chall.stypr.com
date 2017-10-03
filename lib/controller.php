@@ -137,31 +137,24 @@
 			$this->output_json(true);
 		}
 		public function RegisterAction(){
-			if($this->is_auth()) $this->output_json(false);
-			if($_POST) $this->register_account();
-			$this->output_json(false);
+			if($this->is_auth() || !$_POST) $this->output_json(false);
+			$this->register_account();
 		}
 		public function ForgotAction(){
-			if($this->is_auth()) $this->output_json(false);
-			if($_POST){
-				$this->forgot_account();
-			}else{
-				die("template for forgot");
-			}
+			if($this->is_auth() || !$_POST) $this->output_json(false);
+			$this->forgot_account();
 		}
 		public function EditAction(){
-			if(!$this->is_auth()) $this->output_json(false);
-			if($_POST){
-				$this->modify_account();
-			}else{
-				die("template for modify");
-			}
+			if(!$this->is_auth() || !$_POST) $this->output_json(false);
+			$this->modify_account();
 		}
+		/*
 		public function GetAction(){
 			if(!$this->is_auth()) $this->output_json(false);
 			$player = new PlayerInfo($this->db);
 			$this->output_json($player->get_by_username($_SESSION['username']));
 		}
+		*/
 	}
 
 	/* Status Controller */
@@ -197,6 +190,7 @@
 		}
 		public function ChallengeAction(){
 			$player = new PlayerInfo($this->db);
+			// retrieve nickname from users
 			$player_nick = $player->get_nickname();
 			$log = new LoggingInfo($this->db);
 			$chall = new ChallengeInfo($this->db);
@@ -225,6 +219,7 @@
 				
 				$result[] = ['id' => $chall_list[$i]->challenge_id,
 					'name' => $chall_list[$i]->challenge_name,
+					'author' => $chall_list[$i]->challenge_by,
 					'score' => $chall_list[$i]->challenge_score,
 					'solver' => $chall_list[$i]->challenge_solve_count,
 					'break' => $break[$chall_list[$i]->challenge_name],
@@ -261,7 +256,7 @@
 			$admin_mode = false;
 			if($_SESSION['username']){
 				$_check = $player->get_by_username($_SESSION['username']);
-				if($_check->user_permission == 9 || $_SESSION['username'] == $_check->user_username){
+				if($_check->user_permission == 9 || $_SESSION['username'] == $_check->user_id){
 					$admin_mode = true;
 				}
 			}
@@ -322,8 +317,38 @@
 
 	/* Challenge Controller */
 	class ChallengeController extends Controller {
-		public function ListAction(){}
-		public function AuthAction(){}
+		private function list_solved(): array{
+			if(!$_SESSION['username']) return [];
+			$log = new LoggingInfo($this->db);
+			$log = $log->get_by_username($_SESSION['username']);
+			$_solved = [];
+			for($i=0;$i<count($log);$i++){
+				$_solved[$i] = $log[$i]->log_challenge;
+			}
+			return $_solved;
+		}
+		private function list_challenges(){
+			$chall = new ChallengeInfo($this->db);
+			$_list = $chall->get_list();
+			$_solved = $this->list_solved();
+			for($i=0;$i<count($_list);$i++){
+				$_list[$i]->challenge_solved = false;
+				if(in_array($_list[$i]->challenge_name, $_solved)){
+					$_list[$i]->challenge_solved = true;
+				}
+				$_list[$i]->challenge_flag = null;
+			}
+			
+			$this->output_json($_list);
+		}
+		public function ListAction(){
+			if(!$this->is_auth()) $this->output_json(false);
+			$this->list_challenges();
+		}
+		public function AuthAction(){
+			// TBD 1004
+			if(!$this->is_auth()) $this->output_json(false);
+		}
 		public function RateAction(){}
 	}
 
