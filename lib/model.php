@@ -285,8 +285,10 @@
 		public function get_by_username(string $name): array;
 		public function get_by_type(string $type): array;
 		public function get_by_challenge(string $chall): array;
+		public function get_by_info(string $info): Logging;
 		public function get_by_no(string $no): Logging;
 		public function set(Logging $log): bool;
+		public function del(Logging $log): bool;
 	}
 
 	class LoggingInfo implements LoggingInterface {
@@ -345,9 +347,15 @@
 			$res = $this->db->query("SELECT * FROM log WHERE log_no='$no'", 1);
 			return ($res) ? $this->parse_log($res) : new Logging;
 		}
+		public function get_by_info(string $info): Logging {
+			$info = $this->db->filter($info);
+			$res = $this->db->query("SELECT * FROM log WHERE log_info='$info'", 1);
+			return ($res) ? $this->parse_log($res) : new Logging;
+		}
 		public function set(Logging $log): bool {
 			// insert if new, update if non-exist
 			$log_check = $this->get_by_no($log->log_no);
+
 			if($log_check->log_no === $log->log_no && $log->log_no != NULL){
 				// update by diff
 				$diff_curr = get_object_vars($log);
@@ -358,7 +366,7 @@
 					$query .= $key . "='" . (string)$val. "', ";
 				}
 				$query = substr($query, 0, -2);
-				$query .= "WHERE log_no='$log->log_no'";
+				$query .= "WHERE log_no='". $log->log_no ."'";
 				$r = $this->db->query($query);
 			}else{
 				// insert by query
@@ -376,6 +384,15 @@
 				$r = $this->db->query($query);
             }
 			return $r;
+		}
+		public function del(Logging $log): bool {
+			// deletion by log_no
+			$log_check = $this->get_by_no($log->log_no);
+			if($log_check->log_no === $log->log_no && $log->log_no != NULL){
+				$log_no = $log_check->log_no;
+				$this->db->query("DELETE FROM log WHERE log_no='" . $log->log_no . "'");
+			}
+			return true;
 		}
 	}
 

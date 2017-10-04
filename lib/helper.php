@@ -5,10 +5,5 @@
 		public $badge_id;
 		public $badge_list;
     }
-	class Mailer {
-	}
-	class CSRFCheck {
-
-	}
 
 ?>

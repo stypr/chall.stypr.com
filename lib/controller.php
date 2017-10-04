@@ -3,6 +3,8 @@
 	/* Controller classes
 	Nothing to comment. commenting irritates me! */
 
+	use PHPMailer\PHPMailer\PHPMailer;
+	use PHPMailer\PHPMailer\Exception;
 	/* Default features for controllers; Abstract class */
 	class Controller {
 		protected $db;
@@ -36,7 +38,98 @@
 
 	/* User Controller */
 	class UserController extends Controller {
-		// login, register, modify, forgot
+		// login, register, modify, find, recover
+		private function recover_account(){
+			$log = new LoggingInfo($this->db);
+			$player = new PlayerInfo($this->db);
+			$code = $this->db->filter($_POST['recovery_code']);
+			$password = secure_hash($this->db->filter($_POST['password'], "auth"));
+
+			$_check_log = $log->get_by_info($code);
+			if($_check_log->log_id && $_check_log->log_no >= 0 &&
+				$_check_log->log_info === $code){
+				// remove all request logs
+				$_check_del = $log->get_by_type("Recovery");
+				for($i=0;$i<count($_check_del);$i++){
+					$_check_del_user = $_check_del[$i]->log_id;
+					if($_check_del_user === $_check_log->log_id){
+						$log->del($_check_del[$i]);
+					}
+				}
+				// change password
+				$p = $player->get_by_username($_check_log->log_id);
+				$p->user_pw = $password;
+				$player->set($p);
+				$this->output_json(true);
+			}
+			$this->output_json(false);
+		}
+		private function find_account(){
+			$log = new LoggingInfo($this->db);
+			$player = new PlayerInfo($this->db);
+			$username = $this->db->filter($_POST['username'], 'auth');
+			$_check = $player->get_by_username($username);
+			//generate csprng random string 
+			$code = '';
+			$_table = '0123456789ABCDEFGHIJKLMNOPQRSTUVWZYZabcdefghijklmnopqrstuvwxyz';
+			$_table_len = strlen($_table) - 1;
+			for ($i=0; $i<32; $i++){
+				$code .= $_table[random_int(0,$_table_len)];
+			}
+			if($username != '' && $_check->user_id === $username){
+				// recovery count 3
+				$_check_log = $log->get_by_type("Recovery");
+				$_list_log = [];
+				for($i=0;$i<count($_check_log);$i++){
+					$_check_log_user = $_check_log[$i]->log_id;
+					$_list_log[$_check_log_user] += 1;
+				}
+				// recovery count check
+				// this count will be reset on a successful confirmation.
+				if($_list_log[$_check->user_id] > 3) $this->output_json('exceed');
+				// log the code
+				$_log = new Logging();
+				$_log->log_id = $_check->user_id;
+				$_log->log_type = 'Recovery';
+				$_log->log_challenge = '';
+				$_log->log_date = date("Y-m-d H:i:s");
+				$_log->log_info = $code;
+				$log->set($_log);
+				$nickname = $_check->user_nickname;
+				try {
+					// uses PHPMailer
+					$mail = new PHPMailer;
+					$mail->SMTPDebug = 0;
+					$mail->isSMTP();
+					$mail->CharSet="UTF-8";
+					$mail->Host = 'smtp.gmail.com';
+					$mail->Port = 587;
+					$mail->SMTPSecure = 'tls';
+					$mail->SMTPAuth = true;
+					$mail->Username = __GMAIL_USER__;
+					$mail->Password = __GMAIL_PASS__;
+					$mail->SMTPSecure = 'tls';
+					$mail->Port = 587;
+					$mail->setFrom('86exploit@gmail.com', 'Harold Kim');
+					$mail->addAddress($_check->user_id);
+					$mail->isHTML(true);
+					$mail->Subject = 'Hello, ' . $nickname;
+					$mail->Body = "Hi " . $nickname . ",<br><br>" .
+						"It seems like you or someone pretending to be you has requested a password request.<br>" .
+						"If you've not requested this message, Please ignore this mail." .
+						"<hr>" .
+						"Please <a href='" . __HOST__ . "#/user/find/" . $code . "'>click here</a> " .
+						"to continue your password recovery request.";
+					$mail->send();
+					$this->output_json('done');
+				} catch (Exception $e) {
+					$this->output_json('fail');
+				}
+
+			}else{
+				$this->output_json('nope');
+			}
+		}
 		private function login_account(){
 			$player = new PlayerInfo($this->db);
 			$nickname = $this->db->filter($_POST['nickname'], 'auth');
@@ -140,9 +233,15 @@
 			if($this->is_auth() || !$_POST) $this->output_json(false);
 			$this->register_account();
 		}
-		public function ForgotAction(){
+		public function FindAction(){
+			// find user -> mail request
 			if($this->is_auth() || !$_POST) $this->output_json(false);
-			$this->forgot_account();
+			$this->find_account();
+		}
+		public function RecoverAction(){
+			// find user -> password change
+			if($this->is_auth() || !$_POST) $this->output_json(false);
+			$this->recover_account();
 		}
 		public function EditAction(){
 			if(!$this->is_auth() || !$_POST) $this->output_json(false);
