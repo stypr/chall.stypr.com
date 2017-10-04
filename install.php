@@ -1,0 +1,5 @@
+<?php
+
+	/* Installer: TBD */
+	exit;
+?>

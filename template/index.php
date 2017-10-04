@@ -139,6 +139,23 @@
 				'edit-success': {'en': 'Change successful.', 'ko': '변경이 완료되었습니다.'},
 				'edit-fail': {'en': 'Change failed. Try again later.', 'ko': '변경에 실패하였습니다. 나중에 다시 시도하세요.'},
 
+				'find-send-loading': {'en': 'Sending your request...', 'ko': '확인 중 입니다...'},
+				'find-send-tip': {'en': 'You need to confirm your mail to continue the process.',
+					'ko': '귀하의 이메일로 비밀번호 복구 관련 메일이 전송됩니다.'},
+				'find-send-submit': {'en': 'Send a request', 'ko': '요청 보내기'},
+				'find-send-done': {'en': 'Please check your inbox to continue the process.',
+					'ko': '귀하 메일 계정으로 확인 메일을 보냈습니다.'},
+				'find-send-exceed': {'en': 'Your limit has been exceeded. Please contact administrator for more information.',
+					'ko': '요청 제한이 초과되었습니다. 자세한 내용은 관리자에게 문의하시기 바랍니다.'},
+				'find-send-fail': {'en': 'There was an error during your request. Please try again later.',
+					'ko': '요청하신 내용을 실행하는 도중 에러가 발생하였습니다. 잠시 후 다시 시도해주세요.'},
+				'find-send-nope': {'en': 'The mail you requested does not exist.',
+					'ko': '요청하신 이메일 주소는 존재하지 않습니다.'},
+				'find-new-pw': {'en': 'New Password', 'ko': '새 비밀번호'},
+				'find-new-submit': {'en': 'Change the password', 'ko': '비밀번호 변경하기'},
+				'find-new-fail': {'en': 'Change failed. Please contact administrator for more information.',
+					'ko': '변경에 실패하였습니다. 자세한 내용은 관리자에게 문의하시기 바랍니다.'},
+
 				'reg-head': {'en': 'Create your wargame account', 'ko': '새 워게임 계정을 생성하세요'},
 				'reg-input-email': {'en': 'Email Address', 'ko': '이메일 주소'}, 
 				'reg-info-email': {'en': 'You may want to link your email on wechall. We promise not to share your email to anyone.',
@@ -186,7 +203,6 @@
 			$("#output-message").html(output_intl("chall-auth-check"));
             var check_flag = new RegExp("^[a-zA-Z0-9-_:+!@#$.%^&*(){}:\/.\ <>가-힣]{0,100}$").test(_input['flag']);
             if(!check_flag){
-				$("#output-message").addClass("flash");
 				$("#output-message").addClass("flash-error");
 				$("#output-message").html(output_intl("chall-auth-invalid"));
                 return false;
@@ -195,9 +211,60 @@
 				if(d == true){
 					main();
 				}else{
-					$("#output-message").addClass("flash");
 					$("#output-message").addClass("flash-error");
 					$("#output-message").html(output_intl("chall-auth-wrong"));
+				}
+			});
+			return false;
+		}
+		function act_user_recover(n){
+			$("#output-message").removeClass("flash-error");
+			$("#output-message").addClass("flash-info");
+			$("#output-message").addClass("flash");
+			$("#output-message").html(output_intl("find-send-loading"));
+			_input = {'recovery_code': n, 'password': $("#password").val() }
+			if(!check_string(_input['password'], 4, 100)){
+				$('#output-message').html(output_intl('reg-deny-pass')+'<br>' +
+					'<pre>RegExp: ^[a-zA-Z0-9-_!@$.%^&*()가-힣]{4, 100}$</pre>');
+				return false;
+			}
+			$.post("?controller=user&action=recover", _input, function(d){
+				if(d == true){
+					window.location.hash = '/user/login';
+				}else{
+					$("#output-message").addClass("flash-error");
+					$("#output-message").html(output_intl("find-new-fail"))
+				}
+			});
+			return false;
+		}
+		function act_user_find(){
+			_input = {'username': $("#username").val() }
+			$("#output-message").removeClass("flash-error");
+			$("#output-message").addClass("flash-info");
+			$("#output-message").addClass("flash");
+			$("#output-message").html(output_intl("find-send-loading"));
+			$.post("?controller=user&action=find", _input, function(d){
+				switch(d){
+					case "done":
+						$("#output-message").html(output_intl("find-send-done"));
+						break;
+					case "exceed":
+						$("#output-message").addClass("flash-error");
+						$("#output-message").html(output_intl("find-send-exceed"));
+						break;
+					case "fail":
+						$("#output-message").addClass("flash-error");
+						$("#output-message").html(output_intl("find-send-fail"));
+						break;
+					case "nope":
+						$("#output-message").addClass("flash-error");
+						$("#output-message").html(output_intl("find-send-nope"));
+						break;
+					default: // unknown
+						$("#output-message").addClass("flash-error");
+						$("#output-message").html(output_intl("find-send-fail"));
+						break;
 				}
 			});
 			return false;
@@ -220,7 +287,6 @@
 					window.location.hash = '#/';
 					main();
 				}else{
-					$("#output-message").addClass("flash");
 					$("#output-message").addClass("flash-error");
 					$("#output-message").html(output_intl("auth-wrong"));
 				}
@@ -254,11 +320,9 @@
 						localStorage.setItem('current_nick', null);
 					}
 					IS_AUTH = true;
-					$("#output-message").addClass("flash");
 					$("#output-message").addClass("flash-info");
 					$("#output-message").html(output_intl("edit-success"));
 				}else{
-					$("#output-message").addClass("flash");
 					$("#output-message").addClass("flash-error");
 					$("#output-message").html(output_intl("edit-fail"));
 				}
@@ -340,7 +404,6 @@
 				d=d.filter(function(a){
 					return a.challenge_solved === false;
 				}); */
-				console.log(d);
 				for(var i=0;i<d.length;i++){
 					add_data("#content", '<div class="Box mb-3"><div class="Box-header pt-2 pb-2 Box-header--blue">' +
 						'<h3 class="Box-title"><span class="octicon octicon-bug">&nbsp;</span>'+ d[i]['challenge_name'] +' <span class="right">' + d[i]['challenge_score']+ 'pt</span></h3></div>'+
@@ -429,8 +492,34 @@
 					'</div>');
 			});
 		}
-		var load_user = function(p){
+		var load_user = function(p, n){
+			if(!n) n='';
 			switch(p){
+				case "find":
+					if(IS_AUTH){ set_error(418); break; }
+					if(n){
+						if(!(new RegExp("^[a-zA-Z0-9-_]{0,50}$").test(n))){
+							window.location.hash = '#/user/find';
+							return false;
+						}
+						new_data("#content", '<div class="row column centered">'+
+							'<div id="output-message" class="mb-2" ></div>'+
+							'<form class="auth-form-body" onsubmit="return act_user_recover(\''+n+'\');">'+
+							'<label for="password">'+output_intl('find-new-pw')+'</label>'+
+							'<input class="form-control input-block disabled" tabindex=1 name="password" id="password" type="password">'+
+							'<button class="btn btn-block btn-primary" tabindex=4 id="edit_button" type="submit">'+output_intl('find-new-submit')+'</button>'+
+							'</form>');
+					}else{
+					new_data("#content", '<div class="row column centered">'+
+						'<div id="output-message" class="mb-2" ></div>'+
+						'<form class="auth-form-body" onsubmit="return act_user_find();">'+
+						'<label for="username">'+output_intl('reg-input-email')+'</label>'+
+						'<input class="form-control input-block disabled" tabindex=1 name="username" id="username" type="email">'+
+						'<p class="note">'+output_intl('find-send-tip')+'</p>'+
+						'<button class="btn btn-block btn-primary" tabindex=4 id="edit_button" type="submit">'+output_intl('find-send-submit')+'</button>'+
+						'</form>');
+					}
+					break;
 				case "edit":
 					if(!IS_AUTH){ set_error(403); break; }
 					if(!CURRENT_USER['comment']) CURRENT_USER['comment'] = '';
@@ -722,14 +811,13 @@
 
 		};
 		var set_route = function(){
-			console.log('wtf..?');
 			_url = (typeof CURRENT_PAGE === "string" && CURRENT_PAGE !== "") && CURRENT_PAGE.split('/') || ["", ""];
 			switch(_url[1]){
 				case 'user':
 					_d = IS_AUTH && 'logout' || 'login';
 					if(_url[2] == 'edit'){ _d = 'edit'; }
 					$("#sidebar-menu>li[page-id='"+_d+"']>a").addClass("selected");
-					load_user(_url[2]);
+					load_user(_url[2], _url[3]);
 					break;
 				case 'status':
 					$("#sidebar-menu>li[page-id='status']>a").addClass("selected");
