@@ -1,6 +1,6 @@
 ## chall.stypr.com
 
-### WARNING: This is on development stages and features are incomplete. Do not make issues/bugs until the development stage is over.
+### WARNING: This repo is on a development stage and features are incomplete. Do not make issues/bugs until the development stage is over.
 
 Brand new version 2, is now on development stage. Now released with [The Unlicense](LICENSE.md).
 
@@ -21,11 +21,17 @@ Scripts are tested on the x64 linux/x64 windows with the following softwares:
 
 ### Installation
 
-1. Please put files on your webroot directory
+1. Please put all files on your webroot directory.
 
-2. Run composer on the webroot directory (i.e. `composer install`)
+2. Run composer on the webroot directory by the shell. (i.e. `composer install`)
 
-3. run `install.php` for the further installation.
+3. Run `install.php` from the web browser for further installation.
+
+### Customization
+
+* The default flag format on the database is `flag{blah}`. You can change te prefix and suffix by changing `get_by_flag` function in `model.php`.
+
+* You may customize files to whatever you want, unless the service does not crash down so bad! :)
 
 ### For pwners who seek to report vuln..
 

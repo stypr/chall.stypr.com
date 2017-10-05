@@ -32,6 +32,19 @@
 		return sha1(sha1(md5($str)) . __HASH_SALT__);
 	}
 
+	// update via wechall
+	function update_wechall($nickname=""){
+		global $query;
+		$nickname = ($nickname) ? $query->filter($nickname, "sql") : $_SESSION['nickname'];
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_URL, "http://www.wechall.net/remoteupdate.php?sitename=Stereotyped%20Challenges&username=".$query->filter($nickname, "sql"));
+		curl_setopt($ch, CURLOPT_HEADER, 0);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		$result = curl_exec($ch);
+		curl_close($ch);
+		return $result;
+	}
+
 	// simple method to return error.
 	function return_error() {
 		http_response_code(404);
