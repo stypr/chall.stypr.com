@@ -190,7 +190,6 @@
 			return ($res) ? $this->parse_challenge($res) : new Challenge;
 		}
 		public function get_by_flag(string $flag): Challenge {
-			// get by flag
 			$flag = $this->db->filter($flag);
 			// this routine adds/removes prefix and suffixes depending on the input.
 			$FLAG_PREFIX = "flag"; // this one --> flag{...}
@@ -201,7 +200,7 @@
 				$flag = substr($flag, strripos($flag, "flag{"));
 				$end = stripos($flag, "}");
 				$flag = substr($flag, 0, $end + 1);
-			}
+			};
 			$res = $this->db->query("SELECT * FROM chal WHERE challenge_flag='$flag'".
 									"AND challenge_is_open=1", 1);
 			return ($res) ? $this->parse_challenge($res) : new Challenge;

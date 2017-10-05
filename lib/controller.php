@@ -352,6 +352,7 @@
 			$_GET['nickname'] = (!$_GET['nickname']) ? ($_SESSION['nickname']) : ($_GET['nickname']);
 			$nickname = $this->db->filter($_GET['nickname'], "auth");
 			// check if viewed by admin
+
 			$admin_mode = false;
 			if($_SESSION['username']){
 				$_check = $player->get_by_username($_SESSION['username']);
@@ -359,6 +360,7 @@
 					$admin_mode = true;
 				}
 			}
+
 			// retreive by nickname
 			$profile = $player->get_by_nickname($nickname);
 			if(!$profile->user_nickname) $this->output_json(false);
@@ -382,12 +384,14 @@
 			$normal = $log->get_by_username($profile->user_id);
 			$_normal = [];
 			for($i=0;$i<count($normal);$i++){
-				$_chall = $chall->get_by_name($normal[$i]->log_challenge);
-				$_normal[] = ['chall_name' => $normal[$i]->log_challenge,
-					'chall_solve_date' => $normal[$i]->log_date,
-					'chall_score' => $_chall->challenge_score,
-					'chall_break' => $_break[$normal[$i]->log_challenge],
-				];
+				if($normal[$i]->log_type == "Correct"){
+					$_chall = $chall->get_by_name($normal[$i]->log_challenge);
+					$_normal[] = ['chall_name' => $normal[$i]->log_challenge,
+						'chall_solve_date' => $normal[$i]->log_date,
+						'chall_score' => $_chall->challenge_score,
+						'chall_break' => $_break[$normal[$i]->log_challenge],
+					];
+				}
 			}
 
 			// only list the domain name, unless viewed by admin.
@@ -422,11 +426,12 @@
 			$log = $log->get_by_username($_SESSION['username']);
 			$_solved = [];
 			for($i=0;$i<count($log);$i++){
-				$_solved[$i] = $log[$i]->log_challenge;
+				if($log[$i]->log_type == "Correct") $_solved[$i] = $log[$i]->log_challenge;
 			}
 			return $_solved;
 		}
 		private function list_challenges(){
+			if(!$this->is_auth()) $this->output_json(false);
 			$chall = new ChallengeInfo($this->db);
 			$_list = $chall->get_list();
 			$_solved = $this->list_solved();
@@ -445,8 +450,50 @@
 			$this->list_challenges();
 		}
 		public function AuthAction(){
-			// TBD 1004
-			if(!$this->is_auth()) $this->output_json(false);
+			if(!$this->is_auth() || !$_POST) $this->output_json(false);
+			$chall = new ChallengeInfo($this->db);
+			$profile = new PlayerInfo($this->db);
+			$log = new LoggingInfo($this->db);
+			$flag = $this->db->filter($_POST['flag'], 'auth');
+			$_chall = $chall->get_by_flag($flag);
+			if($_chall->challenge_flag && $flag !== '' &&
+				$_chall->challenge_is_open == "1"){
+				// check if solved
+				$_solved = $log->get_by_username($_SESSION['username']);
+				for($i=0;$i<count($_solved);$i++){
+					if($_solved[$i]->log_challenge === $_chall->challenge_name &&
+					$_solved[$i]->log_type == "Correct"){
+						$this->output_json("already-solved");
+					}
+				}
+				// add score and solve count
+				$me = $profile->get_by_username($_SESSION['username']);
+				$me->user_score += $_chall->challenge_score;
+				$profile->set($me);
+				$_chall->challenge_solve_count += 1;
+				$chall->set($_chall);
+				// add success log
+				$_log = new Logging();
+				$_log->log_id = $_SESSION['username'];
+				$_log->log_type = 'Correct';
+				$_log->log_challenge = $_chall->challenge_name;
+				$_log->log_date = date("Y-m-d H:i:s");
+				$_log->log_info = '';
+				$log->set($_log);
+				// update by wechall
+				if(__WECHALL__ !== "__WECHALL__") @update_wechall();
+				// return msg
+				$this->output_json("success");
+			}else{
+				$_log = new Logging();
+				$_log->log_id = $_SESSION['username'];
+				$_log->log_type = 'Wrong';
+				$_log->log_challenge = $_chall->challenge_name;
+				$_log->log_date = date("Y-m-d H:i:s");
+				$_log->log_info = (string) $flag;
+				$log->set($_log);
+				$this->output_json("nope");
+			}
 		}
 		public function RateAction(){}
 	}
