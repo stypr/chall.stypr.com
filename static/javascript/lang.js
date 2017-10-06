@@ -3,6 +3,31 @@ var output_intl = function(s){
 	langmap = {
 		// language specific monospace fonts
 		'FONT': {'en' : 'Inconsolata', 'ko': 'Nanum Gothic Coding'}, 
+		// intro page, html.
+		'INTRO': {'en': '<h1>Stereotyped Challenges</h1>' +
+			'<h2>Upgrade your web hacking techniques today!</h2><hr>' +
+			'<p class="lead">Hackers tend to have stereotypes about <A href="https://en.wikipedia.org/wiki/Wargame_(hacking)">wargames</a>; Many consider wargames as basic learning materials for new-comers of cyber security.<br><br>' +
+			'Well, it\'s not completely true. I personally think wargames are supposed to be and meant to be very challenging, regardless of how they\'re good at it.' +
+			'<br>So, here it is. This wargame is a little bit different to break your typical stereotypes.<br><br>'+
+			'This wargame is intended for offensive security experts who are willing to overcome situations of getting stuck in breaking into web services or web-based solutions.<br><br>'+
+			'At the end of the day, you will be able to learn a lot of advanced web-based exploitation techniques and improve your offensive skills.<br><br>'+
+			'The rules of this wargame is very straightforward. Make sure that other users can enjoy the wargame. DO NOT bruteforce challenges and DO NOT post your solutions on the internet. Solving challenges would become worthless if solutions are posted. Advertise this wargame if it helped you to break into more stuff. ' +
+			'Please contact me if you would like to release your challenges here. Make sure it\'s difficult enough!<br><br>' +
+
+			'<hr><center>Recommended wargames: <a href="http://chall.tasteless.eu">Tasteless</a>(<a href="#/profile/nurfed">nurfed</a>) &middot; <a href="http://suninatas.com">Suninatas</a> &middot; <a href="http://wargame.kr/">wargame.kr</a> &middot; <a href="http://webhacking.kr">webhacking.kr</a> &middot; <a href="http://wechall.com">WeChall</a> &middot; <a href="https://los.eagle-jump.org/">Lord of SQLi</a> &middot; <a href="http://pwnable.kr">pwnable.kr</a>(<a href="#/profile/daehee">daehee</a>)</p>',
+			'ko': '<h1>Stereotyped Challenges</h1>' +
+			'<h2>오늘 당신의 웹 해킹 능력을 업그레이드하세요!</h2><hr>' +
+			'<p class="lead">수 많은 해커들은 <a href="https://en.wikipedia.org/wiki/Wargame_(hacking)">워게임</a>에 관한 고정관념을 가지고 있습니다. 대부분 워게임을 사이버 보안에 입문하는 자들을 위한 기본적인 교육 도구라고 생각합니다.<br><br>' +
+			'하지만 그 주장은 조금 잘못됬다고 생각합니다. 개인적인 생각으로 워게임은 실력의 차를 떠나 푸는 사람 입장에서 어려워야한다고 생각합니다.' +
+			'<br>그리하여 이 워게임이 탄생하였습니다. 이 워게임은 일반적인 고정관념을 깨기 위해 만들어진 조금 다른 워게임입니다.<br><br>'+
+			'이 워게임은 공격형 해킹을 전문적으로 하는 해커들이, 웹 서비스나 웹 기반 솔루션를 뚫는데 있어서 어려울 수 있는 상황을 미리 극복 해낼 수 있도록 도우기 위해 만들어졌습니다.<br><br>'+
+			'문제를 다 푸실때 쯤이면 심도있는 웹 기반 공격 기술들에 대해 배우실 수 있으며, 공격형 해킹 능력이 향상 될 것 입니다.<br><br>'+
+			'이 워게임의 규칙은 매우 간단합니다. 다른 이들이 이 워게임을 즐길 수 있도록 배려해주시기 바랍니다. 서비스에 과도한 브루트포싱은 자제 부탁드립니다. 서버는 제 사비로 운영되고 있습니다.<br><br>' +
+			'그리고 제발 답공유를 하지마시기 바랍니다. 만약 답이나 풀이가 인터넷에 돌아다닌다면 처음부터 문제를 푸는 의미가 없어집니다. 문제를 푸는 과정에서도 해커는 발전하고 실력을 쌓기 때문입니다. 만약 이 워게임을 통해 해킹을 하기 쉬워졌다면 홍보해주시면 감사하겠습니다.<br><br>' +
+			'제 워게임에 문제를 제출하고 싶으신 의향이 있으신 분은 저에게 연락을 주시면 직접 검토 후 올리겠습니다. 꼭 어려운 문제여야만 합니다!<br>' +
+			'<hr><center>추천하는 워게임들: <a href="http://chall.tasteless.eu">Tasteless</a>(<a href="#/profile/nurfed">nurfed</a>) &middot; <a href="http://suninatas.com">Suninatas</a> &middot; <a href="http://wargame.kr/">wargame.kr</a> &middot; <a href="http://webhacking.kr">webhacking.kr</a> &middot; <a href="http://wechall.com">WeChall</a> &middot; <a href="https://los.eagle-jump.org/">Lord of SQLi</a> &middot; <a href="http://pwnable.kr">pwnable.kr</a>(<a href="#/profile/daehee">daehee</a>)</p>'},
+
+		// messages for default layout
 		'logout': {'en': 'Sign Out', 'ko': '로그아웃'},
 		'login': {'en': 'Sign In', 'ko': '로그인'},
 		'intro': {'en': 'Welcome', 'ko': '환영'},
