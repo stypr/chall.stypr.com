@@ -18,9 +18,9 @@
 	</head>
 	<body>
 		<div id="container" class="container-xl clearfix px-3 pt-3 pb-4 mt-4">
-			<div id="language" class="col-12 selector-language">
+			<div id="language" class="col-12 selector-language mb-0">
 			<div class="right">
-					<span class="octicon octicon-globe"></span>&nbsp;
+					<span class="octicon octicon-globe"></span>
 					<select id="language-select">
 						<option>en</option>
 						<option>ko</option>
@@ -30,7 +30,7 @@
 			<div id="sidebar" class="col-3 float-left pr-3"></div>
 			<div id="content" class="col-9 float-left pl-2"></div>
 		</div>
-		<div class="footer container-xl mb-4 ">footer &hearts;</div>
+		<div class="footer container-xl mb-4 ">Since 2014. Made with &hearts; by <a href="//harold.kim/">stypr</a>.</div>
 	</div>
 	<!-- TBD: Loader -->
 	<script src="//unpkg.com/jquery@3.2.1/dist/jquery.js"></script>

@@ -217,15 +217,13 @@ function act_user_register(){
 
 /* Content functions */
 var load_chat = function(){
-	if(!IS_AUTH){
-		set_error(403);
-	}else{
-		new_data('#content', '<iframe src="//kiwiirc.com/client/irc.freenode.net/?nick='+CURRENT_USER['nick']+'&theme=cli#'+
-			IRC_CHANNEL +'" style="border:0; width:100%; height:450px;"></iframe>' +
-		'<center><h4>' + output_intl('chat-rule') + '</h4></center>');
-	}
+	if(!IS_AUTH){ set_error(403); return; }
+	new_data('#content', '<iframe src="//kiwiirc.com/client/irc.freenode.net/?nick='+CURRENT_USER['nick']+'&theme=cli#'+
+		IRC_CHANNEL +'" style="border:0; width:100%; height:450px;"></iframe>' +
+	'<center><h4>' + output_intl('chat-rule') + '</h4></center>');
 };
 var load_chall = function(p){
+	if(!IS_AUTH){ set_error(403); return; }
 	new_data('#content', '<div class="row column centered">'+
 		'<div id="output-message"></div><form onsubmit="return act_chall_auth()">'+
 		'<div class="input-group columns">'+
@@ -243,19 +241,21 @@ var load_chall = function(p){
 			return a.challenge_score > b.challenge_score ? 1 : -1;
 		});
 		/*
-		// filter unsolved
+		// filter unsolved TBD
 		d=d.filter(function(a){
 			return a.challenge_solved === false;
 		}); */
 		for(var i=0;i<d.length;i++){
 			if(d[i]['challenge_solved'] == false){
 				add_data("#content", '<div class="Box mb-3"><div class="Box-header pt-2 pb-2 Box-header--blue">' +
-					'<h3 class="Box-title"><span class="octicon octicon-bug">&nbsp;</span>'+ d[i]['challenge_name'] +' <span class="right">' + d[i]['challenge_score']+ 'pt</span></h3></div>'+
+					'<h3 class="Box-title"><span class="octicon octicon-bug">&nbsp;</span>'+ d[i]['challenge_name'] +
+					' <span class="right">' + d[i]['challenge_score']+ output_intl('pt') + '</span></h3></div>'+
 					'<div class="Box-body">' + d[i]['challenge_desc']+
 					'</form></div></div>');
 			}else{
 				add_data("#content", '<div class="Box mb-3"><div class="Box-header pt-2 pb-2 Box-header--green">' +
-					'<h3 class="Box-title"><span class="octicon octicon-shield">&nbsp;</span>'+ d[i]['challenge_name'] +' <span class="right">' + d[i]['challenge_score']+ 'pt</span></h3></div>'+
+					'<h3 class="Box-title"><span class="octicon octicon-shield">&nbsp;</span>'+ d[i]['challenge_name'] +
+					' <span class="right">' + d[i]['challenge_score']+ output_intl('pt') + 'pt</span></h3></div>'+
 					'<div class="Box-body">' + d[i]['challenge_desc']+
 					'</form></div></div>');
 			}
@@ -457,10 +457,7 @@ var load_user = function(p, n){
 
 var load_intro = function(){
 	// TBD: I need to translate the content.. lolz
-	new_data("#content", "<h1>Stereotyped Challenges</h1><h2>Redefine your web hacking techniques today!</h2><br><br>" +
-		"This website provides advanced web-based hacking challenges, which would require you to think and solve logically. Please try other wargame communities if you find difficulty in solving challenges.<br><br>"+
-		"The rules of this website are simple — Make sure that other users can enjoy the wargame. DO NOT bruteforce challenges and DO NOT post your solutions on the internet. Solving challenges would become worthless if solutions are posted everywhere."+
-		"Sharing a small bit of hints for challenges would be the most appropriate to help others.");
+	new_data("#content", output_intl('INTRO'));
 };
 var load_status = function(p){
 	// add tab
@@ -550,6 +547,7 @@ var load_status = function(p){
 				for(var i=0;i<d.length;i++){
 					_ranker = d[i];
 					_rank = (i)<3 && "&#9813;" || i+1;
+					_ranker['comment'] = _ranker['comment'] != null ? _ranker['comment'] : '';
 					add_data("#scoreboard", '<tr class="info" style="cursor:pointer;" onclick="location.replace(\'#/profile/'+_ranker['nickname']+'\')">' +
 						'<td>'+_rank+'</td><td>'+_ranker['nickname'] + '</td>' +
 						'<td>'+_ranker['score']+'</td>' + 
@@ -612,10 +610,9 @@ var set_language = function(){
 	});	
 };
 var set_layout = function(){
-	// sidebar first //
 	new_data("#sidebar");
+	// sidebar
 	add_data("#sidebar", "<ul class='filter-list' id='sidebar-menu'></ul>");
-
 	$.get('?controller=status&action=profile', function(d){
 		CURRENT_USER = d;
 		if(IS_AUTH){
