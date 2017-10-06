@@ -422,7 +422,7 @@ var load_user = function(p, n){
 				'<h2 class="setup-form-title mb-3">'+output_intl('reg-head')+'</h2>'+
 				'<form onsubmit="return act_user_register();">'+
 				'<dl class="form-group"><dt class="input-label">'+
-				'<label autocapitalize="off" autofocus="autofocus" for="username">'+output_intl('reg-input-email')+'</label>'+
+				'<label autocapitalize="off" autofocus="autofocus" for="username" for="username">'+output_intl('reg-input-email')+'</label>'+
 				'</dt><dd>'+
 				'<input autocapitalize="off" autofocus="autofocus" class="form-control" id="username" name="username" size="30" type="email" />'+
 				'<p class="note">'+output_intl('reg-info-email')+'</p>'+

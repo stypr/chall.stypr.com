@@ -1,18 +1,14 @@
 <?php
 
 	/* Controller classes
-	Nothing to comment. commenting irritates me! */
+	Nothing to comment so much. commenting irritates me! */
 
 	use PHPMailer\PHPMailer\PHPMailer;
 	use PHPMailer\PHPMailer\Exception;
 	/* Default features for controllers; Abstract class */
 	class Controller {
 		protected $db;
-
-		public function DefaultAction(){
-			// default action for all controllers.
-
-		}
+		public function DefaultAction(){ $this->output_json(false); }
 
 		public function is_auth(){
 			// check if authenticated
