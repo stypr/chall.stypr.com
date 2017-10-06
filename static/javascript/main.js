@@ -544,16 +544,29 @@ var load_status = function(p){
 					'<th align=center>'+output_intl('comment')+'</th>'+
 					'<th align=center>'+output_intl('last_solved')+'</th>'+
 					'</tr></thead><tbody id="ranker-list"></tbody></table>');
-				for(var i=0;i<d.length;i++){
-					_ranker = d[i];
+				ranker = false; // check if the user is ranker.
+				for(var i=0;i<d['ranker'].length;i++){
+					_ranker = d['ranker'][i];
 					_rank = (i)<3 && "&#9813;" || i+1;
 					_ranker['comment'] = _ranker['comment'] != null ? _ranker['comment'] : '';
+					if((CURRENT_USER['nick'] == _ranker['nickname'])){
+						_rank = '&#9733;';
+						ranker = true;
+					}
 					add_data("#scoreboard", '<tr class="info" style="cursor:pointer;" onclick="location.replace(\'#/profile/'+_ranker['nickname']+'\')">' +
 						'<td>'+_rank+'</td><td>'+_ranker['nickname'] + '</td>' +
 						'<td>'+_ranker['score']+'</td>' + 
 						'<td>'+_ranker['break_count']+'</td>' +
 						'<td>'+_ranker['comment']+'</td><td>'+_ranker['last_solved']+'</td></tr>');
 				}
+				if(ranker == false && IS_AUTH == true){
+					add_data("#scoreboard", '<tr class="info" style="cursor:pointer;" onclick="location.replace(\'#/profile/'+CURRENT_USER['nick']+'\')">' +
+						'<td>'+CURRENT_USER['rank']+'</td><td>'+CURRENT_USER['nick']+'</td>' +
+						'<td>'+CURRENT_USER['score']+'</td>' + 
+						'<td></td>' +
+						'<td>'+CURRENT_USER['comment']+'</td><td>'+CURRENT_USER['last_solved']+'</td></tr>');
+				}
+				add_data("#output-layer", "<h4 align=center>"+d['total']+output_intl("player-total-msg")+"</h4>");
 			});
 			break;
 	}

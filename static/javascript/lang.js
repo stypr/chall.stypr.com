@@ -46,6 +46,9 @@ var output_intl = function(s){
 		'stat-auth': {'en': 'Solve Log', 'ko': '인증 로그'},
 		'stat-fame': {'en': 'Hall of Fame', 'ko': '명예의 전당'},
 
+		'player-total-msg': {'en': ' players are currently registered.',
+			'ko': '명의 플레이어가 현재 가입되어 있습니다.'},
+
 		'chall-by': {'en': 'Author', 'ko': '제작자'},
 		'chall-solver': {'en': 'Solvers', 'ko': '풀은 인원'},
 		'chall-player-count': {'en': 'players', 'ko': '명'},

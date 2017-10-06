@@ -269,12 +269,12 @@
 				$_break[$_break_user] += 4-$_break_point;
 			}
 			// retrieve top rankers
-			$result = [];
+			$result = ['total' => $player->get_count()];
 			for($i=0;$i<count($ranker);$i++){
 				$user = $ranker[$i]->user_id;
 				$_break_count = $_break[$user] ? $_break[$user] : '';
 
-				$result[] = ['nickname' => $ranker[$i]->user_nickname,
+				$result['ranker'][] = ['nickname' => $ranker[$i]->user_nickname,
 					'score' => $ranker[$i]->user_score,
 					'break_count' => $_break_count,
 					'comment' => $ranker[$i]->user_comment,
@@ -398,6 +398,7 @@
 			}
 			$result = ['nick' => $profile->user_nickname,
 				'username' => $email,
+				'last_solved' => $profile->user_last_solved,
 				'comment' => $profile->user_comment,
 				'join_date' => explode(' ', $profile->user_join_date)[0],
 				'rank' => $profile->user_rank, 
@@ -465,6 +466,7 @@
 				// add score and solve count
 				$me = $profile->get_by_username($_SESSION['username']);
 				$me->user_score += $_chall->challenge_score;
+				$me->user_last_solved = date("Y-m-d H:i:s");
 				$profile->set($me);
 				$_chall->challenge_solve_count += 1;
 				$chall->set($_chall);
