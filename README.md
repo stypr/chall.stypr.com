@@ -29,9 +29,9 @@ Scripts are tested on the x64 linux/x64 windows with the following softwares:
 
 ### Customization
 
-* The default flag format on the database is `flag{blah}`. You can change te prefix and suffix by changing `get_by_flag` function in `model.php`.
+* You may customize files to whatever you want, unless the service does not crash down so bad.
 
-* You may customize files to whatever you want, unless the service does not crash down so bad! :)
+* This one is made to fit on my personal project, so you should better try CTFd or something that's more suitable for a generic use.
 
 ### For pwners who seek to report vuln..
 
@@ -49,10 +49,10 @@ You're also allowed to report the vulnerablity of the [challenge network](https:
 On a succesful patch, your exploit will be posted with your nickname on the Hall of Fame.
 
 Please note that
-1. Attacking the challenge network should be done with black-box tests, without DoS or attacks that would consume a lot of traffic and data on the system.
-2. I won't reply on mails about possible attacks outside the boundary.
+1. Attacking challenges should be done with purely black-box tests, without DoS or attacks that would consume a lot of traffic and data on the system.
+2. I won't reply on mails about possible flaws/attacks outside the boundary. Please provide me full exploit or any exploit that would break the server.
 
 ### Pull Requests
 
-You are allowed to send pull requests for new features/improvements.  however, merging commits would take a bit of time as I don't frequently utilize github. (actually I've got personal git server running for personal projects :wink:)
+You are allowed to send pull requests for new features/improvements. However, merging commits would take a bit of time as I don't frequently utilize github. (actually I've got personal git server running for personal projects :wink:)
 

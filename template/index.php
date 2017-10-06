@@ -31,10 +31,9 @@
 			<div id="content" class="col-9 float-left pl-2"></div>
 		</div>
 		<div class="footer container-xl mb-4 ">Since 2014. Made with &hearts; by <a href="//harold.kim/">stypr</a>.</div>
-	</div>
-	<!-- TBD: Loader -->
-	<script src="//unpkg.com/jquery@3.2.1/dist/jquery.js"></script>
-	<script src="./static/javascript/lang.js"></script>
-	<script src="./static/javascript/main.js"></script>
+		<!-- TBD: Loader -->
+		<script src="//unpkg.com/jquery@3.2.1/dist/jquery.js"></script>
+		<script src="./static/javascript/lang.js"></script>
+		<script src="./static/javascript/main.js"></script>
 	</body>
 </html>
