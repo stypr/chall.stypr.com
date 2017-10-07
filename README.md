@@ -16,7 +16,7 @@ The server's modest requirements are as follows:
 Scripts are tested on the x64 linux/x64 windows with the following softwares:
 * nginx 1.0+
 * php 7.0.22 (php_mysqli, php_fpm, php_curl, composer)
-* mariadb 10.0.31_x64
+* mariadb 10.2+ / mysql 5.7+ (Lower than these versions will not work)
 * Latest edition of chrome was used for client-side tests.
 
 ### Installation

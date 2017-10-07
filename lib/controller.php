@@ -357,10 +357,9 @@
 				}
 			}
 
-			// retreive by nickname
+			// retrieve by nickname
 			$profile = $player->get_by_nickname($nickname);
 			if(!$profile->user_nickname) $this->output_json(false);
-
 			// get breakpoints -> add that to solved challenges
 			$break = $log->get_break_list();
 			$_break = [];
