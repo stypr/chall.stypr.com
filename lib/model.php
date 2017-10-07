@@ -228,8 +228,7 @@
 		public function set(Challenge $chall): bool{
 			// insert if new, update if non-exist
 			$chall_check = $this->get_by_name($chall->challenge_name);
-			if($chall_check->$challenge_id === $chall->challenge_id &&
-			$chall_challenge_id != NULL){
+			if($chall_check->challenge_id === $chall->challenge_id && $chall_challenge_id != NULL){
 				// update by diff
 				if(!$diff_curr->challenge_no){
 					// delete if index is null
@@ -315,7 +314,6 @@
 			return ($res) ? $res : Array();
 		}
 		public function get_break_list(): array{
-			// lists top 3 solvers of challenges
             $res = $this->db->query("SELECT log_no, log_challenge, log_id, log_date, rank FROM ".
 				"(SELECT log_no, log_challenge, log_id, log_date,".
 				"ROW_NUMBER() OVER (PARTITION BY log_challenge ORDER BY log_date ASC)".
