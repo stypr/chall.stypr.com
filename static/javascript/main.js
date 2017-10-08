@@ -255,12 +255,11 @@ var load_chall = function(p){
 			}else{
 				add_data("#content", '<div class="Box mb-3"><div class="Box-header pt-2 pb-2 Box-header--green">' +
 					'<h3 class="Box-title"><span class="octicon octicon-shield">&nbsp;</span>'+ d[i]['challenge_name'] +
-					' <span class="right">' + d[i]['challenge_score']+ output_intl('pt') + 'pt</span></h3></div>'+
+					' <span class="right">' + d[i]['challenge_score']+ output_intl('pt') + '</span></h3></div>'+
 					'<div class="Box-body">' + d[i]['challenge_desc']+
 					'</form></div></div>');
 			}
 		}
-		
 	});
 };
 var load_profile = function(p){
