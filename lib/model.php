@@ -222,7 +222,7 @@
 		}
 		public function get_count(): int{
 			// get total count
-			$res = $this->db->query("SELECT COUNT(*) AS count FROM chal", 1);
+			$res = $this->db->query("SELECT COUNT(*) AS count FROM chal WHERE challenge_is_open=1", 1);
 			return ($res) ? ((int)$res['count']) : 0;
 		}
 		public function set(Challenge $chall): bool{
