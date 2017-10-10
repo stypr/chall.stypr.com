@@ -39,4 +39,9 @@ function update_wechall(string $nickname = ""){
 	return $result;
 }
 
+funciton is_now_after(int $date){
+	// Used for CTF Mode
+	return (time() >= date);
+}
+
 ?>
