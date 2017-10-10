@@ -17,7 +17,6 @@ class User {
 	public $user_last_solved;
 	public $user_comment;
 	public $user_permission;
-	public $user_rank;
 }
 class Challenge {
 	public $challenge_no = "";
@@ -44,6 +43,7 @@ class ModelHandler {
 	protected $db;
 	protected $ModelName;
 	protected $TableName;
+	protected $CheckColumn;
 
 	// Model helper functions
 	private function input_filter( $obj ){
@@ -60,9 +60,24 @@ class ModelHandler {
 	}
 	private function parse_array(array $res) {
 		// Parse MySQL result and Convert to class
-		$obj = new $ModelName;
-		foreach($res as $key => $val) {
-			$obj->$key = $val;
+		$obj = new $this->ModelName;
+
+		// process according to the type of the array
+		if( array_keys( $res ) !== range( 0, count( $res ) - 1 ) ){
+			// single array
+			$obj = new $this->ModelName;
+			foreach ( $res as $key => $val ) {
+				$obj->$key = $val;
+			}
+		}else{
+			// arrays of objects
+			$obj = [];
+			for ( $i=0; $i<count($res); $i++ ){
+				$obj[$i] = new $this->ModelName;
+				foreach ( $res[$i] as $key => $val ) {
+					$obj[$i]->$key = $val;
+				}
+			}
 		}
 		return $obj;
 	}
@@ -76,85 +91,89 @@ class ModelHandler {
 		}
 		return implode( "$delim", $condition );
 	}
-
 	public function __construct() {
 		global $query;
 		$this->db = $query;
 	}
 
-	public function get(Array $where = [], Array $order = [],
-		Array $get_only = [], $limit = null): array {
-		// Example
-		// $this->get(['user_id'=>'stypr', ['user_rank' => 'asc'],
-		// ['user_nickname'], 50);
+	// Model Query functions
+	public function get(Array $where = [], $limit = null,
+		Array $get_only = [], Array $order = []) {
 
-		$condition = ( $where ) ? $this->parse_where( $where ) : "";
-		$columns = ( $get_only ) ? implode( ",", $get_only ) : "*";
+		$condition = ( $where ) ? "WHERE " . $this->parse_where( $where ) : "";
+		$columns = ( $get_only ) ? "ORDER BY" . implode( ",", $get_only ) : "*";
 		$order_by = ( $order ) ? $this->parse_order( $order ) : "";
 		if( $limit ){
-			if ( is_integer($limit) ) {
-				$limit = "LIMIT $limit";
+			if ( is_integer( $limit ) ) {
+				$limit_str = "LIMIT $limit";
 			} else {
-				$limit = "LIMIT $limit[1] OFFSET $limit[0]";
+				$limit_str = "LIMIT $limit[1] OFFSET $limit[0]";
 			}
 		} else {
-			$limit = "";
+			$limit_str = "";
 		}
 
-		$statement = "SELECT $columns FROM $this->TableName $condition $order_by $limit";
-		$result = $this->db->query($statement, 2);
-		return ($result) ? $result : [];
+		$statement = "SELECT $columns FROM $this->TableName $condition $order_by $limit_str";
+		$type = ( $limit == 1 ) ? 1 : 2;
+		$result = $this->db->query( $statement, $type );
+
+		return ( $result ) ? $this->parse_array( $result ) : new $this->ModelName;
 	}
 	public function set($obj){
 		// Insert if new, Update if non-exist
-/*
-			$chall_check = $this->get_by_name($chall->challenge_name);
-			if($chall_check->challenge_id === $chall->challenge_id && $chall_challenge_id != NULL){
-				// update by diff
-				if(!$diff_curr->challenge_no){
-					// delete if index is null
-					$name = $this->db->filter($chall->challenge_name);
-					$query = "DELETE FROM chal WHERE challenge_name='$name'";
-					$r = $this->db->query($query);
-				}else{
-					// update if nothing's wrong..
-					$diff_curr = get_object_var($chall);
-					$diff_prev = get_object_vars($chall_check);
-					$diff = array_diff($diff_curr, $diff_prev);
-					$query = "UPDATE chal SET ";
-					foreach($diff as $key => $val){
-						$query .= $key . "='" . (string)$val. "', ";
-					}
-					$query = substr($query, 0, -2);
-					$query .= "WHERE challenge_id='$chall->chall_id'";
-					$r = $this->db->query($query);
-				}
-			}else{
-				// insert by query
-				$key=""; $val="";
-				$p = get_object_vars($chall);
-				$p['chall_no'] = null;
-				foreach($p as $k => $v){
-					$key .= "$k,";
-					$val .= (isset($v) && $v !== null && $v !== '') ? "'$v'," : "NULL,"; // check null.
-				}
-				$key = substr($key, 0, -1);
-				$val = substr($val, 0, -1);
-				$query = "INSERT INTO user ($key) VALUES ($val)";
-				$r = $this->db->query($query);
+		$check_column = $this->CheckColumn;
+		$check = $this->get( [$check_column => $obj->$check_column], 1 );
+		if( $check->$check_column === $obj->$check_column &&
+			$obj->$check_column != NULL ) {
+			// Update by Diff
+			$diff_curr = get_object_vars( $obj );
+			$diff_prev = get_object_vars( $check );
+			$diff = array_diff( $diff_curr, $diff_prev );
+			$statement = "UPDATE " . $this->TableName . " SET ";
+			foreach ( $diff as $key => $val ) {
+				$statement .= $key . "='" . (string)$val . "', ";
 			}
-			return $r;
-*/
+			$statement = substr( $statement, 0, -2 );
+			$statement .= " WHERE $check_column='" . $obj->$check_column . "'";
+			$ret = $this->db->query( $statement );
+		} else {
+			// Insert new (removes the first variable; the index)
+			$stmt_key = "";
+			$stmt_val = "";
+			$new_obj = get_object_vars( $obj );
+			$new_obj_idx = array_keys( $new_obj )[0];
+			$new_obj[$new_obj_idx] = null;
+			// Remove user-customized keys
+			$allowed_keys = array_keys( get_object_vars( new $this->ModelName ) );
+			foreach ( $new_obj as $key => $val ) {
+				if ( in_array( $key, $allowed_keys, true ) ){
+					$stmt_key .= "$key,";
+					if ( isset($val) && $val !== null && $val !== '' ) {
+						$stmt_val .= "'$val',";
+					}else{
+						$stmt_val .= "NULL,";
+					}
+				}
+			}
+			$stmt_key = substr( $stmt_key, 0, -1 );
+			$stmt_val = substr( $stmt_val, 0, -1 );
+			$statement = "INSERT INTO " . $this->TableName;
+			$statement .= "($stmt_key) VALUES ($stmt_val)";
+			$ret = $this->db->query( $statement );
+		}
+		return $ret;
 	}
 	public function count(Array $where = []): int {
 	}
 	public function sum(Array $where = []): int {
 	}
+	public function del(Array $where = []): int {
+	}
 }
 
 class ChallengeInfo extends ModelHandler {
 	public function __construct() {
-		$this->$ModelName = "Challenge";
+		$this->ModelName = "Challenge";
 		$this->TableName = "chal";
 	}
 }
@@ -170,6 +189,7 @@ class UserInfo extends ModelHandler {
 	public function __construct() {
 		$this->ModelName = "User";
 		$this->TableName = "user";
+		$this->CheckColumn = "user_id";
 		ModelHandler::__construct();
 	}
 }

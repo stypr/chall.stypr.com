@@ -534,11 +534,19 @@
 		}
 	}
 
-	/* Default Controller */
+	// Default Controller //
 	class DefaultController extends Controller {
-		public function DefaultAction(){
-			// load static page
+		public function DefaultAction() {
 			$template = new Template();
+			// Checks for the CTF Mode
+			if ( __CTF__ === true ) {
+				if ( is_after( __CTF_START__ ) && !is_after( __CTF_END__ ) ){
+					$template->include("index");
+				} else {
+					$template->include("ready");
+				}
+				exit;
+			}
 			$template->include("index");
 		}
 	}
