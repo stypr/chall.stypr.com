@@ -3,7 +3,7 @@
 /* lib/model.php
 Done a bit of refactoring, hopefully it works */
 
-// Classes made per DB structure //
+// Classes per DB structure //
 class User {
 	public $user_no;
 	public $user_id;
@@ -19,7 +19,7 @@ class User {
 	public $user_permission;
 }
 class Challenge {
-	public $challenge_no = "";
+	public $challenge_no = '';
 	public $challenge_name;
 	public $challenge_desc;
 	public $challenge_score;
@@ -38,7 +38,7 @@ class Logging {
 	public $log_info;
 }
 
-// Basic ModelHandler //
+// Default ModelHandler //
 class ModelHandler {
 	protected $db;
 	protected $ModelName;
@@ -46,7 +46,7 @@ class ModelHandler {
 	protected $CheckColumn;
 
 	// Model helper functions
-	private function input_filter( $obj ){
+	private function input_filter( $obj ) {
 		// mysqli_escape_string() for the model.
 		$v = array_keys( get_class_vars( $ModelName ) );
 		foreach ( $v as $e ) $obj->$e = $this->db->filter( $obj->$e );
@@ -87,16 +87,18 @@ class ModelHandler {
 		foreach ( $where as $key => $val ) {
 			$k = $this->db->filter( $key );
 			$v = $this->db->filter( $val );
-			$condition[] = "$k = '$v' ";
+			$condition []= " $k='$v' ";
 		}
-		return implode( "$delim", $condition );
+
+		return implode( $delim, $condition );
 	}
+
 	public function __construct() {
 		global $query;
 		$this->db = $query;
 	}
 
-	// Model Query functions
+	// Query -> obj functions
 	public function get(Array $where = [], $limit = null,
 		Array $get_only = [], Array $order = []) {
 
@@ -113,7 +115,9 @@ class ModelHandler {
 			$limit_str = "";
 		}
 
-		$statement = "SELECT $columns FROM $this->TableName $condition $order_by $limit_str";
+		$statement = "SELECT $columns ";
+		$statement .= "FROM " . $this->TableName;
+		$statement .= " $condition $order_by $limit_str";
 		$type = ( $limit == 1 ) ? 1 : 2;
 		$result = $this->db->query( $statement, $type );
 
@@ -131,7 +135,9 @@ class ModelHandler {
 			$diff = array_diff( $diff_curr, $diff_prev );
 			$statement = "UPDATE " . $this->TableName . " SET ";
 			foreach ( $diff as $key => $val ) {
-				$statement .= $key . "='" . (string)$val . "', ";
+				$key = (string)$key;
+				$val = (string)$val;
+				$statement .= "$key='$val', ";
 			}
 			$statement = substr( $statement, 0, -2 );
 			$statement .= " WHERE $check_column='" . $obj->$check_column . "'";
@@ -163,11 +169,31 @@ class ModelHandler {
 		}
 		return $ret;
 	}
+	public function del($obj): int {
+		$check_column = $this->CheckColumn;
+		$check = $this->get( [$check_column => $obj->$check_column], 1 );
+		if( $check->$check_column === $obj->$check_column &&
+			$obj->$check_column != NULL ) {
+			$del_id = $obj->$check_column;
+			$statement = "DELETE FROM " . $this->TableName . " WHERE ";
+			$statement .= "$check_column='$del_id'";
+			return true;
+		}
+		return false;
+	}
+
+	// Query -> int functions
 	public function count(Array $where = []): int {
+		$condition = ( $where ) ? "WHERE " . $this->parse_where( $where ) : "";
+		$statement = "SELECT COUNT(*) AS cnt FROM " . $this->TableName . " $condition";
+		$result = $this->db->query( $statement, 1 );
+		return ( $result ) ? (int)$result['cnt'] : -1;
 	}
-	public function sum(Array $where = []): int {
-	}
-	public function del(Array $where = []): int {
+	public function sum($col = '', Array $where = []): int {
+		$condition = ( $where ) ? "WHERE " . $this->parse_where( $where ) : "";
+		$statement = "SELECT SUM($col) AS sum FROM " . $this->TableName . " $condition";
+		$result = $this->db->query( $statement, 1 );
+		return ( $result ) ? (int)$result['sum'] : -1;
 	}
 }
 
@@ -175,6 +201,8 @@ class ChallengeInfo extends ModelHandler {
 	public function __construct() {
 		$this->ModelName = "Challenge";
 		$this->TableName = "chal";
+		$this->CheckColumn = "challenge_no";
+		ModelHandler::__construct();
 	}
 }
 
@@ -182,6 +210,8 @@ class LoggingInfo extends ModelHandler {
 	public function __construct() {
 		$this->ModelName = "Logging";
 		$this->TableName = "log";
+		$this->CheckColumn = "log_no";
+		ModelHandler::__construct();
 	}
 }
 
@@ -192,6 +222,31 @@ class UserInfo extends ModelHandler {
 		$this->CheckColumn = "user_id";
 		ModelHandler::__construct();
 	}
+
+	private function get_rank(string $nickname): int {
+		// MySQL 5.7+ supports ROW_NUMBER(). yeah!
+		$statement = "SELECT x.rank FROM " .
+			"(SELECT user_nickname, ROW_NUMBER() OVER " .
+			"(ORDER BY user_score DESC, user_last_solved ASC, user_join_date ASC)" .
+			"AS rank FROM user WHERE user_permission != 9)x" .
+			" WHERE x.user_nickname='$nickname'";
+		$rank = $this->db->query( $statement, 1 );
+		if ( $rank && is_array( $rank ) ) {
+			return (int)$rank['rank'];
+		}
+		return 0;
+	}
+
+	public function get(Array $where = [], $limit = null,
+		Array $get_only = [], Array $order = []) {
+		// User needs rank too.. :p
+		$result = ModelHandler::get( $where, $limit, $get_only, $order );
+		if( $result->user_nickname && !$order ) {
+			$result->user_rank = $this->get_rank( $result->user_nickname );
+		}
+		return $result;
+	}
+
 }
 
 ?>
