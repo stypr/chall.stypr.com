@@ -81,7 +81,7 @@ class ModelHandler {
 		}
 		return $obj;
 	}
-	private function parse_where(array $where, string $delim = "AND"): string {
+	private function parse_where(array $where, string $delim = 'AND'): string {
 		// Parse MySQL where conditions
 		$condition = [];
 		foreach ( $where as $key => $val ) {
@@ -103,8 +103,8 @@ class ModelHandler {
 		Array $get_only = [], Array $order = []) {
 
 		$condition = ( $where ) ? "WHERE " . $this->parse_where( $where ) : "";
-		$columns = ( $get_only ) ? "ORDER BY" . implode( ",", $get_only ) : "*";
-		$order_by = ( $order ) ? $this->parse_order( $order ) : "";
+		$columns = ( $get_only ) ? implode( ",", $get_only ) : "*";
+		$order_by = ( $order ) ? "ORDER BY " . implode( ",", $order ) : "";
 		if( $limit ){
 			if ( is_integer( $limit ) ) {
 				$limit_str = "LIMIT $limit";
@@ -204,6 +204,7 @@ class ChallengeInfo extends ModelHandler {
 		$this->CheckColumn = "challenge_no";
 		ModelHandler::__construct();
 	}
+
 }
 
 class LoggingInfo extends ModelHandler {
@@ -212,6 +213,17 @@ class LoggingInfo extends ModelHandler {
 		$this->TableName = "log";
 		$this->CheckColumn = "log_no";
 		ModelHandler::__construct();
+	}
+
+	public function get_break(string $username = ''): array {
+		$where_user = ( $username ) ? "log_id='$username' AND" : "";
+		$statement = "SELECT *, 4 - rank AS break_point FROM " .
+			"(SELECT log_challenge, log_id, log_date, ROW_NUMBER() OVER" .
+			"(PARTITION BY log_challenge ORDER BY log_date ASC) AS rank" .
+			" FROM log WHERE log_type='Correct')x WHERE " .
+			" $where_user rank <= 3 ORDER BY log_challenge, rank";
+		$break_status = $this->db->query( $statement, 2 );
+		return ( $break_status ) ?: [];
 	}
 }
 

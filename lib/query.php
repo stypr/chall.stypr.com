@@ -53,7 +53,7 @@
                         return mysqli_real_escape_string($this->conn, $_filter);
 					}
 				case "auth":
-					return preg_replace("/[^a-zA-Z0-9-_!@$\.%^&*(){}가-힣]/", "", $str);
+					return @preg_replace("/[^a-zA-Z0-9-_!@$\.%^&*(){}가-힣]/", "", $str);
             }
         }
 
