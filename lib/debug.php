@@ -12,7 +12,7 @@ function return_error() {
 	$template->include( "error" );
 }
 
-function return_error_info($error) {
+function return_error_info( $error ) {
 	// Print error info with beauty
 	$file = $error['file'];
 	$line = $error['line'];
@@ -23,7 +23,9 @@ function return_error_info($error) {
 }
 
 function shutdown_function(){
-	// Runs on shutdown of the script; even with errors
+	// Runs on shutdown of the script, even with errors.
+	// This is far different from the PHP.ini auto_append_file
+	// You can use this code to other projects too.
 	global $query;
 	unset( $query );
 	$error = error_get_last();
@@ -31,8 +33,8 @@ function shutdown_function(){
 		if ( __DEBUG__ === true ) return_error_info( $error );
 		return_error();
 	}
+	// You can also log or put html footers here!
 }
-
 register_shutdown_function( "shutdown_function" );
 
 ?>

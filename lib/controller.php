@@ -1,29 +1,34 @@
 <?php
 
-	/* Controller classes
-	Nothing to comment so much. commenting irritates me! */
+	/* lib/controller.php
+	Will be on continuous updates, should be buggy */
 
+	// PHPMailer: should be installed by composer! //
 	use PHPMailer\PHPMailer\PHPMailer;
 	use PHPMailer\PHPMailer\Exception;
 
-	/* Default features for controllers; Abstract class */
+	// Default feature for the controller //
 	class Controller {
 		protected $db;
-		public function DefaultAction(){ $this->output_json(false); }
+		public function DefaultAction() { $this->output_json( false ); }
 
-		public function is_auth(){
-			// check if authenticated
+		public function is_auth() {
+			// Check whether the user is authenticated
 			$session = $_SESSION['username'] . $_SERVER['REMOTE_ADDR'];
-			if(secure_hash($session) == $_SESSION['session']){
+			if ( secure_hash( $session ) == $_SESSION['session'] ) {
 				return true;
 			}
 			return false;
 		}
 
-		public function output_json($data){
-			// return result as json
-			header("Content-Type: application/json;charset=utf-8");
-			echo json_encode($data);
+		public function auth_filter( $input ) {
+			return $this->db->filter( $input, "auth" );
+		}
+
+		public function output( $data ) {
+			// Return output in JSON //
+			header( "Content-Type: application/json;charset=utf-8" );
+			echo json_encode( $data );
 			exit;
 		}
 
@@ -33,7 +38,7 @@
 		}
 	}
 
-	/* User Controller */
+	// User Controller //
 	class UserController extends Controller {
 		// login, register, modify, find, recover
 		private function recover_account(){
@@ -211,7 +216,8 @@
 			$this->output_json(true);
 		}
 		public function CheckAction(){
-			$this->output_json($this->is_auth());
+			// Check whether the user is logged in
+			$this->output( $this->is_auth() );
 		}
 		public function LoginAction(){
 			if($this->is_auth()) $this->output_json(false);
@@ -247,33 +253,31 @@
 	/* Status Controller */
 	class StatusController extends Controller {
 		public function ScoreboardAction(){
-			$player = new PlayerInfo($this->db);
-			$log = new LoggingInfo($this->db);
+			// Get top scoreboard
 
-			// get breakthrough count for players
-			$break = $log->get_break_list();
-			$ranker = $player->get_ranker();
-			// calculate breakthrough points of users on each challenges.
-			$_break = [];
-			for($i=0;$i<count($break);$i++){
-				$_break_user = ($break[$i]->log_id);
-				$_break_point = ($break[$i]->rank);
-				$_break[$_break_user] += 4-$_break_point;
+			$user = new UserInfo;
+			$log = new LoggingInfo;
+			// Get Top 50 and User Total
+			$top_user_order = ['user_score DESC', 'user_auth_date ASC'];
+			$top_user = $user->get( [], 50,  [], $top_user_order );
+			$result = ['total' => $user->count() ];
+			// make user breakpoint into dict
+			$all_break = $log->get_break();
+			foreach ( $all_break as $key => $val ) {
+				$all_break_dict[$val['log_id']] += $val['break_point'];
 			}
-			// retrieve top rankers
-			$result = ['total' => $player->get_count()];
-			for($i=0;$i<count($ranker);$i++){
-				$user = $ranker[$i]->user_id;
-				$_break_count = $_break[$user] ? $_break[$user] : '';
-
-				$result['ranker'][] = ['nickname' => $ranker[$i]->user_nickname,
-					'score' => $ranker[$i]->user_score,
-					'break_count' => $_break_count,
-					'comment' => $ranker[$i]->user_comment,
-					'last_solved' => $ranker[$i]->user_last_solved
+			// Append top player information to result
+			foreach  ( $top_user as $key => $val ) {
+				$user_id = $val->user_id;
+				$break_point = $all_break_dict[$user_id] ?: 0;
+				$result['ranker'][] = ['nickname' => $val->user_nickname,
+					'score' => $val->user_score,
+					'break_count' => $break_point,
+					'comment' => $val->user_comment,
+					'last_solved' => $val->user_last_solved,
 				];
 			}
-			$this->output_json($result);
+			$this->output($result);
 		}
 		public function ChallengeAction(){
 			$player = new PlayerInfo($this->db);
@@ -333,76 +337,65 @@
 			$this->output_json($result);
 		}
 		public function FameAction(){}
+
 		public function ProfileAction(){
-			$player = new PlayerInfo($this->db);
-			$log = new LoggingInfo($this->db);
-			$chall = new ChallengeInfo($this->db);
-			$_GET['nickname'] = (!$_GET['nickname']) ? ($_SESSION['nickname']) : ($_GET['nickname']);
-			$nickname = $this->db->filter($_GET['nickname'], "auth");
-			// check if viewed by admin
+			// Get profile info of user
+			// returns current user's profile on null parameter
 
-			$admin_mode = false;
-			if($_SESSION['username']){
-				$_check = $player->get_by_username($_SESSION['username']);
-				if($_check->user_permission == 9 || $_SESSION['username'] == $_check->user_id){
-					$admin_mode = true;
+			$user = new UserInfo;
+			$log = new LoggingInfo;
+			$chall = new ChallengeInfo;
+			$nickname = $this->auth_filter( $_GET['nickname'] ?: $_SESSION['nickname'] );
+			$me = $user->get( ['user_nickname' => $nickname ], 1 );
+			if ( !$me->user_nickname ) $this->output(false);
+			// Godmode is only available for the account owner and admin.
+			$godmode = false;
+			if( $_SESION['nickname'] ) {
+				if ( $nickname === $_SESSION['nickname'] || $me->user_permission == 9 ) {
+					$godmode = true;
 				}
 			}
-
-			// retrieve by nickname
-			$profile = $player->get_by_nickname($nickname);
-			if(!$profile->user_nickname) $this->output_json(false);
-			// get breakpoints -> add that to solved challenges
-			$break = $log->get_break_list();
-			$_break = [];
-			for($i=0;$i<count($break);$i++){
-				$_break_user = ($break[$i]->log_id);
-				$_break_chall = ($break[$i]->log_challenge);
-				$_break_rank = ($break[$i]->rank);
-				$_break_point = 4-$_break_rank;
-				//$_break_user
-				if($_break_user === $profile->user_id){
-					$_break[$_break_chall] = [
-						'break_point' => $_break_point,
-						'break_rank' => $_break_rank,
+			// Only godmode user can view the mail address.
+			$email = ( $godmode ) ? ( '@' . explode( $me->user_id )[1] ) : ( $me->user_id );
+			// get user's breakthrough info; make it into dict format
+			$me_break = $log->get_break( $me->user_id );
+			$me_break_dict = [];
+			foreach($me_break as $key => $val){
+				$me_break_dict[$val['log_challenge']] = [
+					'break_point' => $val['break_point'],
+					'break_rank' => $val['rank'],
+				];
+			}
+			// parse solved
+			$me_solved = [];
+			$me_log = $log->get( ['log_id' => $me->user_id] );
+			for ( $i=0; $i<count($me_log); $i++) {
+				if ( $me_log[$i]->log_type == "Correct" ) {
+					$solved_chall_name = $me_log[$i]->log_challenge;
+					$solved_chall = $chall->get( ['challenge_name' => $solved_chall_name], 1 );
+					$me_solved[] = ['chall_name' => $solved_chall_name,
+						'chall_solve_date' => $me_log[$i]->log_date,
+						'chall_score' => $solved_chall->challenge_score,
+						'chall_break' => $me_break_dict[$solved_chall_name],
 					];
 				}
 			}
-			$normal = $log->get_by_username($profile->user_id);
-			$_normal = [];
-			for($i=0;$i<count($normal);$i++){
-				if($normal[$i]->log_type == "Correct"){
-					$_chall = $chall->get_by_name($normal[$i]->log_challenge);
-					$_normal[] = ['chall_name' => $normal[$i]->log_challenge,
-						'chall_solve_date' => $normal[$i]->log_date,
-						'chall_score' => $_chall->challenge_score,
-						'chall_break' => $_break[$normal[$i]->log_challenge],
-					];
-				}
-			}
-
-			// only list the domain name, unless viewed by admin.
-			if(!$admin_mode){
-				$email = '@'. explode('@', $profile->user_id)[1];
-			}else{
-				$email = $profile->user_id;
-			}
-			$result = ['nick' => $profile->user_nickname,
+			// return a favorable output
+			$result = ['nick' => $me->user_nickname,
 				'username' => $email,
-				'last_solved' => $profile->user_last_solved,
+				'last_solved' => $me->user_last_solved,
 				'comment' => $profile->user_comment,
-				'join_date' => explode(' ', $profile->user_join_date)[0],
-				'rank' => $profile->user_rank,
-				'score' => $profile->user_score,
-				'badge' => null, // tbd
-				// the service uses gravatar, you can customize it if you wish to.
-				'profile_picture' => 'https://www.gravatar.com/avatar/'.
-					md5($profile->user_id) . '?v=3&s=200&'.
-					'd=//github.com/identicons/'.rand(1,500).'.png',
-				'solved' => $_normal,
-			];
-
-			$this->output_json($result);
+				'join_date' => explode( ' ', $me->user_join_date )[0],
+				'rank' => $me->user_rank,
+				'score' => $me->user_score,
+				'badge' => null, // TBD
+                // gravatar by default, you can customized this.
+                'profile_picture' => '//www.gravatar.com/avatar/'.
+                    md5( $me->user_id ) . '?v=3&s=100&'.
+                    'd=//github.com/identicons/' . rand( 1, 500 ) . '.png',
+                'solved' => $me_solved,
+            ];
+            $this->output( $result );
 		}
 	}
 
@@ -486,48 +479,59 @@
 		public function RateAction(){}
 	}
 
-	/* WeChall Controller */
+	// WeChall Controller //
 	class WeChallController extends Controller {
+		public function __construct() {
+			Controller::__construct();
+			// Check feature availability
+			if ( __WECHALL__ == "__WECHALL__" || __WECHALL__ == "" ) {
+				$this->output( "* WeChall feature disabled." );
+			}
+			// Check if the request is from WeChall
+			$check = $this->auth_filter( $_GET['authkey'] );
+			if ( $check !== __WECHALL__ ) {
+				$this->output( "* Failed Authentication." );
+			}
+		}
 		public function VerifyAction(){
-			$player = new PlayerInfo($this->db);
-			$auth = $this->db->filter($_GET['authkey'], "auth");
-			$nick = $this->db->filter($_GET['username'], "auth");
-			$mail = $this->db->filter($_GET['email'], "auth");
-			if($auth !== __WECHALL__ && __WECHALL__ != "") $this->output_json(false);
+			// Verify user info and return in WeChall Format
+			// Valid Output: 1 | 0
+			$user = new UserInfo;
 
-			$check = ($player->get_by_username($mail)->user_nickname === $nick &&
-				$player->get_by_nickname($nick)->user_id === $mail);
+			$nickname = $this->auth_filter( $_GET['username'] );
+			$mailaddr = $this->auth_filter( $_GET['email'] );
+			$check = ( $user->get( ['user_id' => $mailaddr], 1 )->user_nickname === $nickname &&
+				$user->get( ['user_nickname' => $nickname], 1 )->user_id === $mailaddr );
+
 			echo ($check) ? '1' : '0';
 			exit;
 		}
 		public function RankAction(){
-			// username:rank:score:maxscore:challssolved:challcount:usercount
-			$player = new PlayerInfo($this->db);
-			$chall = new ChallengeInfo($this->db);
-			$log = new LoggingInfo($this->db);
+			// Retrieve user information in WeChall format
+			// Valid Output: username:rank:score:maxscore:challssolved:challcount:usercount
+			$user = new UserInfo;
+			$chall = new ChallengeInfo;
+			$log = new LoggingInfo;
 
-			$auth = $this->db->filter($_GET['authkey'], "auth");
-			$nick = $this->db->filter($_GET['username'], "auth");
-			if($auth !== __WECHALL__ && __WECHALL__ != "") $this->output_json(false);
+			$nickname = $this->auth_filter( $_GET['username'] );
+			$me = $user->get( ['user_nickname' => $nickname], 1 );
+			if ( !$me->user_nickname ) $this->output( false );
+			$me_solved_count = $log->count( ['log_type' => 'Correct', 'log_id' => $me->user_id] );
 
-			$me = $player->get_by_nickname($nick);
-			$data = $log->get_by_username($me->user_id);
-			$solved_count = 0;
-			for($i=0;$i<count($data);$i++){
-				if($data[$i]->log_type == 'Correct'){
-					$solved_count += 1;
-				}
-			}
-			$q = $this->db->query("SELECT SUM(challenge_score) AS tot FROM chal WHERE challenge_is_open=1",1 );
-			if(($player->get_by_username($me->user_id)->user_nickname) === $nick){
-				$out = [];
-				$out[]= $nick;
-				$out[]= $me->user_rank;
-				$out[]= $me->user_score;
-				$out[]= $q['tot'];
-				$out[]= $solved_count;
-				$out[]= $chall->get_count();
-				$out[]= $player->get_count();
+			$chall_total_score = $chall->sum( 'challenge_score', ['challenge_is_open' => 1] );
+			$chall_total_count = $chall->count( ['challenge_is_open' => 1] );
+			$user_total_count = $user->count();
+
+			// Check if user actually exist..
+			$out = [];
+			if ( $user->get( ['user_id' => user_id], 1 )->user_nickname === $nick ) {
+				$out[] = $nickname;
+				$out[] = $me->user_rank;
+				$out[] = $me->user_score;
+				$out[] = $chall_total_score;
+				$out[] = $me_solved_count;
+				$out[] = $chall_total_count;
+				$out[] = $user_total_count;
 			}
 			echo implode(':', $out);
 			exit;
