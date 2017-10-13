@@ -132,45 +132,7 @@
 				$this->output_json('nope');
 			}
 		}
-		private function login_account(){
-			$player = new PlayerInfo($this->db);
-			$nickname = $this->db->filter($_POST['nickname'], 'auth');
-			$password = $this->db->filter($_POST['password'], 'auth');
-			$ip = $this->db->filter($_SERVER['REMOTE_ADDR'], 'auth');
-			if((strlen($nickname) >= 3 && strlen($nickname) <= 100) &&
-				(strlen($password) >= 4 && strlen($password) <= 100)){
-				// I give very lenient options to users.
-				// emails are accepted, yet the nickname is the first priority.
-				$check_by_nick = $player->get_by_nickname($nickname);
-				$check_by_mail = $player->get_by_username($nickname);
-				if(!$check_by_nick->user_nickname && !$check_by_mail->user_nickname) return false;
-				if($check_by_nick->user_nickname){
-					$_nick = $check_by_nick->user_nickname;
-					$_pass = $check_by_nick->user_pw;
-				}else{
-					$_nick = $check_by_mail->user_nickname;
-					$_pass = $check_by_mail->user_pw;
-				}
-				if(!$_nick || !$_pass) return false;
-				$encrypted_password = secure_hash($password);
-				if($_pass === $encrypted_password && $_pass != ''){
-					// on success, log access and set authentication
-					$_user = $player->get_by_nickname($_nick);
-					$_user->user_auth_date = date("Y-m-d H:i:s");
-					$_user->user_auth_ip = $ip;
-					$player->set($_user);
-					// set auth..
-					$_SESSION['username'] = $_user->user_id;
-					$_SESSION['nickname'] = $_user->user_nickname;
-					$_SESSION['session'] = secure_hash($_SESSION['username'] . $_SERVER['REMOTE_ADDR']);
-					return true;
-				}else{
-					return false;
-				}
-			}else{
-				return false;
-			}
-		}
+
 		private function register_account(){
 			$player = new PlayerInfo($this->db);
 			$username = $this->db->filter($_POST['username'], 'auth');
@@ -215,20 +177,59 @@
 			$player->set($user);
 			$this->output_json(true);
 		}
+
 		public function CheckAction(){
 			// Check whether the user is logged in
 			$this->output( $this->is_auth() );
 		}
+
 		public function LoginAction(){
-			if($this->is_auth()) $this->output_json(false);
-			if($_POST) $this->output_json($this->login_account());
-			$this->output_json(false);
+			if ( $this->is_auth() ) $this->output( false );
+			$user = new UserInfo;
+			$nick = $this->auth_filter( $_POST['nickname'] );
+			$pass = $this->auth_filter( $_POST['password'] );
+			$addr = $this->auth_filter( $_SERVER['REMOTE_ADDR'] );
+			// Check length
+			if ( strlen( $nick ) >= 3 && strlen( $nick ) <= 100 &&
+				strlen( $pass ) >= 4 && strlen( $pass ) <= 100 ){
+				// I give very lenient options to users.
+				// Emails are *also* accepted, yet nicknames are the first priority.
+				$check_nick = $user->get( ['user_nickname' => $nick], 1 );
+				$check_mail = $user->get( ['user_id' => $nick], 1 );
+				// Get the result
+				if ( $check_nick->user_nickname ) {
+					$result_nick = $check_nick->user_nickname;
+					$result_pass = $check_nick->user_pw;
+				}
+				elseif ( $check_mail->user_nickname ) {
+					$result_nick = $check_mail->user_nickname;
+					$result_pass = $check_nick->user_pw;
+				}
+				else {
+					$this->output( false );
+				}
+				if ( !( $result_nick && $result_pass ) ) $this->output( false );
+				// Verify result
+				$encrypted_pass = secure_hash($pass);
+				if ( $result_pass === $encrypted_pass && $pass != '' &&
+					$result_user === $nick ) {
+					// Log access and set authentication.
+					$me = $user->get( ['user_nickname' => $result_nick], 1);
+					$me->user_auth_date = date("Y-m-d H:i:s");
+					$me->user_auth_ip = $addr;
+					$user->set( $me );
+					$_SESSION['username'] = $me->user_id;
+					$_SESSION['nickname'] = $me->user_nickname;
+					$_SESSION['session'] = secure_hash( $me->user_id . $addr );
+			}
 		}
+
 		public function LogoutAction(){
-			if(!$this->is_auth()) $this->output_json(false);
+			if( !$this->is_auth() ) $this->output( false );
+			// Destroy session
 			$_SESSION = [];
 			session_destroy();
-			$this->output_json(true);
+			$this->output( true );
 		}
 		public function RegisterAction(){
 			if($this->is_auth() || !$_POST) $this->output_json(false);
@@ -253,14 +254,14 @@
 	/* Status Controller */
 	class StatusController extends Controller {
 		public function ScoreboardAction(){
-			// Get top scoreboard
+			// Get top rankers
 
 			$user = new UserInfo;
 			$log = new LoggingInfo;
 			// Get Top 50 and User Total
 			$top_user_order = ['user_score DESC', 'user_auth_date ASC'];
-			$top_user = $user->get( [], 50,  [], $top_user_order );
-			$result = ['total' => $user->count() ];
+			$top_user = $user->get( [], 50, [], $top_user_order );
+			$result = ['total' => $user->count()];
 			// make user breakpoint into dict
 			$all_break = $log->get_break();
 			foreach ( $all_break as $key => $val ) {
@@ -277,66 +278,61 @@
 					'last_solved' => $val->user_last_solved,
 				];
 			}
+			$this->output( $result );
+		}
+
+		public function ChallengeAction(){
+			// Retrieve Challenge status
+
+			$user = new UserInfo;
+			$chall = new ChallengeInfo;
+			$log = new LoggingInfo;
+			$result = [];
+			$chall_all = $chall->get( ['challenge_is_open' => 1] );
+			$user_nick_list = $user->get_nick_dict();
+			// Get top breakthrough of all challenges
+			$chall_break = $log->get_break();
+			$chall_break_log = [];
+			foreach ( $chall_break as $key => $val ) {
+				$chall_break_log[$val['log_challenge']][] = ['rank' => $val['rank'],
+					'user' => $user_nick_list[$val['log_id']],
+					'date' => $val['log_date'],
+				];
+			}
+			// well, print it out
+			foreach ( $chall_all as $key => $val ) {
+				$log_last = ['log_challenge' => $val->challenge_name, 'log_type' => 'Correct'];
+				$log_last = $log->get( $log_last, 1, ['log_date'], ['log_date DESC'] );
+
+				$result[] = ['id' => $val->challenge_id,
+					'name' => $val->challenge_name,
+					'author' => $val->challenge_by,
+					'solver' => $val->challenge_solve_count,
+					'score' => $val->challenge_score,
+					'rate' => $val->challenge_rate,
+					'break' => $chall_break_log[$val->challenge_name],
+					'last-solved' => $log_last->log_date,
+				];
+			}
 			$this->output($result);
 		}
-		public function ChallengeAction(){
-			$player = new PlayerInfo($this->db);
-			// retrieve nickname from users
-			$player_nick = $player->get_nickname();
-			$log = new LoggingInfo($this->db);
-			$chall = new ChallengeInfo($this->db);
-			$chall_list = $chall->get_list();
-			$_break = $log->get_break_list();
-			$break = [];
-			for($i=0;$i<count($_break);$i++){
-				$_break_chall = $_break[$i]->log_challenge;
-				$_break_user = $player_nick[$_break[$i]->log_id];
-				$_break_date = $_break[$i]->log_date;
-				$_break_rank = $_break[$i]->rank;
-				$break[$_break_chall][] = ['user' => $_break_user,
-					'date' => $_break_date,
-					'rank' => $_break_rank
-				];
-			}
-			$result = [];
-			for($i=0;$i<count($chall_list);$i++){
-				// get breakthrough and last-solved by log
-				$_name = $chall_list[$i]->challenge_name;
-				$_log = $log->get_by_challenge($_name);
-				$_break = null;
-				$_break_log = $_log[0]->log_id;
-				$_last = null;
-				$_last = end($_log)->log_date;
 
-				$result[] = ['id' => $chall_list[$i]->challenge_id,
-					'name' => $chall_list[$i]->challenge_name,
-					'author' => $chall_list[$i]->challenge_by,
-					'score' => $chall_list[$i]->challenge_score,
-					'solver' => $chall_list[$i]->challenge_solve_count,
-					'break' => $break[$chall_list[$i]->challenge_name],
-					'author' => $chall_list[$i]->challenge_by,
-					'last-solved' => $_last,
-					'rate' => $chall_list[$i]->challenge_rate
-				];
-			}
-			$this->output_json($result);
-		}
 		public function AuthAction(){
-			$player = new PlayerInfo($this->db);
-			$player_nick = $player->get_nickname();
-			$log = new LoggingInfo($this->db);
-			$log_list = $log->get_by_type('Correct');
+			// Retrieve Auth Log
+			$user = new UserInfo;
+			$log = new LoggingInfo;
 			$result = [];
-			for($i=(count($log_list)-1);$i>0;$i--){
-				$result[] = ['no' => $log_list[$i]->log_no,
-					'nick' => $player_nick[$log_list[$i]->log_id],
-					'chall' => $log_list[$i]->log_challenge,
-					'date' => $log_list[$i]->log_date
+			$user_nick_list = $user->get_nick_dict();
+			$log_all = $log->get( ['log_type' => 'Correct'], null, [], ['log_date DESC'] );
+			foreach ( $log_all as $key => $val ) {
+				$result[] = ['no' => $val->log_no,
+					'nick' => $user_nick_list[$val->log_id],
+					'chall' => $val->log_challenge,
+					'date' => $val->log_date,
 				];
 			}
-			$this->output_json($result);
+			$this->output($result);
 		}
-		public function FameAction(){}
 
 		public function ProfileAction(){
 			// Get profile info of user
@@ -397,6 +393,8 @@
             ];
             $this->output( $result );
 		}
+
+		public function FameAction(){} // TBD
 	}
 
 	/* Challenge Controller */
