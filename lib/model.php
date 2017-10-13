@@ -249,6 +249,16 @@ class UserInfo extends ModelHandler {
 		return 0;
 	}
 
+	public function get_nick_dict(): array {
+		// Get a dict of email => nick
+		$result = $this->get([], null, ['user_id', 'user_nickname']);
+		$result_dict = [];
+		foreach ( $result as $key => $val ) {
+			$result_dict[$val->user_id] = $val->user_nickname;
+		}
+		return $result_dict;
+	}
+
 	public function get(Array $where = [], $limit = null,
 		Array $get_only = [], Array $order = []) {
 		// User needs rank too.. :p
