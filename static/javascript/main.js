@@ -245,8 +245,11 @@ var load_chall = function(p){
 		d=d.filter(function(a){
 			return a.challenge_solved === false;
 		}); */
+		var solved=[];
+		for(var i in CURRENT_USER['solved']) solved.push(Object.values(CURRENT_USER['solved'][i])[0]);
+
 		for(var i=0;i<d.length;i++){
-			if(d[i]['challenge_solved'] == false){
+			if(!solved.includes(d[i]['challenge_name'])){
 				add_data("#content", '<div class="Box mb-3"><div class="Box-header pt-2 pb-2 Box-header--blue">' +
 					'<h3 class="Box-title"><span class="octicon octicon-bug">&nbsp;</span>'+ d[i]['challenge_name'] +
 					' <span class="right">' + d[i]['challenge_score']+ output_intl('pt') + '</span></h3></div>'+
@@ -588,7 +591,7 @@ var set_error = function(t){
 			new_data("#content", "<div class='flash flash-error'><h4>"+output_intl("error-nope")+"</h4>"+output_intl("error-nope-info")+"</div><br>" +
 				"<img src='./static/image/403.png' width=100%>");
 			break;
-	}	
+	}
 }
 var set_auth = function(){
 	$.get('/user/check', function(d){
@@ -619,7 +622,7 @@ var set_language = function(){
 		CURRENT_LANG = $("#language-select").val();
 		$("*:not(.octicon)").css("font-family", output_intl('FONT'));
 		main();
-	});	
+	});
 };
 var set_layout = function(){
 	new_data("#sidebar");
