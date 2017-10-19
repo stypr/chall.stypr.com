@@ -169,14 +169,23 @@ class ModelHandler {
 		}
 		return $ret;
 	}
+
 	public function del($obj): int {
-		$check_column = $this->CheckColumn;
-		$check = $this->get( [$check_column => $obj->$check_column], 1 );
-		if( $check->$check_column === $obj->$check_column &&
-			$obj->$check_column != NULL ) {
-			$del_id = $obj->$check_column;
-			$statement = "DELETE FROM " . $this->TableName . " WHERE ";
-			$statement .= "$check_column='$del_id'";
+		if ( is_object( $obj ) ) {
+			$check_column = $this->CheckColumn;
+			$check = $this->get( [$check_column => $obj->$check_column], 1 );
+			if ( $check->$check_column === $obj->$check_column &&
+				$obj->$check_column != NULL ) {
+				$del_id = $obj->$check_column;
+				$statement = "DELETE FROM " . $this->TableName . " WHERE ";
+				$statement .= "$check_column='$del_id'";
+				$this->db->query( $statement );
+				return true;
+			}
+		} elseif ( is_array( $obj ) ) {
+			$where = $this->parse_where( $obj );
+			$statement = "DELETE FROM " . $this->TableName . " WHERE $where";
+			$this->db->query( $statement );
 			return true;
 		}
 		return false;
