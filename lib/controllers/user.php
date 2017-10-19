@@ -12,9 +12,12 @@
 			$encrypted_password = secure_hash( $password );
 
 			$log_verify = $log->get( ['log_info' => $recovery_code], 1 );
+
 			if ( $log_verify->log_id && $log_verify->log_no >= 0 &&
-				$log_verify->log_info === $code ) {
+				$log_verify->log_type == "Recovery" &&
+				$log_verify->log_info === $recovery_code ) {
 				// Delete request logs
+				/* get multiple obj -> delete by stmt */
 				$log->del( ['log_id' => $log_verify->log_id, 'log_type' => 'Recovery'] );
 				// Change Password
 				$me = $user->get( ['user_id' => $log_verify->log_id, 1] );
