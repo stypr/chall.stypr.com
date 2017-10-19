@@ -3,6 +3,7 @@
 	/* lib/controllers/wechall.php */
 
 	class WeChallController extends Controller {
+
 		public function __construct() {
 			Controller::__construct();
 			// Check feature availability
@@ -58,6 +59,7 @@
 			echo implode(':', $out);
 			exit;
 		}
+
 	}
 
 ?>

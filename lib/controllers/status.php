@@ -3,6 +3,7 @@
 	/* lib/controllers/status.php */
 
 	class StatusController extends Controller {
+
 		public function ScoreboardAction(){
 			// Get top rankers
 
@@ -145,6 +146,7 @@
 		}
 
 		public function FameAction(){} // TBD
+
 	}
 
 ?>

@@ -1,7 +1,7 @@
 <?php
 
 /* lib/function.php
-Global function set */
+Global helper function */
 
 function redirect($page) {
 	// Redirect function: use at your own risk!

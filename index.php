@@ -10,6 +10,9 @@ require_once( "lib/debug.php" );
 require_once( "lib/model.php" );
 require_once( "lib/controller.php" );
 require_once( "lib/template.php" );
+require_once( "vendor/autoload.php" );
+require_once( "lib/mail.php" );
+
 // Limits controller access //
 $allowed_controller = [ "user", "challenge", "status", "wechall", "default" ];
 

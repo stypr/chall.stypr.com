@@ -4,6 +4,7 @@
 	This controller should serve client-side files */
 
 	class DefaultController extends Controller {
+
 		public function DefaultAction() {
 			$template = new Template();
 			// Checks for the CTF Mode
@@ -17,6 +18,7 @@
 			}
 			$template->include("index");
 		}
+
 	}
 
 ?>
