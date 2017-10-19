@@ -3,6 +3,7 @@
 	/* lib/controllers/challenge.php */
 
 	class ChallengeController extends Controller {
+
 		private function list_solved(): array{
 			if(!$_SESSION['username']) return [];
 			$log = new LoggingInfo($this->db);
@@ -78,7 +79,7 @@
 				$log->set( $log_new );
 
 				// Update to WeChall if the feature is enabled.
-				if(__WECHALL__ !== "__WECHALL__") @update_wechall();
+				if( __WECHALL__ !== "__WECHALL__" ) @update_wechall();
 
 				$this->output( "success" );
 			}else{
@@ -94,6 +95,7 @@
 		}
 
 		public function RateAction(){}
+
 	}
 
 ?>
