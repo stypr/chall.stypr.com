@@ -1,58 +1,89 @@
-## chall.stypr.com
+# chall.stypr.com
 
-### WARNING: This repo is on a development stage and features are incomplete. Do not make issues/bugs until the development stage is over.
+Developed from the scractch for the personal benefits.
 
-Brand new version 2, is now on development stage. Now released with [The Unlicense](LICENSE.md).
-
-I'm trying to optimize on demand, since the whole new version is developed from the scratch and I am developing this on my daily spare time which is approx ~1h per day.
-
-### Requirements
-
-The server's modest requirements are as follows:
-* a decent web server &mdash; *nginx* would be the most appropriate.
-* PHP7 or later &mdash; the project follows the latest standard; PHP5 won't work.
-* Latest MySQL distro &mdash; the project utilizes features from the latest editions.
-
-Scripts are tested on the x64 linux/x64 windows with the following softwares:
-* nginx 1.0+
-* php 7.0.22 (php_mysqli, php_fpm, php_curl, composer)
-* mariadb 10.2+ / mysql 5.7+ (Lower than these versions will not work)
-* Latest edition of chrome was used for client-side tests.
-
-### Installation
-
-1. Please put all files on your webroot directory.
-
-2. Run composer on the webroot directory by the shell. (i.e. `composer install`)
-
-3. Run `install.php` from the web browser for further installation.
-
-### Customization
-
-* You may customize files to whatever you want, unless the service does not crash down so bad.
-
-* This one is made to fit on my personal project, so you should better try CTFd or something that's more suitable for a generic use.
-
-### For pwners who seek to report vuln..
-
-You're allowed to send [me](https://harold.kim/) a mail ([PGP](https://harold.kim/pubkey)) on a successful development of the exploit. The scope of such cases are limited to following situations:
-
-* Any kind of attacks that would get one's credential without one's activity. 
-	* SQLi, RCE, XXE attacks would be one of such attacks.
-	* attacks that require the least activity are also allowed (i.e. cross-site scripting on the page that everyone can view)
-* Any kind of attacks that would compromise the system or leak important data from the system (RCE, LFI/RFI)
-
-You're also allowed to report the vulnerablity of the [challenge network](https://eagle-jump.org/) on following cases:
-* Any kind of vulnerability that would escape the sandbox and get the shell of the host's system.
-* Any kind of vulnerability that would leak contents/packets of other machines.
-
-On a succesful patch, your exploit will be posted with your nickname on the Hall of Fame.
-
-Please note that
-1. Attacking challenges should be done with purely black-box tests, without DoS or attacks that would consume a lot of traffic and data on the system.
-2. I won't reply on mails about possible flaws/attacks outside the boundary. Please provide me full exploit or any exploit that would break the server.
+Brand new version 2.  Now released with [The Unlicense](LICENSE.md).
 
 ### Pull Requests
 
-You are allowed to send pull requests for new features/improvements. However, merging commits would take a bit of time as I don't frequently utilize github. (actually I've got personal git server running for personal projects :wink:)
+Pull requests are very welcome.
 
+The only thing is that I won't be able to merge requests as my daily spare time is very limited. (I use the internet approximately 1 hour per day because of frequent military operations)
+
+### Requirements
+
+The modest requirements are as follows:
+
+* A decent web server 
+ * Get nginx, apache, whatever you want. I personally recommend *nginx* or *caddy*.
+
+* **PHP 7** or later &mdash; The project follows the latest standard (as of late 2017).
+  * php-mysql, php-fpm, php-curl extensions should be enabled.
+  * composer must be installed.
+
+* Latest MySQL distribution
+ *  **MySQL 5.7+** or  **MariaDB 10.2+** will be the least requirement
+ * This is because of the newly-implemented ranking feature. (which is very identical to features from MSSQL)
+
+* Latest versions of modern web browsers (for clients)
+ * Tested in IE11, Chrome 4.x and Chrome 61
+
+### Detailed Installation Guide
+
+#### Basic Setup
+
+1. Copy/Clone and put all files on your webroot directory. (`git clone`)
+
+2. Use composer from your webroot directory to install additional dependencies (`composer install`)
+
+3. Now, let's generate secure random salt for the service.
+ * `php -r "require('lib/function.php');var_dump(generate_random_string(64));"`
+
+4. You are now ready to fill up the `install/config.php` file.
+
+5. Install the database with `install/config.sql`.
+
+6. `cp install/config.php lib/exclude/config.php`
+
+7. Remove installation directory, Cleanup useless files
+
+#### Set user as admin
+
+1. Register your account from the website.
+
+2. Get into your MySQL console.
+
+3. Run `UPDATE user SET user_permission=9 WHERE user_nickname='YOURNICK';`
+
+
+**Admin functions are TBD. Coming soon.**
+
+
+### Vulnerability Reports
+
+You're allowed to send [me](https://harold.kim/) a mail ([PGP](https://harold.kim/pubkey)) on a successful development of the exploit.
+
+The successful scope of such cases are limited to following situations:
+
+1. Any kind of attacks that would get one's credential without one's activity. 
+  * i.e. SQLi, RCE, XXE attacks
+  * Attacks that require the least activity are also allowed
+     * i.e CSRF on public page
+
+2. Any kind of attacks that would compromise the system or leak important data from the system
+ * i.e. RCE, LFI/RFI attacks
+
+You're also allowed to report the vulnerablity of the [challenge network](https://eagle-jump.org/) on following cases:
+
+1. Any kind of attacks that would escape the sandbox and get the shell of the host's system.
+2. Any kind of attacks that can leak contents/packets of other sandbox(es).
+
+On a succesful patch, your exploit will be posted with your nickname at the Hall of Fame.
+
+Please note that,
+
+1. Attacking challenge network should be done with purely black-box tests, without DoS or any related attacks that would consume a lot of traffic and data on the system.
+
+2. I won't reply on mails about possible flaws/attacks outside the boundary. Please provide me full exploit or any exploit that would break the server.
+
+3. Send me the encrypted text as a file (if mail sent by PGP)

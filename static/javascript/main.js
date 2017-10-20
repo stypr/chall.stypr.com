@@ -34,7 +34,7 @@ function act_chall_auth(){
 		$("#output-message").html(output_intl("chall-auth-invalid"));
 		return false;
 	}
-	$.post("?controller=challenge&action=auth", _input, function(d){
+	$.post("/challenge/auth", _input, function(d){
 		switch(d){
 			case 'success':
 				main();
@@ -62,7 +62,7 @@ function act_user_recover(n){
 			'<pre>RegExp: ^[a-zA-Z0-9-_!@$.%^&*()가-힣]{4, 100}$</pre>');
 		return false;
 	}
-	$.post("?controller=user&action=recover", _input, function(d){
+	$.post("/user/recover", _input, function(d){
 		if(d == true){
 			window.location.hash = '/user/login';
 		}else{
@@ -78,7 +78,7 @@ function act_user_find(){
 	$("#output-message").addClass("flash-info");
 	$("#output-message").addClass("flash");
 	$("#output-message").html(output_intl("find-send-loading"));
-	$.post("?controller=user&action=find", _input, function(d){
+	$.post("/user/find", _input, function(d){
 		switch(d){
 			case "done":
 				$("#output-message").html(output_intl("find-send-done"));
@@ -110,7 +110,7 @@ function act_user_auth(){
 	$("#output-message").addClass("flash");
 	$("#output-message").html(output_intl("auth-loading"));
 	_input = {'nickname': $("#nickname").val(), 'password': $("#password").val()};
-	$.post("?controller=user&action=login", _input, function(d){
+	$.post("/user/login", _input, function(d){
 		if(d == true){
 			if($("#remember-nick").prop('checked')){
 				localStorage.setItem('current_nick', _input['nickname']);
@@ -146,7 +146,7 @@ function act_user_edit(){
 			return false;
 		}
 	}
-	$.post("?controller=user&action=edit", _input, function(d){
+	$.post("/user/edit", _input, function(d){
 		if(d == true){
 			if($("#remember-nick").prop('checked')){
 				localStorage.setItem('current_nick', _input['nickname']);
@@ -187,7 +187,7 @@ function act_user_register(){
 			'<pre>RegExp: ^[a-zA-Z0-9-_!@$.%^&*()가-힣]{4, 100}$</pre>');
 		return false;
 	}
-	$.post("?controller=user&action=register", _input, function(d){
+	$.post("/user/register", _input, function(d){
 		switch(d){
 			case "duplicate_nick":
 				$('#output-message').html(output_intl('reg-deny-dup-nick'));
@@ -234,7 +234,7 @@ var load_chall = function(p){
 		'<span class="octicon octicon-key"> '+output_intl('auth')+'</span>'+
 		'</button></div>'+
 		'</div><hr style="border:0;">');
-	$.get("?controller=challenge&action=list", function(d){
+	$.get("/challenge/list", function(d){
 		// ascending order
 		d=d.sort(function(a,b){
 			if(a.challenge_score == b.challenge_score) return 0;
@@ -245,8 +245,11 @@ var load_chall = function(p){
 		d=d.filter(function(a){
 			return a.challenge_solved === false;
 		}); */
+		var solved=[];
+		for(var i in CURRENT_USER['solved']) solved.push(Object.values(CURRENT_USER['solved'][i])[0]);
+
 		for(var i=0;i<d.length;i++){
-			if(d[i]['challenge_solved'] == false){
+			if(!solved.includes(d[i]['challenge_name'])){
 				add_data("#content", '<div class="Box mb-3"><div class="Box-header pt-2 pb-2 Box-header--blue">' +
 					'<h3 class="Box-title"><span class="octicon octicon-bug">&nbsp;</span>'+ d[i]['challenge_name'] +
 					' <span class="right">' + d[i]['challenge_score']+ output_intl('pt') + '</span></h3></div>'+
@@ -263,7 +266,7 @@ var load_chall = function(p){
 	});
 };
 var load_profile = function(p){
-	$.get("?controller=status&action=profile&nickname=" + p, function(d){
+	$.get("/status/profile?nickname=" + p, function(d){
 		_solve = [];
 		_break = [];
 		// TBD: need to optimize, badge
@@ -409,7 +412,7 @@ var load_user = function(p, n){
 		case "logout":
 			if(!IS_AUTH){ set_error(403); break; }
 			window.location.hash = '#/';
-			$.get("?controller=user&action=logout", function(d){
+			$.get("/user/logout", function(d){
 				IS_AUTH = false;
 				window.location.hash = '#/user/login';
 				main();
@@ -481,7 +484,7 @@ var load_status = function(p){
 			
 			break;
 		case 'auth':
-			$.get('?controller=status&action=auth', function(d){
+			$.get('/status/auth', function(d){
 				new_data("#output-layer");
 				add_data("#output-layer", '<table class="data-table table-hover" id="scoreboard" style="font-size:10pt;">' +
 					'<thead><tr>'+
@@ -500,7 +503,7 @@ var load_status = function(p){
 			});
 			break;
 		case 'chall':
-			$.get('?controller=status&action=challenge', function(d){
+			$.get('/status/challenge', function(d){
 				new_data("#output-layer");
 				for(var i=0;i<d.length;i++){
 					_top = d[i]['break'];
@@ -534,7 +537,7 @@ var load_status = function(p){
 			break;
 		case 'player':
 		default:
-			$.get('?controller=status&action=scoreboard', function(d){
+			$.get('/status/scoreboard', function(d){
 				new_data("#output-layer", '<table class="data-table table-hover" id="scoreboard" style="font-size:10pt;">' +
 					'<thead><tr>'+
 					'<th align=center></th><th align=center>'+output_intl('nickname')+'</th>' +
@@ -588,10 +591,10 @@ var set_error = function(t){
 			new_data("#content", "<div class='flash flash-error'><h4>"+output_intl("error-nope")+"</h4>"+output_intl("error-nope-info")+"</div><br>" +
 				"<img src='./static/image/403.png' width=100%>");
 			break;
-	}	
+	}
 }
 var set_auth = function(){
-	$.get('?controller=user&action=check', function(d){
+	$.get('/user/check', function(d){
 		res = $.parseJSON(d);
 		if(res != IS_AUTH){
 			IS_AUTH = res;
@@ -619,13 +622,13 @@ var set_language = function(){
 		CURRENT_LANG = $("#language-select").val();
 		$("*:not(.octicon)").css("font-family", output_intl('FONT'));
 		main();
-	});	
+	});
 };
 var set_layout = function(){
 	new_data("#sidebar");
 	// sidebar
 	add_data("#sidebar", "<ul class='filter-list' id='sidebar-menu'></ul>");
-	$.get('?controller=status&action=profile', function(d){
+	$.get('/status/profile', function(d){
 		CURRENT_USER = d;
 		if(IS_AUTH){
 			_sub = 'edit';

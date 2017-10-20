@@ -1,9 +1,9 @@
 <?php
 
-	/* Query module
-	Used just for chall.stypr.com project, only works with mysqli */
+	/* lib/query.php
+	For personal use; optimized for chall.stypr.com */
 
-    class Query{
+    class Query {
         private $conn;
 
         public function check(){
@@ -11,7 +11,6 @@
         }
 
         public function connect($host, $username, $password, $db=""){
-            // @return //
             $this->conn = mysqli_connect($host, $username, $password, $db);
             if(!$this->conn) return mysqli_connect_errno();
         }
@@ -54,7 +53,7 @@
                         return mysqli_real_escape_string($this->conn, $_filter);
 					}
 				case "auth":
-					return preg_replace("/[^a-zA-Z0-9-_!@$\.%^&*(){}가-힣]/", "", $str);
+					return @preg_replace("/[^a-zA-Z0-9-_!@$\.%^&*(){}가-힣]/", "", $str);
             }
         }
 
