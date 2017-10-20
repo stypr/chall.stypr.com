@@ -15,7 +15,7 @@ class Mailer {
 		if( !$this->type ) return false;
 
 		// Change it as needed.
-		$sender = 'Harold Kim';
+		$sender = __MAIL_NAME__;
 
 		$mail = new PHPMailer;
 		$mail->SMTPDebug = 0;

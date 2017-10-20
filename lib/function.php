@@ -28,7 +28,7 @@ function generate_random_string(int $len = 40): string {
 function update_wechall(string $nickname = ""){
 	// Remote update WeChall Profile
 	global $query;
-	$site = urlencode( "Stereotyped Challenges" );
+	$site = urlencode( __SITE_NAME__ );
 	$nick = ($nickname) ? $query->filter($nickname, "sql") : $_SESSION['nickname'];
 	$ch = curl_init();
 	curl_setopt($ch, CURLOPT_URL, "http://www.wechall.net/remoteupdate.php?sitename=$site&username=$nick");
