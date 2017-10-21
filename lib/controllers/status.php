@@ -113,18 +113,20 @@
 					'break_rank' => $val['rank'],
 				];
 			}
-			// parse solved
+			// Parse solved challenges
 			$me_solved = [];
 			$me_log = $log->get( ['log_id' => $me->user_id] );
-			for ( $i=0; $i<count($me_log); $i++) {
-				if ( $me_log[$i]->log_type == "Correct" ) {
-					$solved_chall_name = $me_log[$i]->log_challenge;
-					$solved_chall = $chall->get( ['challenge_name' => $solved_chall_name], 1 );
-					$me_solved[] = ['chall_name' => $solved_chall_name,
-						'chall_solve_date' => $me_log[$i]->log_date,
-						'chall_score' => $solved_chall->challenge_score,
-						'chall_break' => $me_break_dict[$solved_chall_name],
-					];
+			if ( $me_solved ) {
+				for ( $i=0; $i<count($me_log); $i++) {
+					if ( $me_log[$i]->log_type == "Correct" ) {
+						$solved_chall_name = $me_log[$i]->log_challenge;
+						$solved_chall = $chall->get( ['challenge_name' => $solved_chall_name], 1 );
+						$me_solved[] = ['chall_name' => $solved_chall_name,
+							'chall_solve_date' => $me_log[$i]->log_date,
+							'chall_score' => $solved_chall->challenge_score,
+							'chall_break' => $me_break_dict[$solved_chall_name],
+						];
+					}
 				}
 			}
 			// return a favorable output

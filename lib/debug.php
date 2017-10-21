@@ -3,8 +3,6 @@
 /* lib/debug.php
 Made for debugging purposes */
 
-define( "__DEBUG__", true );
-
 function return_error() {
 	// Returns error by template
 	http_response_code( 404 );
