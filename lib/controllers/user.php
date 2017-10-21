@@ -74,25 +74,25 @@
 		public function RegisterAction(){
 			$user = new UserInfo;
 
-			$user = $this->auth_filter( $_POST['username'] );
-			$pass = $this->auth_filter( $_POST['nickname'] );
-			$nick = $this->auth_filter( $_POST['password'] );
+			$mail = $this->auth_filter( $_POST['username'] );
+			$pass = $this->auth_filter( $_POST['password'] );
+			$nick = $this->auth_filter( $_POST['nickname'] );
 			$addr = $this->auth_filter( $_SERVER['REMOTE_ADDR'] );
 
-			if ( strlen( $user ) >= 5 && strlen( $user ) <= 100 &&
+			if ( strlen( $mail ) >= 5 && strlen( $mail ) <= 100 &&
 				strlen( $pass ) >= 5 && strlen( $pass ) <= 100 &&
 				strlen( $nick ) >= 3 && strlen( $nick ) <= 20 ) {
 
 				$check_nick = $user->get( ['user_nickname' => $nick], 1 );
-				$check_mail = $user_>get( ['user_id' => $user], 1 );
+				$check_mail = $user->get( ['user_id' => $mail], 1 );
 
 				if ( $check_nick->user_nickname ) $this->output( 'duplicate_nick' );
 				if ( $check_mail->user_nickname ) $this->output( 'duplicate_mail' );
-				if ( !filter_var( $user, FILTER_VALIDATE_EMAIL) ) $this->output( 'email_format' );
+				if ( !filter_var( $mail, FILTER_VALIDATE_EMAIL) ) $this->output( 'email_format' );
 				$encrypted_password = secure_hash( $pass );
 				// generate new player
 				$me = new User;
-				$me->user_id = $user;
+				$me->user_id = $mail;
 				$me->user_pw = $encrypted_password;
 				$me->user_nickname = $nick;
 				$me->user_score = 0;
@@ -100,9 +100,9 @@
 				$me->user_join_ip = $addr;
 				$me->user_permission = 0;
 				$user->set( $me );
-				$this->output_json( 'true' );
+				$this->output( 'true' );
 			}else{
-				$this->output_json( 'size' );
+				$this->output( 'size' );
 			}
 		}
 
