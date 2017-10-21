@@ -4,18 +4,21 @@
 	Make sure to keep this file secure! */
 
 	// Do NOT touch this! //
-	define("__INSTALL__", true);
+	define( "__INSTALL__", true );
 	define( "__TEMPLATE__", __DIR__ . "/../../template/" )
 
 	// CTF Mode, not yet implemented. //
-	define("__CTF__", false);
+	define( "__CTF__", false );
+
+	// Debug Mode. Verbose output on crash //
+	define( "__DEBUG__", false );
 
 	// Generate 64+ character random string; Read README for more info //
-	define("__HASH_SALT__", "");
+	define( "__HASH_SALT__", "" );
 
 	// WeChall Info - You can leave this blank. //
-	define("__SITE_NAME__", "Stereotyped Challenges");
-	define("__WECHALL__", "SECRET_KEY");
+	define( "__SITE_NAME__", "Stereotyped Challenges" );
+	define( "__WECHALL__", "SECRET_KEY" );
 
 	// DB Credentials //
 	define( "__DB_HOST__", "localhost" );
