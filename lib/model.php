@@ -210,7 +210,7 @@ class ChallengeInfo extends ModelHandler {
 	public function __construct() {
 		$this->ModelName = "Challenge";
 		$this->TableName = "chal";
-		$this->CheckColumn = "challenge_no";
+		$this->CheckColumn = "challenge_id";
 		ModelHandler::__construct();
 	}
 

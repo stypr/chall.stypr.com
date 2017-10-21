@@ -247,7 +247,6 @@ var load_chall = function(p){
 		}); */
 		var solved=[];
 		for(var i in CURRENT_USER['solved']) solved.push(Object.values(CURRENT_USER['solved'][i])[0]);
-
 		for(var i=0;i<d.length;i++){
 			if(!solved.includes(d[i]['challenge_name'])){
 				add_data("#content", '<div class="Box mb-3"><div class="Box-header pt-2 pb-2 Box-header--blue">' +

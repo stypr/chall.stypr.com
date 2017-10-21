@@ -66,7 +66,6 @@
 				$me->user_score += $check_flag->challenge_score;
 				$me->user_last_solved = date( "Y-m-d H:i:s" );
 				$user->set( $me );
-
 				$check_flag->challenge_solve_count += 1;
 				$chall->set( $check_flag );
 

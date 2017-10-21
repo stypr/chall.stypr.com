@@ -116,7 +116,7 @@
 			// Parse solved challenges
 			$me_solved = [];
 			$me_log = $log->get( ['log_id' => $me->user_id] );
-			if ( $me_solved ) {
+			if ( is_array( $me_log ) ) {
 				for ( $i=0; $i<count($me_log); $i++) {
 					if ( $me_log[$i]->log_type == "Correct" ) {
 						$solved_chall_name = $me_log[$i]->log_challenge;
