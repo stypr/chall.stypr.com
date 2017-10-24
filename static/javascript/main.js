@@ -6,6 +6,7 @@ var CURRENT_PAGE = null;
 var CURRENT_LANG = null;
 var CURRENT_USER = null;
 var IS_AUTH = false;
+var CHECK_REGEX = "^[a-zA-Z0-9-_!@$.%^&*()가-힣]";
 
 // Global Function //
 
@@ -21,7 +22,7 @@ var set_html = function (t, d, n) {
 var check_string = function (str, min, max) {
     if (!min) min = 5;
     if (!max) max = 30;
-    var _regexp = '^[a-zA-Z0-9-_!@$.%^&*()가-힣]{' + min + ',' + max + '}$';
+    var _regexp = CHECK_REGEX + '{' + min + ',' + max + '}$';
     var _check = new RegExp(_regexp).test(str);
     return _check;
 }
@@ -78,6 +79,7 @@ function act_chall_auth() {
             $("#output-message").html(output("chall-auth-already-solved"));
             break;
         case 'nope':
+        default:
             $("#output-message").addClass("flash-error");
             $("#output-message").html(output("chall-auth-wrong"));
             break;
@@ -99,7 +101,7 @@ function act_user_recover(recovery_code) {
 
     if (!check_string(_input['password'], 4, 100)) {
         $('#output-message').html(output('reg-deny-pass') + '<br>' +
-            '<pre>RegExp: ^[a-zA-Z0-9-_!@$.%^&*()가-힣]{4, 100}$</pre>');
+            '<pre>RegExp: ' + CHECK_REGEX + '{4, 100}$</pre>');
         return false;
     }
     $.post("/user/recover", _input, function (d) {
@@ -180,6 +182,98 @@ function act_user_login() {
     return false;
 }
 
+function act_user_register() {
+    // user register event
+    $("#output-message").removeClass("flash-error");
+    $("#output-message").addClass("flash-info");
+    $("#output-message").addClass("flash");
+    $("#output-message").html(output("auth-loading"));
+    _input = {
+        'username': $("#username").val(),
+        'nickname': $("#nickname").val(),
+        'password': $("#password").val()
+    };
+
+    if (!check_string(_input['username'], 5, 100)) {
+        $("#output-message").addClass("flash-error");
+        $('#output-message').html(output('reg-deny-user') + '<br>' +
+            '<pre>RegExp: ' + CHECK_REGEX + '{8, 100}$</pre>');
+        return false;
+    }
+    if (!check_string(_input['nickname'], 3, 20)) {
+        $('#output-message').html(output('reg-deny-nick') + '<br>' +
+            '<pre>RegExp: ' + CHECK_REGEX + '{3, 20}$</pre>');
+        return false;
+    }
+    if (!check_string(_input['password'], 4, 100)) {
+        $('#output-message').html(output('reg-deny-pass') + '<br>' +
+            '<pre>RegExp: ' + CHECK_REGEX + '{4, 100}$</pre>');
+        return false;
+    }
+    $.post("/user/register", _input, function (d) {
+        switch (d) {
+        case "duplicate_nick":
+            $('#output-message').html(output('reg-deny-dup-nick'));
+            return false;
+        case "duplicate_mail":
+            $('#output-message').html(output('reg-deny-dup-mail'));
+            return false;
+        case "email_format":
+            $('#output-message').html(output('reg-deny-format-mail'));
+            return false;
+        case "size": // error by length
+            $('#output-message').html(output('reg-deny-size'));
+            return false;
+        case "true":
+            // get back to login on successful.
+            window.location.hash = '#/user/login';
+            main();
+            return false;
+        default:
+            $('#output-message').html(output('reg-deny-unknown'));
+            return false;
+        }
+    });
+    return false;
+}
+
+function act_user_edit() {
+    // user auth event
+    $("#output-message").removeClass("flash-error");
+    $("#output-message").addClass("flash-info");
+    $("#output-message").addClass("flash");
+    $("#output-message").html(output("auth-loading"));
+    _input = {
+        'password': $("#password").val(),
+        'comment': $("#comment").val()
+    };
+    if (_input['password']) {
+        if (!check_string(_input['password'], 4, 100)) {
+            $('#output-message').html(output('reg-deny-pass') + '<br>' +
+                '<pre>RegExp: ' + CHECK_REGEX + '{4, 100}$</pre>');
+            return false;
+        }
+        if (!(new RegExp("^[a-zA-Z0-9-_:+!@#$.%^&*(){}:\/.\ <>가-힣]{0,100}$").test(_input['comment']))) {
+            $('#output-message').html(output('reg-deny-comment') + '<br>' +
+                '<pre>RegExp: ' + CHECK_REGEX + '{0,50}$</pre>');
+            return false;
+        }
+    }
+    $.post("/user/edit", _input, function (d) {
+        if (d == true) {
+            $(window).unbind('hashchange');
+            window.location.hash = '#/user/edit';
+            load_profile();
+        } else {
+            $("#output-message").addClass("flash-error");
+            $("#output-message").html(output("edit-fail"));
+        }
+    });
+    return false;
+}
+
+
+
 // View //
 
 function view_intro() {
@@ -214,7 +308,7 @@ function view_status(path) {
         $.get('/status/auth', function (d) {
             // #output-layer -> table -> tbody #log-list
             set_html("#output-layer",
-                '<table class="data-table table-hover" id="scoreboard" style="font-size:10pt;">' +
+                '<table class="data-table table-hover" id="scoreboard">' +
                 '<thead><tr>' +
                 '<th align=center>#</th><th align=center>' + output('nickname') + '</th>' +
                 '<th align=center>' + output('chall') + '</th>' +
@@ -224,7 +318,7 @@ function view_status(path) {
                 auth_log = d[i];
                 // #loglist -> tr -> td
                 set_html("#log-list",
-                    '<tr class="info" style="cursor:pointer;"' +
+                    '<tr class="info" ' +
                     'onclick="location.replace(\'#/profile/' + auth_log['nick'] + '\')">' +
                     '<td>' + auth_log['no'] + '</td>' +
                     '<td>' + auth_log['nick'] + '</td>' +
@@ -245,7 +339,7 @@ function view_status(path) {
                 top_info = '';
                 try {
                     for (j = 0; j < curr_chall_top.length; j++) {
-                        top_info += '<tr class="info" style="cursor:pointer" onclick="location.replace(\'#/profile/' + curr_chall_top[j]['user'] + '\')">' +
+                        top_info += '<tr class="info" onclick="location.replace(\'#/profile/' + curr_chall_top[j]['user'] + '\')">' +
                             '<td>#' + (curr_chall_top[j]['rank']) + '</td>' +
                             '<td>' + curr_chall_top[j]['user'] + '</td>' +
                             '<td>' + curr_chall_top[j]['date'] + '</td></tr>';
@@ -284,7 +378,7 @@ function view_status(path) {
     case "":
         $.get('/status/scoreboard', function (d) {
             set_html("#output-layer",
-                '<table class="data-table table-hover" id="scoreboard" style="font-size:10pt;">' +
+                '<table class="data-table table-hover" id="scoreboard">' +
                 '<thead><tr>' +
                 '<th align=center></th><th align=center>' + output('nickname') + '</th>' +
                 '<th align=center>' + output('score') + '</th>' +
@@ -312,7 +406,7 @@ function view_status(path) {
                     }
                 } catch (e) {}
                 set_html("#scoreboard",
-                    '<tr class="info" style="cursor:pointer;" onclick="location.replace(\'#/profile/' + _player['nickname'] + '\')">' +
+                    '<tr class="info" onclick="location.replace(\'#/profile/' + _player['nickname'] + '\')">' +
                     '<td>' + _rank + '</td><td>' + _player['nickname'] + '</td>' +
                     '<td>' + _player['score'] + '</td>' +
                     '<td>' + _player['break_count'] + '</td>' +
@@ -320,9 +414,9 @@ function view_status(path) {
             }
 
             // List current user if not listed
-            if (ranker == false && IS_AUTH == true) {
+            if (is_ranker == false && IS_AUTH == true) {
                 set_html("#scoreboard",
-                    '<tr class="info" style="cursor:pointer;" onclick="location.replace(\'#/profile/' + CURRENT_USER['nick'] + '\')">' +
+                    '<tr class="info" onclick="location.replace(\'#/profile/' + CURRENT_USER['nick'] + '\')">' +
                     '<td>' + CURRENT_USER['rank'] + '</td><td>' + CURRENT_USER['nick'] + '</td>' +
                     '<td>' + CURRENT_USER['score'] + '</td>' +
                     '<td>?</td>' +
@@ -397,7 +491,7 @@ function view_user(path) {
             '<label for="password">' + output('comment') + '</label>' +
             '<input class="form-control input-block" tabindex=3 id="comment" name="comment" value="' + CURRENT_USER['comment'] + '" placeholder="' + output('edit-comment-tip') + '">' +
             '<button class="btn btn-block btn-primary" tabindex=4 id="edit_button" type="submit">' + output('edit-submit') + '</button>' +
-            '</form>', true);
+            '</form></div>', true);
         break;
 
     case "register":
@@ -527,7 +621,7 @@ function view_profile(path) {
                 '<div class="Box Box-default">';
             for (let chall of chall_break) {
                 chall_break_out += '<div class="Box-header pt-2 pb-2">' +
-                    '<span class="octicon octicon-flame" style=\'letter-spacing:-.5px;\'><sup>#' + chall['break_rank'] + '</sup>&nbsp;</span>' +
+                    '<span class="octicon octicon-flame short-space"><sup>#' + chall['break_rank'] + '</sup>&nbsp;</span>' +
                     chall['challenge_name'] + ' (' + chall['solve_score'] + output('pt') + ')' +
                     '<span class="right">' + chall['solve_date'] + '</span>' +
                     '</div>';
@@ -541,7 +635,7 @@ function view_profile(path) {
                 '<div class="Box Box-default">';
             for (let chall of chall_solve) {
                 chall_solve_out += '<div class="Box-header pt-2 pb-2">' +
-                    '<span class="octicon octicon-check" style=\'letter-spacing:-.5px;\'>&nbsp;</span>' +
+                    '<span class="octicon octicon-check short-space">&nbsp;</span>' +
                     chall['challenge_name'] + ' (' + chall['solve_score'] + output('pt') + ')' +
                     '<span class="right">' + chall['solve_date'] + '</span>' +
                     '</div>';
@@ -558,10 +652,10 @@ function view_profile(path) {
         set_html("#content", '<div class="columns">' +
             // left side
             '<div class="four-fifths column">' +
-            '<h1 style="line-height:0.9;">' + d['nick'] + '</h1>' +
-            '<code style="letter-spacing:-1px; white-space: pre-wrap;">' + d['comment'] + '</code>' +
+            '<h1 class="short-line">' + d['nick'] + '</h1>' +
+            '<code class="wrap-code short-space">' + d['comment'] + '</code>' +
             '<hr style="margin:5pt;border:0;">' +
-            '<p style="line-height:2.0;">#' + d['rank'] + output('profile-score-prefix') +
+            '<p class="long-line">#' + d['rank'] + output('profile-score-prefix') +
             +d['score'] + output('pt') + output('profile-score-suffix') + '.</p>' +
             chall_break_out +
             chall_solve_out +
@@ -602,11 +696,11 @@ function view_chall(path) {
         '<form onsubmit="return act_chall_auth()">' +
         '<div class="input-group columns">' +
         '<div class="two-thirds p-2 column">' +
-        '<input class="form-control" placeholder="flag{ ... }"' +
-        'autocomplete="off" id="flag" name="flag" style="width:100%; font-family:monospace;">' +
+        '<input class="form-control monospace full-width" placeholder="flag{ ... }"' +
+        'autocomplete="off" id="flag" name="flag">' +
         '</div>' +
         '<div class="one-third p-2 column"><span class="input-group-button">' +
-        '<button class="btn btn-primary one-third" style="width:100%;" type="submit">' +
+        '<button class="btn btn-primary one-third full-width" type="submit">' +
         '<span class="octicon octicon-key"> ' + output('auth') + '</span>' +
         '</button></div>' +
         '</div><hr style="border:0;">', true);
@@ -690,7 +784,7 @@ function load_layout() {
 
         _subhead = 'edit';
         set_html("#sidebar-menu",
-            "<li page-id=" + _subhead + "'><a href='#/user/edit' class='filter-item'>" +
+            "<li page-id='" + _subhead + "'><a href='#/user/edit' class='filter-item'>" +
             "<table class='profile'><tr><td rowspan=2>" +
             "<img src=" + CURRENT_USER['profile_picture'] + " width=40 class='profile-image'>" +
             "&nbsp;</td><td class='profile-nickname'>" + CURRENT_USER['nick'] + "</td></tr>" +
