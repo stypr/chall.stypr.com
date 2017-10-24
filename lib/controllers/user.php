@@ -112,11 +112,22 @@
 			$me = $user->get( ['user_id' => $_SESSION['username']], 1 );
 			if( isset( $_POST['password'] ) ) {
 				$new_password = $this->auth_filter( $_POST['password'] );
-				if ( $new_password ) $me->user_pw = secure_hash( $new_password );
+				if ( $new_password ) {
+					if( strlen( $new_password ) > 100 ) {
+						$new_password = substr( $new_password, 0, 100 );
+					}
+					$me->user_pw = secure_hash( $new_password );
+				}
 			}
+
 			if( isset( $_POST['comment'] ) ) {
 				$new_comment = $this->db->filter( $_POST['comment'], "memo" );
-				if ( $new_comment ) $me->user_comment = $new_comment;
+				if ( $new_comment ) {
+					if( strlen( $new_comment ) == 100 ) {
+						$new_comment = substr( $new_comment, 0, 100	);
+					}
+					$me->user_comment = $new_comment;
+				}
 			}
 			$user->set($me);
 			$this->output(true);
