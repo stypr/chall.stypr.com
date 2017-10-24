@@ -13,7 +13,7 @@
 		<title>Stereotyped Challenges</title>
 		<link rel="icon" type="image/x-icon" href="favicon.ico">
 		<link rel="stylesheet" type="text/css" href="//cdnjs.cloudflare.com/ajax/libs/octicons/4.4.0/font/octicons.css">
-		<link rel="stylesheet" type="text/css" href="//unpkg.com/primer-css@9.4.0/build/build.css">
+		<link rel="stylesheet" type="text/css" href="//unpkg.com/primer-css@9.5.0/build/build.css">
 		<link rel="stylesheet" type="text/css" href="./static/stylesheet/main.css">
 	</head>
 	<body>

@@ -9,7 +9,7 @@ var IS_AUTH = false;
 
 // Global Function //
 
-var set_html = function(t, d, n) {
+var set_html = function (t, d, n) {
     if (!d) d = '';
     if (n) {
         $(t).html(d);
@@ -18,7 +18,7 @@ var set_html = function(t, d, n) {
     }
 }
 
-var check_string = function(str, min, max) {
+var check_string = function (str, min, max) {
     if (!min) min = 5;
     if (!max) max = 30;
     var _regexp = '^[a-zA-Z0-9-_!@$.%^&*()가-힣]{' + min + ',' + max + '}$';
@@ -26,6 +26,159 @@ var check_string = function(str, min, max) {
     return _check;
 }
 
+var set_error = function (t) {
+    // this does not follow the HTTP standard, please don't judge me.
+    switch (t) {
+    case 418: // already-authenticated
+        set_html("#content",
+            "<div class='flash flash-warning'><h5>" + output("error-wtf") + "</h5></div><br>" +
+            "<img src='./static/image/418.png' width=100%>", true);
+        break;
+    case 403: // unauthorized
+        set_html("#content",
+            "<div class='flash flash-error'><h5>" + output("error-auth") + "</h5></div><br>" +
+            "<img src='./static/image/404.jpg' width=100%>", true);
+        break;
+    case 404: // not found
+    default:
+        set_html("#content",
+            "<div class='flash flash-error'><h4>" + output("error-nope") + "</h4>" +
+            output("error-nope-info") + "</div><br>" +
+            "<img src='./static/image/403.png' width=100%>", true);
+        break;
+    }
+}
+
+// Action //
+
+function act_chall_auth() {
+    _input = {
+        'flag': $("#flag").val()
+    }
+    $("#output-message").removeClass("flash-error");
+    $("#output-message").addClass("flash-info");
+    $("#output-message").addClass("flash");
+    $("#output-message").html(output("chall-auth-check"));
+    var check_flag = new RegExp("^[a-zA-Z0-9-_:+!@#$.%^&*(){}:\/.\ <>가-힣]{0,100}$").test(_input['flag']);
+    // Validation Check
+    if (!check_flag) {
+        $("#output-message").addClass("flash-error");
+        $("#output-message").html(output("chall-auth-invalid"));
+        return false;
+    }
+    $.post("/challenge/auth", _input, function (d) {
+        switch (d) {
+        case 'success':
+            $(window).unbind('hashchange');
+            window.location.hash = '#/chall';
+            load_profile();
+            break;
+        case 'already-solved':
+            $("#output-message").addClass("flash-error");
+            $("#output-message").html(output("chall-auth-already-solved"));
+            break;
+        case 'nope':
+            $("#output-message").addClass("flash-error");
+            $("#output-message").html(output("chall-auth-wrong"));
+            break;
+        }
+    });
+    return false;
+}
+
+function act_user_recover(recovery_code) {
+    $("#output-message").removeClass("flash-error");
+    $("#output-message").addClass("flash-info");
+    $("#output-message").addClass("flash");
+    $("#output-message").html(output("find-send-loading"));
+
+    _input = {
+        'recovery_code': recovery_code,
+        'password': $("#password").val()
+    }
+
+    if (!check_string(_input['password'], 4, 100)) {
+        $('#output-message').html(output('reg-deny-pass') + '<br>' +
+            '<pre>RegExp: ^[a-zA-Z0-9-_!@$.%^&*()가-힣]{4, 100}$</pre>');
+        return false;
+    }
+    $.post("/user/recover", _input, function (d) {
+        if (d == true) {
+            $(window).unbind('hashchange');
+            window.location.hash = '#/user/login';
+            load_profile();
+        } else {
+            $("#output-message").addClass("flash-error");
+            $("#output-message").html(output("find-new-fail"));
+        }
+    });
+    return false;
+}
+
+function act_user_find() {
+    _input = {
+        'username': $("#username").val()
+    }
+
+    $("#output-message").removeClass("flash-error");
+    $("#output-message").addClass("flash-info");
+    $("#output-message").addClass("flash");
+    $("#output-message").html(output("find-send-loading"));
+
+    $.post("/user/find", _input, function (d) {
+        switch (d) {
+        case "done":
+            $("#output-message").html(output("find-send-done"));
+            break;
+        case "exceed":
+            $("#output-message").addClass("flash-error");
+            $("#output-message").html(output("find-send-exceed"));
+            break;
+        case "fail":
+            $("#output-message").addClass("flash-error");
+            $("#output-message").html(output("find-send-fail"));
+            break;
+        case "nope":
+            $("#output-message").addClass("flash-error");
+            $("#output-message").html(output("find-send-nope"));
+            break;
+        default: // unknown
+            $("#output-message").addClass("flash-error");
+            $("#output-message").html(output("find-send-fail"));
+            break;
+        }
+    });
+    return false;
+}
+
+function act_user_login() {
+    $("#output-message").removeClass("flash-error");
+    $("#output-message").addClass("flash-info");
+    $("#output-message").addClass("flash");
+    $("#output-message").html(output("auth-loading"));
+
+    _input = {
+        'nickname': $("#nickname").val(),
+        'password': $("#password").val()
+    };
+    $.post("/user/login", _input, function (d) {
+        if (d == true) {
+            if ($("#remember-nick").prop('checked')) {
+                localStorage.setItem('current_nick', _input['nickname']);
+            } else {
+                localStorage.setItem('current_nick', null);
+            }
+
+            $(window).unbind('hashchange');
+            window.location.hash = '#/';
+            load_profile();
+        } else {
+            $("#output-message").addClass("flash-error");
+            $("#output-message").html(output("auth-wrong"));
+        }
+    });
+    return false;
+}
 
 // View //
 
@@ -33,8 +186,8 @@ function view_intro() {
     set_html("#content", output("INTRO"), true);
 }
 
-function view_status() {
-    page_type = arguments[0][1];
+function view_status(path) {
+    page_type = path[1];
     if (!page_type) page_type = 'player';
     // #content -> #content-tabs, #output-layer
     set_html("#content",
@@ -51,133 +204,439 @@ function view_status() {
 
     switch (page_type) {
 
-        case "fame":
+    case "fame":
+        set_html("#output-layer",
+            "Click <a href='https://github.com/stypr/chall.stypr.com#vulnerability-reports'>here</a>" +
+            " for the detailed information.", true);
+        break;
+
+    case "auth":
+        $.get('/status/auth', function (d) {
+            // #output-layer -> table -> tbody #log-list
             set_html("#output-layer",
-                "Click <a href='https://github.com/stypr/chall.stypr.com#vulnerability-reports'>here</a>" +
-                " for the detailed information.", true);
-            break;
+                '<table class="data-table table-hover" id="scoreboard" style="font-size:10pt;">' +
+                '<thead><tr>' +
+                '<th align=center>#</th><th align=center>' + output('nickname') + '</th>' +
+                '<th align=center>' + output('chall') + '</th>' +
+                '<th align=center>' + output('chall-solve-date') + '</th>' +
+                '</tr></thead><tbody id="log-list"></tbody></table', true);
+            for (i = 0; i < d.length; i++) {
+                auth_log = d[i];
+                // #loglist -> tr -> td
+                set_html("#log-list",
+                    '<tr class="info" style="cursor:pointer;"' +
+                    'onclick="location.replace(\'#/profile/' + auth_log['nick'] + '\')">' +
+                    '<td>' + auth_log['no'] + '</td>' +
+                    '<td>' + auth_log['nick'] + '</td>' +
+                    '<td>' + auth_log['chall'] + '</td>' +
+                    '<td>' + auth_log['date'] + '</td>' +
+                    '</tr>');
+            }
+        });
+        break;
 
-        case "auth":
-            $.get('/status/auth', function(d) {
-                // #output-layer -> table -> tbody #log-list
-                set_html("#output-layer",
-                    '<table class="data-table table-hover" id="scoreboard" style="font-size:10pt;">' +
-                    '<thead><tr>' +
-                    '<th align=center>#</th><th align=center>' + output('nickname') + '</th>' +
-                    '<th align=center>' + output('chall') + '</th>' +
-                    '<th align=center>' + output('chall-solve-date') + '</th>' +
-                    '</tr></thead><tbody id="log-list"></tbody></table', true);
-                for (i = 0; i < d.length; i++) {
-                    auth_log = d[i];
-                    // #loglist -> tr -> td
-                    set_html("#log-list",
-                        '<tr class="info" style="cursor:pointer;"' +
-                        'onclick="location.replace(\'#/profile/' + auth_log['nick'] + '\')">' +
-                        '<td>' + auth_log['no'] + '</td>' +
-                        '<td>' + auth_log['nick'] + '</td>' +
-                        '<td>' + auth_log['chall'] + '</td>' +
-                        '<td>' + auth_log['date'] + '</td>' +
-                        '</tr>');
-                }
-            });
-            break;
+    case "chall":
+        $.get('/status/challenge', function (d) {
+            for (i = 0; i < d.length; i++) {
+                curr_chall = d[i];
+                curr_chall_top = curr_chall['break'];
 
-        case "chall":
-            $.get('/status/challenge', function(d) {
-                for (i = 0; i < d.length; i++) {
-                    curr_chall = d[i];
-                    curr_chall_top = curr_chall['break'];
-
-                    // Get top3 breakthru
-                    top_info = '';
-                    try {
-                        for (j = 0; j < curr_chall_top.length; j++) {
-                            top_info += '<tr class="info" style="cursor:pointer" onclick="location.replace(\'#/profile/' + curr_chall_top[j]['user'] + '\')">' +
-                                '<td>#' + (curr_chall_top[j]['rank']) + '</td>' +
-                                '<td>' + curr_chall_top[j]['user'] + '</td>' +
-                                '<td>' + curr_chall_top[j]['date'] + '</td></tr>';
-                        }
-                    } catch (e) {}
-
-                    // if solved by none, mark the box
-                    top_color = '';
-                    if (!top_info) {
-                        top_color = 'Box-header--red'; // additional class
-                        top_info = '<tr><td colspan=4><h2 align=center>PWN ME IF YOU CAN</h2></td></tr>';
+                // Get top3 breakthru
+                top_info = '';
+                try {
+                    for (j = 0; j < curr_chall_top.length; j++) {
+                        top_info += '<tr class="info" style="cursor:pointer" onclick="location.replace(\'#/profile/' + curr_chall_top[j]['user'] + '\')">' +
+                            '<td>#' + (curr_chall_top[j]['rank']) + '</td>' +
+                            '<td>' + curr_chall_top[j]['user'] + '</td>' +
+                            '<td>' + curr_chall_top[j]['date'] + '</td></tr>';
                     }
+                } catch (e) {}
 
-                    // set html
-                    set_html("#output-layer",
-                        '<div class="Box mb-3"><div class="Box-header ' + top_color + ' pt-2 pb-2">' +
-                        '<h3 class="Box-title">' + curr_chall['name'] + ' <span class="right">' + curr_chall['score'] + output('pt') + '</span></h3></div>' +
-                        '<div class="Box-body">' +
-
-                        '<table class="data-table mt-0" id="break-info">' +
-                        '<th>' + output('chall-by') + '</th><td>' + curr_chall['author'] + '</td>' +
-                        '<th>' + output('chall-solver') + '</th><td>' + curr_chall['solver'] + ' ' +
-                        output('chall-player-count') + '</td><th>' + output('last_solved') + '</th> ' +
-                        '<td>' + curr_chall['last-solved'] + '</td></tr></table>' +
-                        // breakthrough output
-                        '<table class="data-table table-hover mt-2" id="break-stat"><tr>' +
-                        '<td width=8>&nbsp;<font color=red><span class="octicon octicon-flame"></span></font></td>' +
-                        '<td>' + output('nickname') + '</td><td>' + output('chall-solve-date') + '</td></tr>' +
-                        top_info +
-                        '</table>');
+                // if solved by none, mark the box
+                top_color = '';
+                if (!top_info) {
+                    top_color = 'Box-header--red'; // additional class
+                    top_info = '<tr><td colspan=4><h2 align=center>PWN ME IF YOU CAN</h2></td></tr>';
                 }
-            });
-            break;
 
-        case "player":
-        default:
-            $.get('/status/scoreboard', function(d) {
+                // set html
                 set_html("#output-layer",
-                    '<table class="data-table table-hover" id="scoreboard" style="font-size:10pt;">' +
-                    '<thead><tr>' +
-                    '<th align=center></th><th align=center>' + output('nickname') + '</th>' +
-                    '<th align=center>' + output('score') + '</th>' +
-                    '<th align=center>&nbsp;<font color=red><span class="octicon octicon-flame"></span></font></th>' +
-                    '<th align=center>' + output('comment') + '</th>' +
-                    '<th align=center>' + output('last_solved') + '</th>' +
-                    '</tr></thead><tbody id="ranker-list"></tbody></table>', true);
+                    '<div class="Box mb-3"><div class="Box-header ' + top_color + ' pt-2 pb-2">' +
+                    '<h3 class="Box-title">' + curr_chall['name'] + ' <span class="right">' + curr_chall['score'] + output('pt') + '</span></h3></div>' +
+                    '<div class="Box-body">' +
 
-                is_ranker = false; // check if the current user is ranker
-                ranker = d['ranker'];
-                for (i = 0; i < ranker.length; i++) {
-                    _player = ranker[i];
-                    // Prettify comments
-                    _player['comment'] = _player['comment'] ? _player['comment'] : '';
-                    if (_player['comment'].length > 30) {
-                        _player['comment'] = _player['comment'].substring(0, 30) + " ...";
+                    '<table class="data-table mt-0" id="break-info">' +
+                    '<th>' + output('chall-by') + '</th><td>' + curr_chall['author'] + '</td>' +
+                    '<th>' + output('chall-solver') + '</th><td>' + curr_chall['solver'] + ' ' +
+                    output('chall-player-count') + '</td><th>' + output('last_solved') + '</th> ' +
+                    '<td>' + curr_chall['last-solved'] + '</td></tr></table>' +
+                    // breakthrough output
+                    '<table class="data-table table-hover mt-2" id="break-stat"><tr>' +
+                    '<td width=8>&nbsp;<font color=red><span class="octicon octicon-flame"></span></font></td>' +
+                    '<td>' + output('nickname') + '</td><td>' + output('chall-solve-date') + '</td></tr>' +
+                    top_info +
+                    '</table>');
+            }
+        });
+        break;
+
+    case "player":
+    case "":
+        $.get('/status/scoreboard', function (d) {
+            set_html("#output-layer",
+                '<table class="data-table table-hover" id="scoreboard" style="font-size:10pt;">' +
+                '<thead><tr>' +
+                '<th align=center></th><th align=center>' + output('nickname') + '</th>' +
+                '<th align=center>' + output('score') + '</th>' +
+                '<th align=center>&nbsp;<font color=red><span class="octicon octicon-flame"></span></font></th>' +
+                '<th align=center>' + output('comment') + '</th>' +
+                '<th align=center>' + output('last_solved') + '</th>' +
+                '</tr></thead><tbody id="ranker-list"></tbody></table>', true);
+
+            is_ranker = false; // check if the current user is ranker
+            ranker = d['ranker'];
+            for (i = 0; i < ranker.length; i++) {
+                _player = ranker[i];
+                // Prettify comments
+                _player['comment'] = _player['comment'] ? _player['comment'] : '';
+                if (_player['comment'].length > 30) {
+                    _player['comment'] = _player['comment'].substring(0, 30) + " ...";
+                }
+                // Top 3 players should get the crown rank
+                _rank = i < 3 && "&#9813;" || i + 1;
+                // Give star rank if current user in ranker
+                try {
+                    if (CURRENT_USER['nick'] == _player['nickname']) {
+                        _rank = '&#9733;';
+                        ranker = true;
                     }
-                    // Top 3 players should get the crown rank
-                    _rank = i < 3 && "&#9813;" || i + 1;
-                    // Give star rank if current user in ranker
-                    try {
-                        if (CURRENT_USER['nick'] == _player['nickname']) {
-                            _rank = '&#9733;';
-                            ranker = true;
-                        }
-                    } catch (e) {}
-                    set_html("#scoreboard",
-                        '<tr class="info" style="cursor:pointer;" onclick="location.replace(\'#/profile/' + _player['nickname'] + '\')">' +
-                        '<td>' + _rank + '</td><td>' + _player['nickname'] + '</td>' +
-                        '<td>' + _player['score'] + '</td>' +
-                        '<td>' + _player['break_count'] + '</td>' +
-                        '<td>' + _player['comment'] + '</td><td>' + _player['last_solved'] + '</td></tr>');
-                }
+                } catch (e) {}
+                set_html("#scoreboard",
+                    '<tr class="info" style="cursor:pointer;" onclick="location.replace(\'#/profile/' + _player['nickname'] + '\')">' +
+                    '<td>' + _rank + '</td><td>' + _player['nickname'] + '</td>' +
+                    '<td>' + _player['score'] + '</td>' +
+                    '<td>' + _player['break_count'] + '</td>' +
+                    '<td>' + _player['comment'] + '</td><td>' + _player['last_solved'] + '</td></tr>');
+            }
 
-                // List current user if not listed
-                if (ranker == false && IS_AUTH == true) {
-                    set_html("#scoreboard",
-                        '<tr class="info" style="cursor:pointer;" onclick="location.replace(\'#/profile/' + CURRENT_USER['nick'] + '\')">' +
-                        '<td>' + CURRENT_USER['rank'] + '</td><td>' + CURRENT_USER['nick'] + '</td>' +
-                        '<td>' + CURRENT_USER['score'] + '</td>' +
-                        '<td>?</td>' +
-                        '<td>' + CURRENT_USER['comment'] + '</td><td>' + CURRENT_USER['last_solved'] + '</td></tr>');
-                }
-                set_html("#output-layer", "<br><h4 align=center>" + d['total'] + output("player-total-msg") + "</h4>");
-            });
+            // List current user if not listed
+            if (ranker == false && IS_AUTH == true) {
+                set_html("#scoreboard",
+                    '<tr class="info" style="cursor:pointer;" onclick="location.replace(\'#/profile/' + CURRENT_USER['nick'] + '\')">' +
+                    '<td>' + CURRENT_USER['rank'] + '</td><td>' + CURRENT_USER['nick'] + '</td>' +
+                    '<td>' + CURRENT_USER['score'] + '</td>' +
+                    '<td>?</td>' +
+                    '<td>' + CURRENT_USER['comment'] + '</td><td>' + CURRENT_USER['last_solved'] + '</td></tr>');
+            }
+            set_html("#output-layer", "<br><h4 align=center>" + d['total'] + output("player-total-msg") + "</h4>");
+        });
+        break;
+
+    default:
+        set_error(404);
     }
+}
+
+function view_user(path) {
+    page_type = path[1];
+    if (!page_type) page_type = '';
+
+    switch (page_type) {
+
+    case "find":
+        if (IS_AUTH) {
+            set_error(418);
+            break;
+        }
+        // if second parameter (recovery code) is returned
+        if (path[2]) {
+            // check its validity
+            if (!(new RegExp("^[a-zA-Z0-9-_]{30,50}$").test(path[2]))) {
+                window.location.hash = '#/user/find';
+                return false;
+            }
+            // ask for the new password
+            set_html("#content",
+                '<div class="row column centered">' +
+                '<div id="output-message" class="mb-2"></div>' +
+                '<form class="auth-form-body" onsubmit="return act_user_recover(\'' + path[2] + '\');">' +
+                '<label for="password">' + output('find-new-pw') + '</label>' +
+                '<input class="form-control input-block disabled" tabindex=1 name="password" id="password" type="password">' +
+                '<button class="btn btn-block btn-primary" tabindex=4 id="edit_button" type="submit">' + output('find-new-submit') + '</button>' +
+                '</form>', true);
+
+        } else {
+            set_html("#content",
+                '<div class="row column centered">' +
+                '<div id="output-message" class="mb-2" ></div>' +
+                '<form class="auth-form-body" onsubmit="return act_user_find();">' +
+                '<label for="username">' + output('reg-input-email') + '</label>' +
+                '<input class="form-control input-block disabled" tabindex=1 name="username" id="username" type="email">' +
+                '<p class="note">' + output('find-send-tip') + '</p>' +
+                '<button class="btn btn-block btn-primary" tabindex=4 id="edit_button" type="submit">' + output('find-send-submit') + '</button>' +
+                '</form>', true);
+        }
+        break;
+
+    case "edit":
+        if (!IS_AUTH) {
+            set_error(403);
+            break;
+        }
+        set_html("#content",
+            '<div class="row column centered">' +
+            '<div id="output-message" class="mb-2" ></div>' +
+            '<form class="auth-form-body" onsubmit="return act_user_edit();">' +
+            '<label for="username">' + output('reg-input-email') + '</label>' +
+            '<input class="form-control input-block disabled" tabindex=1 name="username" id="username" type="text" disabled value=' + CURRENT_USER['username'] + '>' +
+            '<label for="nickname">' + output('auth-nick') + '</label>' +
+            '<input class="form-control input-block disabled" tabindex=1 name="nickname" id="nickname" type="text" disabled value=' + CURRENT_USER['nick'] + '>' +
+            '<label for="password">' + output('edit-new-pass') + '</label>' +
+            '<input class="form-control input-block" tabindex=2 id="password" name="password" placeholder="Password" type="password">' +
+            '<p class="note">' + output('edit-password-tip') + '</p>' +
+            '<label for="password">' + output('comment') + '</label>' +
+            '<input class="form-control input-block" tabindex=3 id="comment" name="comment" value="' + CURRENT_USER['comment'] + '" placeholder="' + output('edit-comment-tip') + '">' +
+            '<button class="btn btn-block btn-primary" tabindex=4 id="edit_button" type="submit">' + output('edit-submit') + '</button>' +
+            '</form>', true);
+        break;
+
+    case "register":
+        if (IS_AUTH) {
+            set_error(418);
+            break;
+        }
+        set_html("#content",
+            '<div class="columns">' +
+            '<div class="two-thirds column">' +
+            '<h2 class="setup-form-title mb-3">' + output('reg-head') + '</h2>' +
+            '<form onsubmit="return act_user_register();">' +
+            '<dl class="form-group"><dt class="input-label">' +
+            '<label autocapitalize="off" autofocus="autofocus" for="username" for="username">' + output('reg-input-email') + '</label>' +
+            '</dt><dd>' +
+            '<input autocapitalize="off" autofocus="autofocus" class="form-control" id="username" name="username" size="30" type="email" />' +
+            '<p class="note">' + output('reg-info-email') + '</p>' +
+            '</dd></dl>' +
+            '<dl class="form-group"><dt class="input-label">' +
+            '<label autocapitalize="off" for="nickname">' + output('nickname') + '</label>' +
+            '</dt><dd>' +
+            '<input autocapitalize="off" class="form-control" name="nickname" size="30" type="text" id="nickname">' +
+            '<p class="note">' + output('reg-info-nickname') + '</p>' +
+            '</dd></dl>' +
+            '<dl class="form-group"><dt class="input-label">' +
+            '<label autocapitalize="off" for="password">' + output('auth-pass') + '</label>' +
+            '</dt><dd>' +
+            '<input autocapitalize="off" class="form-control" name="password" size="30" type="password" id="password">' +
+            '<p class="note">' + output('reg-info-password') + '</p>' +
+            '</dd></dl>' +
+            '<div id="output-message" class="mb-2" ></div>' +
+            '<input type="submit" class="btn btn-primary" id="signup_button" value="' + output('reg-submit') + '">' +
+            '</form></div>' +
+            '<div class="one-third column"><h2>' + output('reg-note') + '</h2><br>' +
+            '<li>' + output('reg-note-1') + '</li><br>' +
+            '<li>' + output('reg-note-2') + '</li><br>' +
+            '<li>' + output('reg-note-3') + '</li><br>' +
+            '</div></div>', true);
+        break;
+
+    case "logout":
+        if (!IS_AUTH) {
+            set_error(403);
+            break;
+        }
+        $.get("/user/logout", function (d) {
+            $(window).unbind('hashchange');
+            window.location.hash = '#/user/login';
+            load_profile();
+        });
+        break;
+
+    case "login":
+        if (IS_AUTH) {
+            set_error(418);
+            break;
+        }
+        set_html("#content",
+            '<div class="row column centered">' +
+            '<form class="auth-form-body" onsubmit="return act_user_login();">' +
+            '<div id="output-message" class="mb-2" ></div>' +
+            '<label for="nickname">' + output('auth-nick') + '</label>' +
+            '<input class="form-control input-block" tabindex=1 name="nickname" id="nickname" type="text" placeholder="stypr, neko, superuser, ...">' +
+            '<label for="password">' + output('auth-pass') + ' <a href="#/user/find" class=right>' + output('auth-forgot') + '</a></label>' +
+            '<input class="form-control input-block" tabindex=2 id="password" name="password" placeholder="Password" type="password">' +
+            '<input class="form-checkbox" id="remember-nick" type="checkbox"> ' + output('auth-remember') +
+            '<button class="btn btn-block btn-primary" tabindex=3 id="signin_button" type="submit">' + output('auth-login') + '</button>' +
+            '</form>' +
+            '<br><p class="new-comer">' + output('auth-reg-new') + '&nbsp;' +
+            '<a href="#/user/register" data-ga-click="Sign in, switch to sign up">' + output('auth-reg-create') + '</a>.' +
+            '</p></div>', true);
+        // get nickname from browser
+        local_nick = localStorage.getItem('current_nick');
+        if (local_nick && local_nick != 'null') {
+            $("#remember-nick").prop('checked', true);
+            $("#nickname").val(local_nick);
+        }
+        break;
+
+    default:
+        set_error(404);
+    }
+}
+
+function view_profile(path) {
+    nickname = path[1];
+    if (check_string(nickname) == false) {
+        set_error(404);
+        return;
+    }
+    $.get("/status/profile?nickname=" + nickname, function (d) {
+        // TBD: Badge
+
+        chall_solve = [];
+        chall_break = [];
+        if (!d) {
+            set_error(404);
+            return;
+        }
+
+        // Parsed solved challenges
+        if (d['solved']) {
+            // wow, i'm using this syntax for the first time!
+            // (thanks @vbalien for the insightful code)
+            for (let solved of d['solved']) {
+                if (solved['chall_break']) {
+                    chall_break.push({
+                        'challenge_name': solved['chall_name'],
+                        'solve_date': solved['chall_solve_date'],
+                        'solve_score': solved['chall_score'],
+                        'break_rank': solved['chall_break']['break_rank'],
+                    });
+                } else {
+                    chall_solve.push({
+                        'challenge_name': solved['chall_name'],
+                        'solve_date': solved['chall_solve_date'],
+                        'solve_score': solved['chall_score'],
+                    });
+                }
+            }
+        }
+
+        // Prettify information (solved)
+        chall_break_out = "";
+        if (chall_break.length) {
+            chall_break_out = '<h3>' + output('profile-break') + '</h3>' +
+                '<div class="Box Box-default">';
+            for (let chall of chall_break) {
+                chall_break_out += '<div class="Box-header pt-2 pb-2">' +
+                    '<span class="octicon octicon-flame" style=\'letter-spacing:-.5px;\'><sup>#' + chall['break_rank'] + '</sup>&nbsp;</span>' +
+                    chall['challenge_name'] + ' (' + chall['solve_score'] + output('pt') + ')' +
+                    '<span class="right">' + chall['solve_date'] + '</span>' +
+                    '</div>';
+            }
+            chall_break_out += '</div><br>';
+        }
+
+        chall_solve_out = "";
+        if (chall_solve.length) {
+            chall_solve_out = '<h3>' + output('profile-clear') + '</h3>' +
+                '<div class="Box Box-default">';
+            for (let chall of chall_solve) {
+                chall_solve_out += '<div class="Box-header pt-2 pb-2">' +
+                    '<span class="octicon octicon-check" style=\'letter-spacing:-.5px;\'>&nbsp;</span>' +
+                    chall['challenge_name'] + ' (' + chall['solve_score'] + output('pt') + ')' +
+                    '<span class="right">' + chall['solve_date'] + '</span>' +
+                    '</div>';
+            }
+            chall_solve_out += '</div><br>';
+        }
+        if (!(chall_solve_out || chall_break_out)) {
+            chall_solve_out = '<div class="blankslate blankstate-spacious">' +
+                '<span class="mega-octicon octicon-thumbsdown blankslate-icon"></span>' +
+                '<h3>' + output('profile-no-solve-head') + '</h3>' +
+                '<p>' + output('profile-no-solve-body') + '</p>' +
+                '</div>';
+        }
+        set_html("#content", '<div class="columns">' +
+            // left side
+            '<div class="four-fifths column">' +
+            '<h1 style="line-height:0.9;">' + d['nick'] + '</h1>' +
+            '<code style="letter-spacing:-1px; white-space: pre-wrap;">' + d['comment'] + '</code>' +
+            '<hr style="margin:5pt;border:0;">' +
+            '<p style="line-height:2.0;">#' + d['rank'] + output('profile-score-prefix') +
+            +d['score'] + output('pt') + output('profile-score-suffix') + '.</p>' +
+            chall_break_out +
+            chall_solve_out +
+            '</div>' +
+            // right side
+            '<div class="one-fifth column"><center>' +
+            '<img class="avatar" src="' + d['profile_picture'] + '" width=100%>' +
+            '<font size=2><span class="octicon octicon-lock" style="margin-top:5pt;"></span>' + d['username'] + '<br>' +
+            'Since ' + d['join_date'] + '.</font><br><br></center>' +
+            '</div>', true);
+
+    });
+}
+
+function view_chat() {
+    if (!IS_AUTH) {
+        set_error(403);
+        return;
+    }
+    set_html('#content',
+        '<iframe src="//kiwiirc.com/client/irc.freenode.net/?nick=' +
+        CURRENT_USER['nick'] + '&theme=cli#' +
+        IRC_CHANNEL + '" style="border:0; width:100%; height:450px;">' +
+        '</iframe>' +
+        '<center><h4>' + output('chat-rule') + '</h4></center>', true);
+}
+
+function view_chall(path) {
+    // Filtering not implemented yet. //
+    // chall/(filter_type)/(filter_string)
+    if (!IS_AUTH) {
+        set_error(403);
+        return;
+    }
+    set_html("#content",
+        '<div class="row column centered">' +
+        '<div id="output-message"></div>' +
+        '<form onsubmit="return act_chall_auth()">' +
+        '<div class="input-group columns">' +
+        '<div class="two-thirds p-2 column">' +
+        '<input class="form-control" placeholder="flag{ ... }"' +
+        'autocomplete="off" id="flag" name="flag" style="width:100%; font-family:monospace;">' +
+        '</div>' +
+        '<div class="one-third p-2 column"><span class="input-group-button">' +
+        '<button class="btn btn-primary one-third" style="width:100%;" type="submit">' +
+        '<span class="octicon octicon-key"> ' + output('auth') + '</span>' +
+        '</button></div>' +
+        '</div><hr style="border:0;">', true);
+    $.get("/challenge/list", function (d) {
+        // Sort by challenge_score, ascending order.
+        challenges = d.sort(function (a, b) {
+            if (a.challenge_score == b.challenge_score) return 0;
+            return a.challenge_score > b.challenge_score ? 1 : -1;
+        });
+        user_solved = [];
+        for (let solved of CURRENT_USER['solved']) {
+            user_solved.push(Object.values(solved)[0]);
+        }
+        for (let challenge of challenges) {
+            // Change background/icon for solved ones
+            if (user_solved.includes(challenge['challenge_name'])) {
+                chall_color = "green";
+                chall_icon = "shield";
+            } else {
+                chall_color = "blue";
+                chall_icon = "bug";
+            }
+            set_html("#content",
+                '<div class="Box mb-3"><div class="Box-header pt-2 pb-2 Box-header--' + chall_color + '">' +
+                '<h3 class="Box-title"><span class="octicon octicon-bug">&nbsp;</span>' + challenge['challenge_name'] +
+                ' <span class="right">' + challenge['challenge_score'] + output('pt') + '</span></h3></div>' +
+                '<div class="Box-body">' + challenge['challenge_desc'] +
+                '</form></div></div>');
+        }
+    });
 }
 
 // Loader //
@@ -202,7 +661,7 @@ function load_language() {
 
     // Flush and Add events
     $("#language-select").unbind('change');
-    $("#language-select").change(function() {
+    $("#language-select").change(function () {
         // The script needs to be restarted upon the change of language
         CURRENT_LANG = $("#language-select").val();
         $("*:not(.octicon").css("font-family", output('FONT'));
@@ -211,13 +670,14 @@ function load_language() {
 }
 
 function load_profile() {
-    $.get('/status/profile', function(d) {
+    $.get('/status/profile', function (d) {
         if (d == false) {
             IS_AUTH = false;
             CURRENT_USER = null;
         } else {
             IS_AUTH = true;
             CURRENT_USER = d;
+            if (!CURRENT_USER['comment']) CURRENT_USER['comment'] = '';
         }
         load_layout();
     });
@@ -305,13 +765,13 @@ function load_layout() {
 
     // Add click events for sidebar / hashchange
     $("#sidebar-menu > li > a").unbind("click");
-    $("#sidebar-menu > li > a").click(function() {
+    $("#sidebar-menu > li > a").click(function () {
         $("#sidebar-menu .selected").removeClass("selected");
         $(this).siblings().removeClass("selected");
         $(this).addClass("selected"); // children(':first')
     });
     $(window).unbind('hashchange');
-    $(window).on('hashchange', function() {
+    $(window).on('hashchange', function () {
         CURRENT_PAGE = location.hash.slice(1);
         $("#sidebar-menu .selected").removeClass("selected");
         $(this).siblings().removeClass("selected");
@@ -333,36 +793,36 @@ function load_content() {
     }
     // Load content based on the path
     switch (path[0]) {
-        case 'user':
-            selected_menu = IS_AUTH && 'logout' || 'login';
-            if (path[1] == 'edit') selected_menu = 'edit';
-            $("#sidebar-menu>li[page-id='" + selected_menu + "']>a").addClass("selected");
-            view_user(path);
-            break;
-        case 'status':
-            $("#sidebar-menu>li[page-id='status']>a").addClass("selected");
-            view_status(path);
-            break;
-        case 'chat':
-            $("#sidebar-menu>li[page-id='chat']>a").addClass("selected");
-            view_chat();
-            break;
-        case 'chall':
-            $("#sidebar-menu>li[page-id='chall']>a").addClass("selected");
-            view_chall(path);
-            break;
-        case 'profile':
-            $("#sidebar-menu>li[page-id='status']>a").addClass("selected");
-            view_profile(path);
-            break;
-		case 'intro':
-        case '':
-            $("#sidebar-menu>li[page-id='intro']>a").addClass("selected");
-            view_intro();
-            break;
-        default:
-            set_error(404);
-            //console.log(_url);
+    case 'user':
+        selected_menu = IS_AUTH && 'logout' || 'login';
+        if (path[1] == 'edit') selected_menu = 'edit';
+        $("#sidebar-menu>li[page-id='" + selected_menu + "']>a").addClass("selected");
+        view_user(path);
+        break;
+    case 'status':
+        $("#sidebar-menu>li[page-id='status']>a").addClass("selected");
+        view_status(path);
+        break;
+    case 'chat':
+        $("#sidebar-menu>li[page-id='chat']>a").addClass("selected");
+        view_chat();
+        break;
+    case 'chall':
+        $("#sidebar-menu>li[page-id='chall']>a").addClass("selected");
+        view_chall(path);
+        break;
+    case 'profile':
+        $("#sidebar-menu>li[page-id='status']>a").addClass("selected");
+        view_profile(path);
+        break;
+    case 'intro':
+    case '':
+        $("#sidebar-menu>li[page-id='intro']>a").addClass("selected");
+        view_intro();
+        break;
+    default:
+        set_error(404);
+        //console.log(_url);
     }
 }
 
