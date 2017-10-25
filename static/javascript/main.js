@@ -578,7 +578,7 @@ function view_user(path) {
 
 function view_profile(path) {
     nickname = path[1];
-    if (check_string(nickname) == false) {
+    if (check_string(nickname, 3, 20) == false) {
         set_error(404);
         return;
     }
@@ -647,6 +647,9 @@ function view_profile(path) {
                 '<p>' + output('profile-no-solve-body') + '</p>' +
                 '</div>';
         }
+		// if comment is null, don't show it
+		if (!d['comment'] || d['comment'] == undefined) d['comment'] = '';
+
         set_html("#content", '<div class="columns">' +
             // left side
             '<div class="four-fifths column">' +
@@ -664,6 +667,8 @@ function view_profile(path) {
             '<font size=2><span class="octicon octicon-lock" style="margin-top:5pt;"></span>' + d['username'] + '<br>' +
             'Since ' + d['join_date'] + '.</font><br><br></center>' +
             '</div>', true);
+
+		// Get badges and add it on the result
         $.get("/badge/get?nickname=" + d['nick'], function (x) {
             if (typeof x === "object") {
                 for (let badge of x) {
