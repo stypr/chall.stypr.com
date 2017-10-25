@@ -11,12 +11,21 @@ body { background: #333 url(../image/background.png); }
 .right { float: right; }
 .selector-language { padding-bottom: 30px; }
 
-/* User Profile */
+/* Sidebar Profile */
 .profile td{ margin:0; padding:0; line-height:80%; }
 .profile .profile-nickname { font-size: 13pt; }
 .profile .profile-score { font-size: 8pt; }
 .profile-image { border:2px solid #ccc; border-radius:2px; margin-top:5px; margin-right:10px; width:40px; height:40px; background-color:#fff; }
 .footer { background-color:#eee; padding:5px; text-align:center; }
+
+/* Content Profile (3rd perspective) 
+Thanks to Adobe Kuler, coloring shouldn't be this easier. */
+.Label { font-size: 14pt; background-color:#333; font-weight: 400; }
+.Label--yellow { background-color: #f24738; }
+.Label--red { background-color: #bf2a2a; }
+.Label--blue { background-color: #024959; }
+.Label--green { background-color: #047331; }
+.Label--purple { background-color: #1e1d45; }
 
 /* Status */
 #output-layer tr { cursor: default; }

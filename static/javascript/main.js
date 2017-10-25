@@ -583,8 +583,6 @@ function view_profile(path) {
         return;
     }
     $.get("/status/profile?nickname=" + nickname, function (d) {
-        // TBD: Badge
-
         chall_solve = [];
         chall_break = [];
         if (!d) {
@@ -652,7 +650,7 @@ function view_profile(path) {
         set_html("#content", '<div class="columns">' +
             // left side
             '<div class="four-fifths column">' +
-            '<h1 class="short-line">' + d['nick'] + '</h1>' +
+            '<h1 class="short-line" id="profile-nickname">' + d['nick'] + '</h1>' +
             '<code class="wrap-code short-space">' + d['comment'] + '</code>' +
             '<hr style="margin:5pt;border:0;">' +
             '<p class="long-line">#' + d['rank'] + output('profile-score-prefix') +
@@ -666,7 +664,18 @@ function view_profile(path) {
             '<font size=2><span class="octicon octicon-lock" style="margin-top:5pt;"></span>' + d['username'] + '<br>' +
             'Since ' + d['join_date'] + '.</font><br><br></center>' +
             '</div>', true);
-
+        $.get("/badge/get?nickname=" + d['nick'], function (x) {
+            if (typeof x === "object") {
+                for (let badge of x) {
+                    set_html("#profile-nickname",
+                        '&thinsp;' +
+                        '<label class="Label Label--' + badge['type'] + '">' +
+                        badge['name'] +
+                        '</label>'
+                    );
+                }
+            }
+        });
     });
 }
 
