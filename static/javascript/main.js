@@ -578,13 +578,11 @@ function view_user(path) {
 
 function view_profile(path) {
     nickname = path[1];
-    if (check_string(nickname) == false) {
+    if (check_string(nickname, 3, 20) == false) {
         set_error(404);
         return;
     }
     $.get("/status/profile?nickname=" + nickname, function (d) {
-        // TBD: Badge
-
         chall_solve = [];
         chall_break = [];
         if (!d) {
@@ -649,10 +647,13 @@ function view_profile(path) {
                 '<p>' + output('profile-no-solve-body') + '</p>' +
                 '</div>';
         }
+		// if comment is null, don't show it
+		if (!d['comment'] || d['comment'] == undefined) d['comment'] = '';
+
         set_html("#content", '<div class="columns">' +
             // left side
             '<div class="four-fifths column">' +
-            '<h1 class="short-line">' + d['nick'] + '</h1>' +
+            '<h1 class="short-line" id="profile-nickname">' + d['nick'] + '</h1>' +
             '<code class="wrap-code short-space">' + d['comment'] + '</code>' +
             '<hr style="margin:5pt;border:0;">' +
             '<p class="long-line">#' + d['rank'] + output('profile-score-prefix') +
@@ -667,6 +668,19 @@ function view_profile(path) {
             'Since ' + d['join_date'] + '.</font><br><br></center>' +
             '</div>', true);
 
+		// Get badges and add it on the result
+        $.get("/badge/get?nickname=" + d['nick'], function (x) {
+            if (typeof x === "object") {
+                for (let badge of x) {
+                    set_html("#profile-nickname",
+                        '&thinsp;' +
+                        '<label class="Label Label--' + badge['type'] + '">' +
+                        badge['name'] +
+                        '</label>'
+                    );
+                }
+            }
+        });
     });
 }
 

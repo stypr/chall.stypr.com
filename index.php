@@ -14,7 +14,7 @@ require_once( "vendor/autoload.php" );
 require_once( "lib/mail.php" );
 
 // Limits controller access //
-$allowed_controller = [ "user", "challenge", "status", "wechall", "default" ];
+$allowed_controller = [ "user", "challenge", "status", "wechall", "default", "badge" ];
 
 try {
 	$controller = isset( $_GET["controller"] ) ? $_GET["controller"] : "default";

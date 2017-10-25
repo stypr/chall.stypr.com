@@ -137,7 +137,6 @@
 				'join_date' => explode( ' ', $me->user_join_date )[0],
 				'rank' => $me->user_rank,
 				'score' => $me->user_score,
-				'badge' => null, // TBD
                 // gravatar by default, you can customized this.
                 'profile_picture' => '//www.gravatar.com/avatar/'.
                     md5( $me->user_id ) . '?v=3&s=100&'.
