@@ -48,6 +48,14 @@ var set_error = function (t) {
             "<img src='./static/image/403.png' width=100%>", true);
         break;
     }
+    toggle_load();
+}
+
+function redirect(url) {
+    toggle_load(false);
+    $(window).unbind('hashchange');
+    window.location.hash = '#' + url;
+    load_profile();
 }
 
 // Action //
@@ -70,9 +78,7 @@ function act_chall_auth() {
     $.post("/challenge/auth", _input, function (d) {
         switch (d) {
         case 'success':
-            $(window).unbind('hashchange');
-            window.location.hash = '#/chall';
-            load_profile();
+            redirect('/chall');
             break;
         case 'already-solved':
             $("#output-message").addClass("flash-error");
@@ -106,9 +112,7 @@ function act_user_recover(recovery_code) {
     }
     $.post("/user/recover", _input, function (d) {
         if (d == true) {
-            $(window).unbind('hashchange');
-            window.location.hash = '#/user/login';
-            load_profile();
+            redirect('/user/login');
         } else {
             $("#output-message").addClass("flash-error");
             $("#output-message").html(output("find-new-fail"));
@@ -171,9 +175,7 @@ function act_user_login() {
                 localStorage.setItem('current_nick', null);
             }
 
-            $(window).unbind('hashchange');
-            window.location.hash = '#/';
-            load_profile();
+            redirect('/');
         } else {
             $("#output-message").addClass("flash-error");
             $("#output-message").html(output("auth-wrong"));
@@ -226,8 +228,7 @@ function act_user_register() {
             return false;
         case "true":
             // get back to login on successful.
-            window.location.hash = '#/user/login';
-            main();
+            redirect('/user/login');
             return false;
         default:
             $('#output-message').html(output('reg-deny-unknown'));
@@ -253,7 +254,8 @@ function act_user_edit() {
                 '<pre>RegExp: ' + CHECK_REGEX + '{4, 100}$</pre>');
             return false;
         }
-        if (!(new RegExp("^[a-zA-Z0-9-_:+!@#$.%^&*(){}:\/.\ <>가-힣]{0,100}$").test(_input['comment']))) {
+        if (!(new RegExp("^[a-zA-Z0-9-_:+!@#$.%^&*(){}:\/.\ <>가-힣]{0,100}$").test(_in
+put['comment']))) {
             $('#output-message').html(output('reg-deny-comment') + '<br>' +
                 '<pre>RegExp: ' + CHECK_REGEX + '{0,50}$</pre>');
             return false;
@@ -261,9 +263,7 @@ function act_user_edit() {
     }
     $.post("/user/edit", _input, function (d) {
         if (d == true) {
-            $(window).unbind('hashchange');
-            window.location.hash = '#/user/edit';
-            load_profile();
+            redirect('/user/edit');
         } else {
             $("#output-message").addClass("flash-error");
             $("#output-message").html(output("edit-fail"));
@@ -278,6 +278,7 @@ function act_user_edit() {
 
 function view_intro() {
     set_html("#content", output("INTRO"), true);
+    toggle_load();
 }
 
 function view_status(path) {
@@ -302,6 +303,7 @@ function view_status(path) {
         set_html("#output-layer",
             "Click <a href='https://github.com/stypr/chall.stypr.com#vulnerability-reports'>here</a>" +
             " for the detailed information.", true);
+        toggle_load();
         break;
 
     case "auth":
@@ -326,6 +328,7 @@ function view_status(path) {
                     '<td>' + auth_log['date'] + '</td>' +
                     '</tr>');
             }
+            toggle_load();
         });
         break;
 
@@ -371,6 +374,7 @@ function view_status(path) {
                     top_info +
                     '</table>');
             }
+            toggle_load();
         });
         break;
 
@@ -423,6 +427,7 @@ function view_status(path) {
                     '<td>' + CURRENT_USER['comment'] + '</td><td>' + CURRENT_USER['last_solved'] + '</td></tr>');
             }
             set_html("#output-layer", "<br><h4 align=center>" + d['total'] + output("player-total-msg") + "</h4>");
+            toggle_load();
         });
         break;
 
@@ -470,6 +475,7 @@ function view_user(path) {
                 '<button class="btn btn-block btn-primary" tabindex=4 id="edit_button" type="submit">' + output('find-send-submit') + '</button>' +
                 '</form>', true);
         }
+        toggle_load();
         break;
 
     case "edit":
@@ -530,6 +536,7 @@ function view_user(path) {
             '<li>' + output('reg-note-2') + '</li><br>' +
             '<li>' + output('reg-note-3') + '</li><br>' +
             '</div></div>', true);
+        toggle_load();
         break;
 
     case "logout":
@@ -538,9 +545,7 @@ function view_user(path) {
             break;
         }
         $.get("/user/logout", function (d) {
-            $(window).unbind('hashchange');
-            window.location.hash = '#/user/login';
-            load_profile();
+            redirect('/user/login');
         });
         break;
 
@@ -569,6 +574,7 @@ function view_user(path) {
             $("#remember-nick").prop('checked', true);
             $("#nickname").val(local_nick);
         }
+        toggle_load();
         break;
 
     default:
@@ -647,8 +653,8 @@ function view_profile(path) {
                 '<p>' + output('profile-no-solve-body') + '</p>' +
                 '</div>';
         }
-		// if comment is null, don't show it
-		if (!d['comment'] || d['comment'] == undefined) d['comment'] = '';
+        // if comment is null, don't show it
+        if (!d['comment'] || d['comment'] == undefined) d['comment'] = '';
 
         set_html("#content", '<div class="columns">' +
             // left side
@@ -668,7 +674,7 @@ function view_profile(path) {
             'Since ' + d['join_date'] + '.</font><br><br></center>' +
             '</div>', true);
 
-		// Get badges and add it on the result
+        // Get badges and add it on the result
         $.get("/badge/get?nickname=" + d['nick'], function (x) {
             if (typeof x === "object") {
                 for (let badge of x) {
@@ -680,6 +686,7 @@ function view_profile(path) {
                     );
                 }
             }
+            toggle_load();
         });
     });
 }
@@ -695,6 +702,7 @@ function view_chat() {
         IRC_CHANNEL + '" style="border:0; width:100%; height:450px;">' +
         '</iframe>' +
         '<center><h4>' + output('chat-rule') + '</h4></center>', true);
+    toggle_load();
 }
 
 function view_chall(path) {
@@ -744,6 +752,7 @@ function view_chall(path) {
                 '<div class="Box-body">' + challenge['challenge_desc'] +
                 '</form></div></div>');
         }
+        toggle_load();
     });
 }
 
@@ -778,6 +787,7 @@ function load_language() {
 }
 
 function load_profile() {
+    toggle_load();
     $.get('/status/profile', function (d) {
         if (d == false) {
             IS_AUTH = false;
@@ -883,6 +893,7 @@ function load_layout() {
         CURRENT_PAGE = location.hash.slice(1);
         $("#sidebar-menu .selected").removeClass("selected");
         $(this).siblings().removeClass("selected");
+        toggle_load();
         load_content();
     });
 
@@ -892,7 +903,6 @@ function load_layout() {
 }
 
 function load_content() {
-
     // Parse the current URL and return the path
     path = [''];
     if (typeof CURRENT_PAGE === "string" && CURRENT_PAGE !== "") {
@@ -934,7 +944,29 @@ function load_content() {
     }
 }
 
+
 // Loader //
+
+function toggle_load() {
+    load_style = $('.loader').css('display');
+    // for toggle
+    // >> toggle_load(false); // hides load forcefully.
+    if (arguments.length == 1) {
+        if (arguments[0] == false) {
+            $('.loader').css('display', 'none');
+        } else {
+            $('.loader').css('display', 'block');
+        }
+    } else {
+        if (load_style == "block") {
+            $('.loader').css('display', 'none');
+        } else {
+            $('.loader').css('display', 'block');
+        }
+
+    }
+}
+
 function init_load() {
     load_language();
     load_profile();

@@ -17,6 +17,7 @@
 		<link rel="stylesheet" type="text/css" href="./static/stylesheet/main.css">
 	</head>
 	<body>
+		<div class="loader">loading</div>
 		<div id="container" class="container-xl clearfix px-3 pt-3 pb-4 mt-4">
 			<div id="language" class="col-12 selector-language mb-0">
 			<div class="right">
