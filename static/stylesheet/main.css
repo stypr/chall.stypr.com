@@ -10,6 +10,7 @@ body { background: #333 url(../image/background.png); }
 #container { background:#fff; }
 .right { float: right; }
 .selector-language { padding-bottom: 30px; }
+.loader { position:fixed; top:50%; left:50%; margin-left: -90px; margin-top:-25px; width:180px; background-color:#5c4b51; border: 1px dotted #333; color: white; height:40px; font-size:25px; text-transform: uppercase; text-align:center; font-family: monospace; letter-spacing:-2px; display:none; }
 
 /* Sidebar Profile */
 .profile td{ margin:0; padding:0; line-height:80%; }
