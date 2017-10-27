@@ -254,8 +254,8 @@ function act_user_edit() {
                 '<pre>RegExp: ' + CHECK_REGEX + '{4, 100}$</pre>');
             return false;
         }
-        if (!(new RegExp("^[a-zA-Z0-9-_:+!@#$.%^&*(){}:\/.\ <>가-힣]{0,100}$").test(_in
-put['comment']))) {
+		pass_check = "^[a-zA-Z0-9-_:+!@#$.%^&*(){}:\/.\ <>가-힣]{0,100}$";
+        if (!(new RegExp(pass_check).test(_input['comment']))) {
             $('#output-message').html(output('reg-deny-comment') + '<br>' +
                 '<pre>RegExp: ' + CHECK_REGEX + '{0,50}$</pre>');
             return false;
