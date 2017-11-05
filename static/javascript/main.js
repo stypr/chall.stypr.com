@@ -254,8 +254,7 @@ function act_user_edit() {
                 '<pre>RegExp: ' + CHECK_REGEX + '{4, 100}$</pre>');
             return false;
         }
-        if (!(new RegExp("^[a-zA-Z0-9-_:+!@#$.%^&*(){}:\/.\ <>가-힣]{0,100}$").test(_in
-put['comment']))) {
+        if (!(new RegExp("^[a-zA-Z0-9-_:+!@#$.%^&*(){}:\/.\ <>가-힣]{0,100}$").test(_input['comment']))) {
             $('#output-message').html(output('reg-deny-comment') + '<br>' +
                 '<pre>RegExp: ' + CHECK_REGEX + '{0,50}$</pre>');
             return false;
@@ -498,6 +497,7 @@ function view_user(path) {
             '<input class="form-control input-block" tabindex=3 id="comment" name="comment" value="' + CURRENT_USER['comment'] + '" placeholder="' + output('edit-comment-tip') + '">' +
             '<button class="btn btn-block btn-primary" tabindex=4 id="edit_button" type="submit">' + output('edit-submit') + '</button>' +
             '</form></div>', true);
+        toggle_load();
         break;
 
     case "register":
@@ -536,7 +536,7 @@ function view_user(path) {
             '<li>' + output('reg-note-2') + '</li><br>' +
             '<li>' + output('reg-note-3') + '</li><br>' +
             '</div></div>', true);
-        toggle_load();
+        toggle_load(false);
         break;
 
     case "logout":
@@ -781,7 +781,7 @@ function load_language() {
     $("#language-select").change(function () {
         // The script needs to be restarted upon the change of language
         CURRENT_LANG = $("#language-select").val();
-        $("*:not(.octicon").css("font-family", output('FONT'));
+        $("*:not(.octicon)").css("font-family", output('FONT'));
         init_load();
     });
 }
