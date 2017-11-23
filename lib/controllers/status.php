@@ -99,11 +99,11 @@
 			$godmode = false;
 			if( $_SESION['nickname'] ) {
 				if ( $nickname === $_SESSION['nickname'] || $me->user_permission == 9 ) {
-					$godmode = true;
+					$godmode = false;
 				}
 			}
 			// Only godmode user can view the mail address.
-			$email = ( $godmode ) ? ( '@' . explode( $me->user_id )[1] ) : ( $me->user_id );
+			$email = ( $godmode ) ? ( $me->user_id ) : ( '@' .  explode('@', $me->user_id )[1] );
 			// get user's breakthrough info; make it into dict format
 			$me_break = $log->get_break( $me->user_id );
 			$me_break_dict = [];
