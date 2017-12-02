@@ -405,7 +405,7 @@ function view_status(path) {
                 try {
                     if (CURRENT_USER['nick'] == _player['nickname']) {
                         _rank = '&#9733;';
-                        ranker = true;
+                        is_ranker = true;
                     }
                 } catch (e) {}
                 set_html("#scoreboard",
