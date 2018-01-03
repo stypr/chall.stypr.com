@@ -95,11 +95,18 @@
 			$nickname = $this->auth_filter( $_GET['nickname'] ?: $_SESSION['nickname'] );
 			$me = $user->get( ['user_nickname' => $nickname ], 1 );
 			if ( !$me->user_nickname ) $this->output(false);
+
 			// Godmode is only available for the account owner and admin.
 			$godmode = false;
-			if( $_SESION['nickname'] ) {
-				if ( $nickname === $_SESSION['nickname'] || $me->user_permission == 9 ) {
-					$godmode = false;
+			if ( $nickname === $_SESSION['nickname'] ) {
+				$godmode = true;
+			} else {
+				$access_user = $this->auth_filter( $_SESSION['nickname'] );
+				if ( $access_user ) {
+					$check = $user->get( ['user_nickname' => $access_user], 1 );
+					if ( $check->user_permission == 9 ) {
+						$godmode = true;
+					}
 				}
 			}
 			// Only godmode user can view the mail address.
