@@ -885,6 +885,13 @@ function load_layout() {
         			"<span class='octicon octicon-home right'></span>");
         */
     }
+	_subhead = 'netstat';
+	set_html("#sidebar-menu",
+		"<li page-id='" + _subhead + "'>" +
+		"<a href='//eagle-jump.org' target='_blank' class='filter-item'></a></li>");
+	set_html("#sidebar-menu>li[page-id='" + _subhead + "']>a",
+		output(_subhead) +
+		"<span class='octicon octicon-megaphone right'></span>");
 
     // Add click events for sidebar / hashchange
     $("#sidebar-menu > li > a").unbind("click");

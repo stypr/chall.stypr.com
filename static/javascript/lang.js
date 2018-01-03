@@ -59,7 +59,10 @@ var output = function(s) {
             'en': 'Scoreboard',
             'ko': '랭킹'
         },
-
+		'netstat': {
+			'en': 'Network Status',
+			'ko': '네트워크 현황',
+		},
         'nickname': {
             'en': 'Nickname',
             'ko': '닉네임'
