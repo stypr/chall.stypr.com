@@ -43,14 +43,23 @@
 				if ( $chall_solved == $chall_available ) {
 					$badge[] = ['name' => 'AllClear', 'type' => 'green'];
 				}
-				// Top 3 (Queen > King)
+				// Top 3 (Brand new crown..)
 				if ( $me->user_permission != 9 ) {
 					if ( $me->user_rank <= 3) {
-						$badge[] = ['name' => '&#9813;', 'type' => 'black'];
+						$badge[] = ['name' => '&#128081;', 'type' => 'black'];
 					// Top 10 (rank <= 10)
 					} elseif ( $me->user_rank <= 10 ) {
 						$badge[] = ['name' => 'Top10', 'type' => 'blue'];
 					}
+				}
+				// Flame (solved_break_pt >= 3)
+				$me_break = $log->get_break( $me->user_id );
+				$me_break_pt = 0;
+				foreach ( $me_break as $key => $val ) {
+					$me_break_pt += $val['break_point'];
+				}
+				if ( $me_break_pt >= 3 ) {
+					$badge[] = ['name' => '&#128293;', 'type' => 'red'];
 				}
 
 				$this->output( $badge );
