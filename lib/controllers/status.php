@@ -10,7 +10,8 @@
 			$user = new UserInfo;
 			$log = new LoggingInfo;
 			// Get Top 50 and User Total
-			$top_user_order = ['user_score DESC', 'user_auth_date ASC'];
+			// Oops, fixed the column name
+			$top_user_order = ['user_score DESC', 'user_last_solved ASC'];
 			$top_user = $user->get( [], 50, [], $top_user_order );
 			$result = ['total' => $user->count()];
 			// make user breakpoint into dict

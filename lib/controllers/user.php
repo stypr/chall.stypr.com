@@ -20,7 +20,7 @@
 				/* get multiple obj -> delete by stmt */
 				$log->del( ['log_id' => $log_verify->log_id, 'log_type' => 'Recovery'] );
 				// Change Password
-				$me = $user->get( ['user_id' => $log_verify->log_id, 1] );
+				$me = $user->get( ['user_id' => $log_verify->log_id], 1 );
 				$me->user_pw = $encrypted_password;
 				$user->set( $me );
 				$this->output( true );
