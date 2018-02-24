@@ -120,7 +120,6 @@ class ModelHandler {
 		$statement .= " $condition $order_by $limit_str";
 		$type = ( $limit == 1 ) ? 1 : 2;
 		$result = $this->db->query( $statement, $type );
-
 		return ( $result ) ? $this->parse_array( $result ) : new $this->ModelName;
 	}
 	public function set($obj){

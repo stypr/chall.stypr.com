@@ -41,7 +41,7 @@
 			$s = 0; $e = 0;
 			if ( !substr_count( $flag, $flag_prefix ) ) $flag = $flag_prefix . $flag;
 			if ( !substr_count( $flag, $flag_suffix ) ) $flag = $flag . $flag_suffix;
-			// Parse the real flag if there are multiple prefixes and suffixes
+			// Parse the real flag; strip off duplicate prefixes and suffixes
 			if ( substr_count( strtolower($flag), $flag_prefix ) >= 2 ) {
 				$flag = substr( $flag, strripos( $flag, $flag_prefix ) );
 				$flag = substr( $flag, 0, stripos( $flag, $flag_suffix ) + 1 );
