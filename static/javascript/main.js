@@ -588,7 +588,7 @@ function view_user(path) {
 }
 
 function view_profile(path) {
-    nickname = path[1];
+    nickname = decodeURIComponent(path[1]);
     if (check_string(nickname, 3, 20) == false) {
         set_error(404);
         return;
