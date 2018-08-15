@@ -24,6 +24,7 @@ The modest requirements are as follows:
 * Latest MySQL distribution
   *  **MySQL 5.7+** or  **MariaDB 10.2+** will be the least requirement
   * This is because of the newly-implemented ranking feature. (which is very identical to features from MSSQL)
+  * Please note that MySQL 5.7 on some distros won't work. I recommend using MariaDB for this project.
 
 * Latest versions of modern web browsers (for clients)
   * Tested in IE11, Chrome 4.x and Chrome 61
