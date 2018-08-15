@@ -13,6 +13,7 @@
         public function connect($host, $username, $password, $db=""){
             $this->conn = mysqli_connect($host, $username, $password, $db);
             if(!$this->conn) return mysqli_connect_errno();
+			mysqli_set_charset($this->conn, "utf8"); // force utf-8
         }
 
         public function query($query, $result=0){
