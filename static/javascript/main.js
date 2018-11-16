@@ -304,9 +304,37 @@ function view_status(path) {
     switch (page_type) {
 
     case "fame":
-        set_html("#output-layer",
-            "Click <a href='https://github.com/stypr/chall.stypr.com#vulnerability-reports'>here</a>" +
-            " for the detailed information.", true);
+        set_html("#output-layer", '<table class="data-table table-hover" id="scoreboard">\
+                <tbody>\
+                    <td colspan=3>No pwners yet..</td>\
+                </tbody>\
+            </table>\
+            <div style="padding:30px;"><p>Please send <a href="https://harold.kim/">me</a> a mail (<a href="https://harold.kim/pubkey">PGP</a> if needed) on a successful development of the exploit.</p>\
+            <hr>\
+            <p>The successful scope of such cases are limited to following situations:</p>\
+            <ol>\
+                <li>Any kind of attacks that would create security problems with least user activity.</li>\
+            </ol>\
+            <ul>\
+                <li>Server-side: SQLi, RCE, XXE, SSRF attacks.</li>\
+                <li>Client-side: CSRF or XSS on public page.</li>\
+            </ul>\
+            <ol start="2">\
+                <li>Any kind of attacks that would compromise the system or leak important data from the system.</li>\
+            </ol>\
+            <hr>\
+            <p>You&#39;re also allowed to report the vulnerablity of the <a href="https://eagle-jump.org/">challenge network</a> on following cases:</p>\
+            <ol>\
+                <li>Any kind of attacks that would escape the sandbox and <b>get the shell of the host’s system</b>.</li>\
+                <li>Any kind of attacks that can leak <b>internal contents/packets of <u>other</u> sandbox(es).</b></li>\
+            </ol>\
+            <p>On a succesful patch, your exploit will be posted with your nickname at the Hall of Fame.</p>\
+            <hr>\
+            <p>Also, keep a note that</p>\
+            <ol>\
+                <li>Please do not DoS or perform traffic jamming attacks which can consume a lot of traffic on the service.</li>\
+                <li>I won&#39;t respond with possible flaws or attacks outside the boundary. Provide me the full exploit that can cause a problem.</li>\
+            </ol></div>', true);
         toggle_load();
         break;
 
@@ -357,7 +385,7 @@ function view_status(path) {
                 top_color = '';
                 if (!top_info) {
                     top_color = 'Box-header--red'; // additional class
-                    top_info = '<tr><td colspan=4><h2 align=center>PWN ME IF YOU CAN</h2></td></tr>';
+                    top_info = '<tr><td colspan=4><h2 align=center>pwn this service please..</h2></td></tr>';
                 }
 
                 // set html
@@ -512,7 +540,7 @@ function view_user(path) {
         }
         set_html("#content",
             '<div class="columns">' +
-            '<div class="two-thirds column">' +
+            '<div class="two-thirds column" id="register-left">' +
             '<h2 class="setup-form-title mb-3">' + output('reg-head') + '</h2>' +
             '<form onsubmit="return act_user_register();">' +
             '<dl class="form-group"><dt class="input-label">' +
@@ -536,7 +564,7 @@ function view_user(path) {
             '<div id="output-message" class="mb-2" ></div>' +
             '<input type="submit" class="btn btn-primary" id="signup_button" value="' + output('reg-submit') + '">' +
             '</form></div>' +
-            '<div class="one-third column"><h2>' + output('reg-note') + '</h2><br>' +
+            '<div class="one-third column" id="register-right"><h2>' + output('reg-note') + '</h2><br>' +
             '<li>' + output('reg-note-1') + '</li><br>' +
             '<li>' + output('reg-note-2') + '</li><br>' +
             '<li>' + output('reg-note-3') + '</li><br>' +
@@ -605,7 +633,9 @@ function view_profile(path) {
         if (d['solved']) {
             // wow, i'm using this syntax for the first time!
             // (thanks @vbalien for the insightful code)
-            for (let solved of d['solved']) {
+            // for (let solved of d['solved']) {
+            // I'm dropping let .. of .. for legacy purpose. slight tradeoff
+            d['solved'].forEach(function(solved){
                 if (solved['chall_break']) {
                     chall_break.push({
                         'challenge_name': solved['chall_name'],
@@ -620,7 +650,7 @@ function view_profile(path) {
                         'solve_score': solved['chall_score'],
                     });
                 }
-            }
+            });
         }
 
         // Prettify information (solved)
@@ -628,13 +658,13 @@ function view_profile(path) {
         if (chall_break.length) {
             chall_break_out = '<h3>' + output('profile-break') + '</h3>' +
                 '<div class="Box Box-default">';
-            for (let chall of chall_break) {
+            chall_break.forEach(function(chall){
                 chall_break_out += '<div class="Box-header pt-2 pb-2">' +
                     '<span class="octicon octicon-flame short-space"><sup>#' + chall['break_rank'] + '</sup>&nbsp;</span>' +
                     chall['challenge_name'] + ' (' + chall['solve_score'] + output('pt') + ')' +
                     '<span class="right">' + chall['solve_date'] + '</span>' +
                     '</div>';
-            }
+            });
             chall_break_out += '</div><br>';
         }
 
@@ -642,13 +672,14 @@ function view_profile(path) {
         if (chall_solve.length) {
             chall_solve_out = '<h3>' + output('profile-clear') + '</h3>' +
                 '<div class="Box Box-default">';
-            for (let chall of chall_solve) {
+
+            chall_solve.forEach(function(chall){
                 chall_solve_out += '<div class="Box-header pt-2 pb-2">' +
                     '<span class="octicon octicon-check short-space">&nbsp;</span>' +
                     chall['challenge_name'] + ' (' + chall['solve_score'] + output('pt') + ')' +
                     '<span class="right">' + chall['solve_date'] + '</span>' +
                     '</div>';
-            }
+            });
             chall_solve_out += '</div><br>';
         }
         if (!(chall_solve_out || chall_break_out)) {
@@ -663,7 +694,7 @@ function view_profile(path) {
 
         set_html("#content", '<div class="columns">' +
             // left side
-            '<div class="four-fifths column">' +
+            '<div class="four-fifths column" id="profile-left">' +
             '<h1 class="short-line" id="profile-nickname">' + d['nick'] + '</h1>' +
             '<code class="wrap-code short-space">' + d['comment'] + '</code>' +
             '<hr style="margin:5pt;border:0;">' +
@@ -673,7 +704,7 @@ function view_profile(path) {
             chall_solve_out +
             '</div>' +
             // right side
-            '<div class="one-fifth column"><center>' +
+            '<div class="one-fifth column" id="profile-right"><center>' +
             '<img class="avatar" src="' + d['profile_picture'] + '" width=100%>' +
             '<font size=2><span class="octicon octicon-lock" style="margin-top:5pt;"></span>' + d['username'] + '<br>' +
             'Since ' + d['join_date'] + '.</font><br><br></center>' +
@@ -682,14 +713,14 @@ function view_profile(path) {
         // Get badges and add it on the result
         $.get("/badge/get?nickname=" + d['nick'], function (x) {
             if (typeof x === "object") {
-                for (let badge of x) {
+                x.forEach(function(badge){
                     set_html("#profile-nickname",
                         '&thinsp;' +
                         '<label class="Label Label--' + badge['type'] + '">' +
                         badge['name'] +
                         '</label>'
                     );
-                }
+                });
             }
             toggle_load();
         });
@@ -721,9 +752,9 @@ function view_chall(path) {
         '<div class="row column centered">' +
         '<div id="output-message"></div>' +
         '<form onsubmit="return act_chall_auth()">' +
-        '<div class="input-group columns">' +
+        '<div class="input-group columns full-width">' +
         '<div class="two-thirds p-2 column">' +
-        '<input class="form-control monospace full-width" placeholder="flag{ ... }"' +
+        '<input class="form-control monospace" placeholder="flag{ ... }"' +
         'autocomplete="off" id="flag" name="flag">' +
         '</div>' +
         '<div class="one-third p-2 column"><span class="input-group-button">' +
@@ -738,10 +769,11 @@ function view_chall(path) {
             return a.challenge_score > b.challenge_score ? 1 : -1;
         });
         user_solved = [];
-        for (let solved of CURRENT_USER['solved']) {
+
+        CURRENT_USER['solved'].forEach(function(solved){
             user_solved.push(Object.values(solved)[0]);
-        }
-        for (let challenge of challenges) {
+        });
+        challenges.forEach(function(challenge){
             // Change background/icon for solved ones
             if (user_solved.includes(challenge['challenge_name'])) {
                 chall_color = "green";
@@ -756,7 +788,7 @@ function view_chall(path) {
                 ' <span class="right">' + challenge['challenge_score'] + output('pt') + '</span></h3></div>' +
                 '<div class="Box-body">' + challenge['challenge_desc'] +
                 '</form></div></div>');
-        }
+        });
         toggle_load();
     });
 }
@@ -870,11 +902,19 @@ function load_layout() {
         _subhead = 'chat';
         set_html("#sidebar-menu",
             "<li page-id='" + _subhead + "'>" +
+            "<a href='//join.slack.com/t/challstypr/shared_invite/enQtNDgwMDk5MzU3NDYwLWJmZjE2ZWYzNzIxN2M0MzAxNjc4NGI5MzM0NmJhZmI3Y2JlMTY2ZjMwYzI1ZDBhNDhjOGFlMDZlMTExNTc3NjQ' target='_blank' class='filter-item'></a></li>");
+        set_html("#sidebar-menu>li[page-id='" + _subhead + "']>a",
+            output(_subhead) +
+            "<span class='octicon octicon-comment-discussion right'></span>");
+        /*
+        _subhead = 'chat';
+        set_html("#sidebar-menu",
+            "<li page-id='" + _subhead + "'>" +
             "<a href='#/chat' class='filter-item'></a></li>");
         set_html("#sidebar-menu>li[page-id='" + _subhead + "']>a",
             output(_subhead) +
             "<span class='octicon octicon-comment-discussion right'></span>");
-
+        */
         /*
         		_subhead = 'board';
         		set_html("#sidebar-menu",
