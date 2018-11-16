@@ -49,14 +49,28 @@ Thanks to Adobe Kuler, coloring shouldn't be this easier. */
 
 /* Media for tablet and mobile users */
 @media (max-width: 1024px) {
-	#sidebar { position:absolute; top:0; height: 62px; background-color:#eee; width:100%; left:0}
+	#sidebar { position:absolute; top:0; height: 62px; background-color:#eee; width:100%; left:0; }
 	#sidebar > ul { display:inline; }
 	#sidebar * { border-radius:0; }
 	#sidebar > ul > li { display:inline-block; float:right; padding-top: 13px; }
-	#sidebar > ul > li:first-child { float:left;  padding:0;}
+    #sidebar > ul > li:first-child { float:left;  padding:0; }
+	#sidebar > ul > li[page-id='login'] { float:left;  padding:0; margin-top:13px; margin-left: 18px;}
 	#content { width:100%; }
 	#sidebar hr { display:none; }
 	#language { margin-top: 30px;}
+}
+
+@media (max-width: 800px) {
+    #sidebar > ul > li a { font-size: 0pt; }
+    #profile-left, #register-left { width:100%; }
+    #register-right { width:100%; margin-top: 30px; }
+    #profile-right { display: none; }
+    .Box-header { overflow: auto; }
+    .data-table td, .data-table th { padding:0; margin: 0; }
+    
+    #scoreboard th:nth-child(5n), #scoreboard th:nth-child(6n) { display:none; }
+    #scoreboard td:nth-child(5n), #scoreboard td:nth-child(6n) { display:none; }
+    #break-info td:nth-child(6n), #break-info th:nth-child(5n) { display:none; }
 }
 
 /* Migrated from v1 */
