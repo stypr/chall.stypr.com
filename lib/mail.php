@@ -1,67 +1,73 @@
 <?php
 
-/* lib/mail.php
-Made for lenient sendmail. Requires PHPMailer. */
+/**
+ * lib/mail.php
+ *
+ * Made for lenient sendmail. Requires PHPMailer.
+ */
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
-class Mailer {
+class Mailer
+{
+    private $type = '';
 
-	private $type = '';
+    public function SendMail(string $mail_to, string $mail_title, string $mail_body)
+    {
+        // Just send mail as usual
+        if (!$this->type) {
+            return false;
+        }
 
-	public function SendMail( $mail_to, $mail_title, $mail_body ) {
+        // Change it as needed.
+        $sender = __MAIL_NAME__;
 
-		if( !$this->type ) return false;
+        $mail = new PHPMailer;
+        $mail->SMTPDebug = 0;
+        $mail->isSMTP();
+        $mail->CharSet = "UTF-8";
+        $mail->SMTPAuth = true;
 
-		// Change it as needed.
-		$sender = __MAIL_NAME__;
+        switch ( $this->type ) {
+        case "gmail":
+            $mail->Host = "smtp.gmail.com";
+            $mail->Port = 587;
+            $mail->SMTPSecure = 'tls';
+            $mail->Username = __MAIL_USER__;
+            $mail->Password = __MAIL_PASS__;
+            break;
+        case "default":
+            $mail->Host = __MAIL_HOST__;
+            $mail->Port = (int)__MAIL_PORT__;
+            $mail->SMTPAuth = true;
+            // add it on your demand.
+            // $mail->SMTPSecure = 'tls';
+            break;
+        }
 
-		$mail = new PHPMailer;
-		$mail->SMTPDebug = 0;
-		$mail->isSMTP();
-		$mail->CharSet = "UTF-8";
-		$mail->SMTPAuth = true;
+        $mail->Username = __MAIL_USER__;
+        $mail->Password = __MAIL_PASS__;
+        $mail->setFrom(__MAIL_USER__, $sender);
+        $mail->addAddress($mail_to);
+        $mail->isHTML(true);
+        $mail->Subject = $mail_title;
+        $mail->Body = $mail_body;
 
-		switch ( $this->type ) {
-			case "gmail":
-				$mail->Host = "smtp.gmail.com";
-				$mail->Port = 587;
-				$mail->SMTPSecure = 'tls';
-				$mail->Username = __MAIL_USER__;
-				$mail->Password = __MAIL_PASS__;
-				break;
-			case "default":
-				$mail->Host = __MAIL_HOST__;
-				$mail->Port = (int)__MAIL_PORT__;
-				$mail->SMTPAuth = true;
-				// add it on your demand.
-				// $mail->SMTPSecure = 'tls';
-				break;
-		}
+        try {
+            $mail->send();
+            return true;
+        } catch (Exception $e) {
+            return false;
+        }
+    }
 
-		$mail->Username = __MAIL_USER__;
-		$mail->Password = __MAIL_PASS__;
-		$mail->setFrom( __MAIL_USER__, $sender );
-		$mail->addAddress( $mail_to );
-		$mail->isHTML( true );
-		$mail->Subject = $mail_title;
-		$mail->Body = $mail_body;
-
-		try {
-			$mail->send();
-			return true;
-		} catch ( Exception $e ) {
-			return false;
-		}
-	}
-
-	public function __construct() {
-		// Get type from global variable //
-		$this->type = __MAIL_TYPE__;
-		if ( $this->type == "" || $this->type == "__MAIL_TYPE__" ) {
-			$this->type = '';
-		}
-	}
-
+    public function __construct()
+    {
+        // Get type from global variable
+        $this->type = __MAIL_TYPE__;
+        if ($this->type == "" || $this->type == "__MAIL_TYPE__") {
+            $this->type = '';
+        }
+    }
 }

@@ -1,6 +1,6 @@
 # chall.stypr.com
 
-Developed from the scratch for my personal benefits.
+Developed from the scratch for my personal interests.
 
 Brand new version 2.  Now released with [The Unlicense](LICENSE.md).
 
@@ -18,7 +18,7 @@ The modest requirements are as follows:
   * Get nginx, apache, whatever you want. I personally recommend *nginx* or *caddy*.
 
 * **PHP 7** or later &mdash; The project follows the latest standard (as of late 2017).
-  * php-mysql, php-fpm, php-curl extensions should be enabled.
+  * php-mysql, php-fpm, php-curl extensions must be enabled.
   * composer must be installed.
 
 * Latest MySQL distribution
