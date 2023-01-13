@@ -1,3 +1,9 @@
+## chall.stypr.com
+
+Thank you and all players for playing my wargame.
+
+It has been 9 years since I initially set up and hosted my wargame. I guess a lot of CTFs have already re-used or have made similar challenges, so I've decided to share sourcecodes of all challenges and configurations used to host the challenge infrastructure.
+
 ## Infrastructure
 
 * `web/`: Sourcecodes of https://chall.stypr.com/
