@@ -1,0 +1,15 @@
+	<link rel="stylesheet" href="./css/forum.write.css">
+	<main class="s">
+		<form id="frmwrite" method="post" action='./?page=write'>
+			<section id="az">
+				<label for="title">Title</label><input type="text" name="title" id="title" maxlength="50" required>
+			</section>
+			<section id="b">
+				<label for="content">Content</label><textarea name="content" id="content" maxlength="2500" required></textarea>
+				<div class="chkbox"><input id="secret" type="checkbox"><label for="secret">Secret</label></div>
+								<p class="right">
+					<input type="reset" id="reset" value="Reset"><button id="write">Write</button>
+				</p>
+			</section>
+		</form>
+	</main>

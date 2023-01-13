@@ -1,0 +1,20 @@
+<xml>
+	<userlist>
+		<user id="1">
+			<username>guest</username>
+			<password>find password for admin... please?</password>
+			<comment>Guest is too weak man..</comment>
+		</user>
+		<user id="2">
+			<username>admin</username>
+			<password>... wtf? still not enough!</password>
+			<comment>Admin is still too weak man....</comment>
+		</user>
+	</userlist>
+	<heartbeat>
+		<you_cant_guess_me_can_you>
+			<are_you_sure_you_can_guess_me>flag{2eb130c01a29cdf9ac2c3e501a7c5015}</are_you_sure_you_can_guess_me>
+		</you_cant_guess_me_can_you>
+	</heartbeat>
+</xml>
+

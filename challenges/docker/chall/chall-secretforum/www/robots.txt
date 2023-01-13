@@ -1,0 +1,2 @@
+User-agent: *
+Disallow: /s0urc3c0d3.zip

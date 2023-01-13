@@ -1,0 +1,1 @@
+$(document).ready(function(){$(".opener > .cover").css("background-image","url(/?background)").waitForImages(function(){waitForFonts(["stypr-monospace"],function(){$("#loader").hide()})},$.noop,!0),$(document).snowfall({flakeIndex:4,flakeCount:15,minSize:5,maxSize:40,minSpeed:.5,maxSpeed:1,image:"/static/background/star.png"})});

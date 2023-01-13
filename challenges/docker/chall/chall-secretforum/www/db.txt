@@ -1,0 +1,14 @@
+SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
+
+CREATE TABLE IF NOT EXISTS `simple_board` (
+  `idx` int(255) DEFAULT NULL,
+  `username` varchar(10) DEFAULT NULL,
+  `ip` varchar(20) DEFAULT NULL,
+  `subject` varchar(50) DEFAULT NULL,
+  `content` blob,
+  `hit` int(11) NOT NULL,
+  `comment` blob,
+  `commenct_c` int(11) NOT NULL,
+  `date` datetime NOT NULL,
+  `etc` varchar(20) DEFAULT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;

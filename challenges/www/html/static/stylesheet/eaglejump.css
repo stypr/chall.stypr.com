@@ -1,0 +1,100 @@
+/*
+           d8                            
+   d88~\ _d88__ Y88b  / 888-~88e  888-~\ 
+  C888    888    Y888/  888  888b 888    
+   Y88b   888     Y8/   888  8888 888    
+    888D  888      Y    888  888P 888    
+  \_88P   "88_/   /     888-_88"  888    
+                _/      888              
+
+                   Copyright 2017 stypr.
+*/
+
+@font-face {
+	font-family: 'noto-sans';
+	font-style: normal;
+	font-weight: 400;
+	src: url(//fonts.gstatic.com/ea/notosansjapanese/v6/NotoSansJP-Regular.woff2) format('woff2'), url(//fonts.gstatic.com/ea/notosansjapanese/v6/NotoSansJP-Regular.woff) format('woff'), url(//fonts.gstatic.com/ea/notosansjapanese/v6/NotoSansJP-Regular.otf) format('opentype');
+}
+
+@font-face {
+	font-family: 'stypr-monospace';
+	font-style: normal;
+	font-weight: 400;
+	src: url(/static/font/smono.woff) format('woff'),  url(/static/font/smono.otf) format('opentype');
+}
+
+@font-face {
+	font-family: 'stypr-monospace';
+	font-weight: bold;
+	src: url(/static/font/smonob.woff) format('woff'), url(/static/font/smonob.otf) format('opentype');
+}
+
+/* CSS cleanfix */
+* { border:0; margin:0; }
+html, body { font-family:"noto-sans", "ヒラギノ角ゴ Pro W3", "Hiragino Kaku Gothic Pro",Osaka, "メイリオ", Meiryo, "ＭＳ Ｐゴシック", "MS PGothic", sans-serif; }
+html, body{	background-color:#eee; color: #333; height: 100%; line-height: 1.4; font-size: 16px; }
+
+/* header (so many css hax involved..) */
+.opener { color:#333; position:relative; background-color:#666; min-height:100%; width:100%;}
+.opener > .cover{ z-index:1; opacity:0.6; position:absolute; top:0px; left:0; width:100%; height:100%; background:url(/?background) no-repeat center center fixed; background-size: cover; background-position: center bottom;}
+.opener > .cover-cover { z-index:2; width:100%; left:0; top:0; height:100%; background:url(/static/background/tile.png); opacity:0.5; position:absolute; }
+.opener > header { top: 50%; margin-top: -100px; text-align:center; font-size: 14px; position:absolute; z-index: 3 !important; width:100%; overflow:hidden; color: white; text-shadow: 0 0px 0px #000; font-weight:500; letter-spacing:-2px;}
+.opener > header > .logo { background: url('/static/picture/logo.png') no-repeat center center; background-size: 100% 100%; width:270px; height:120px; margin:0 auto; }
+.opener > header > .description { margin-top: 10px; font-size:13pt; }
+.opener > header > .status { max-width:1000px; margin: 20px auto; letter-spacing:0; }
+.opener > header > .status > table { margin:0 auto; font-size: 9pt; }
+.opener > header > .status > table img {width: 16pt;}
+.opener > header > .status > table td {line-height:1px; }
+.opener > header > .status > table tr:nth-child(2) { text-align:left; font-size:8pt; }
+.opener > header > .status > table tr:nth-child(1) > td:nth-child(2) { text-align:left; padding-bottom:6pt; padding-top:9px;}
+.opener > header > .status > table td:nth-child(2n+2) { text-align:left; padding-right: 20px; font-size:8pt;}
+.opener > header > .status > table .stat { width:50px; background: #ccc; height:5px;}
+.opener > header > .status > table .stat > span { background:#fff; display:block; height:100%; overflow:hidden; display:relative; }
+
+/* body (again, some hax involved..) */
+.container { min-width:400px; max-width:1200px; margin: 0 auto; z-index:1;}
+.category { padding: 10px 0; font-family: "stypr-monospace", monospace; margin-top: 30px;}
+.category > .title { font-size:28pt; margin-left:10px; text-align:center; font-weight:bold;}
+.category > .subtitle { font-size:13pt; text-transform:uppercase; margin-left:12px; text-align:center; line-height:3px; margin-bottom: 30px; font-weight:bold; }
+.category > .content > .noticeboard { width: 94%; margin: 0 auto; margin-top: 5px; height:150px; padding:3px; background-color:white; border: 2px dotted #ccc; overflow-y: scroll; font-size:10pt; }
+.category > .content > .network { width: 94%; margin: 0 auto; border: 2px dotted #999; border-radius:0.1em; background-color:#fff; position:relative; margin-top: 50px; padding-top: 30px; padding-bottom: 20px; text-align:center; font-size:0;}
+.category > .content > .network > .name { font-family:stypr-monospace; font-size:20px; font-weight: bold; position:absolute; top:-20px; left: 50%; margin-left:-100px; width:200px; text-align:center; background-color:#fff; border:2px dotted #666;}
+.category > .content > .network > .service { width:31%; margin-left:1%; padding-top:10px; padding-bottom:10px; background-color: #ccc; display: inline-block; font-size:10pt; margin-bottom:10px; background-color:#f0f0f0; border: 2px solid #999;}
+.category > .content > .network > .service:nth-child(3n+2) { margin-left:0; }
+.category > .content > .network > .service > .service-name { font-size:15pt; }
+.category > .content > .network > .service > .service-status { margin-top:30px; margin-bottom:10px; margin: 0 auto; }
+.category > .content > .network > .service > .service-description { font-size: 11pt; }
+.category > .content > .network > .service > .service-description-desc { font-size: 10pt; letter-spacing: -1px; }
+
+/* footer (no hax, but new webkit features involved) */
+.sayonara { background-color: #666; padding: 1rem 0rem; margin-top:30px; }
+.sayonara > footer { z-index:1; color: #fff; padding: 0 1rem;}
+.sayonara > footer p { display:inline-block; }
+.sayonara > footer .right { float:right; }
+.sayonara > footer a {color: #eee; text-decoration:none; }
+.sayonara > footer a:hover {color: #ccc; text-decoration:underline; }
+
+/* Now Loading.. */
+.now-loading { position:fixed; top:0; left:0; background:#eee; width:100%; height:100%; z-index:99999 !important; }
+.now-loading > div { position:absolute; left:50%; top:50%; margin-left:-75px; margin-top:-75px; }
+
+/* sprite */
+.service-status { background-image: url(/static/picture/sprite.png); background-repeat: no-repeat; display: block; }
+.box-alive { background-position: -10px -10px; width:83px; height:93px; }
+.box-dead { background-position: -113px -10px; width:83px; height:93px; }
+.sql-alive { background-position: -216px -10px; width:83px; height:93px; }
+.sql-dead { background-position: -319px -10px; width:83px; height:93px; }
+.net-alive { background-position: -422px -10px; width:83px; height:93px; }
+.net-dead { background-position: -525px -10px; width:83px; height:93px; }
+
+/* media for netstat */
+@media screen and (max-width:320px)  {
+	* { font-size: 80%; }
+	.category > .content > .network > .service { width:46%; }
+	.category > .content > .network > .service:nth-child(2n) { margin-left:0; }
+}
+@media screen and (max-width:800px)  {
+	.category > .content > .network > .service { width:46%; }
+	.category > .content > .network > .service:nth-child(2n) { margin-left:0; }
+}

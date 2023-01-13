@@ -1,0 +1,109 @@
+main.s{
+	border:0;
+}
+#a{
+	border:1px solid #ddd;
+	min-height:400px;
+	margin-bottom:10px;
+}
+#b{
+	border:1px solid #ddd;
+	min-height:100px;
+}
+label{
+	display:block;
+	margin-bottom:5px;
+}
+#title{ 
+	background:#f5f5f5;
+	padding:9px;
+	border-bottom:1px solid #ddd;
+	line-height:18px;
+}
+#title a{
+	color:#000;
+}
+#title input{ 
+	background:#fff;
+}
+#title img{
+	margin:-4px 5px 0 0;
+	vertical-align:middle;
+}
+#info{
+	padding:5px 10px;
+}
+#content{
+	padding:10px;
+	min-height:250px;
+	line-height:200%;
+}
+#comment{
+	background:#f5f5f5;
+	padding:10px;
+}
+#comm{
+	min-width:100%;
+	max-width:100%;
+	min-height:60px;
+	margin-bottom:5px;
+}
+#comment button{
+	width:100px;
+}
+.part{
+	margin-bottom:10px;
+}
+.name{
+	margin-right:10px;
+	font-weight:600;
+	color:#333;
+}
+.name.active{
+	color:#090 !important;
+}
+.name:hover{
+	color:#777 !important;
+}
+#comment .content{
+	padding:5px 10px 10px 10px;
+	border-bottom:1px dotted #aaa;
+}
+.chkbox{
+	float:left;
+	margin-top:5px;
+}
+.part small{
+	margin-top:3px;
+}
+.deletecom{
+	color:#222 !important;
+}
+.deletecom:hover{
+	color:#777 !important;
+}
+.time{
+	text-align:right;
+	margin:0;
+}
+.time a{
+	margin-left:8px;
+	color:#888 !important;
+}
+.time a:hover{
+	color:#333 !important;
+}
+.right button{
+	margin-left:5px;
+	width:100px;
+}
+#comico{
+	float:left;
+}
+#comlbl{
+	float:left;
+	vertical-align:0.2em;;
+	padding:5px;
+	font-weight:600;
+	color:#000;
+}

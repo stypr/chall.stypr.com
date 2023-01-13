@@ -1,0 +1,30 @@
+<?php
+	$page = intval($_GET[ 'no' ]);
+	$end_row = 5;
+	$start_row = ceil($page / $end_row);
+?>
+	<main class="s">
+		<section id="a">
+			<section id="title">
+				<a href="/?page=view&no=<?php echo $_GET[ 'no' ]; ?>"><h3 style="float: left;"><?php echo $result[ 'subject' ]; ?></h3></a>
+				<p class="time"><time><?php echo $result[ 'date' ]; ?></time></p>
+			</section>
+			<section id="info">
+				Written by <a class="name"><?php echo $result[ 'username' ]; ?></a>
+			</section>
+			<section id="content">
+				<?php echo $result[ 'content' ]; ?>
+			</section>
+		</section>
+		<img id="comico" src="./img/comment.png"><span id="comlbl">Comment (<?php echo $result[ 'commenct_c' ]; ?>)</span>
+		<p class="right" style="margin-bottom: 10px;"><button id="list" onclick='location.href = "./?page=forum&page2=<?php echo $start_row; ?>";'>List</button></p>
+		<section id="b">
+			<section id="comment">
+				<?php echo $result[ 'comment' ]; ?>
+				<form id="frmwritecom" method="post">
+					<textarea name="comm" id="comm" maxlength="250" required></textarea>
+					<p class="right"><button id="writecom">Write</button></p>
+				</form>
+			</section>
+		</section>
+	</main>

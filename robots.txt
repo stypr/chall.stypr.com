@@ -1,6 +1,0 @@
-# :p
-User-Agent: *
-Disallow: /lib/
-Disallow: /vendor/
-Disallow: /template/
-Disallow: /static/

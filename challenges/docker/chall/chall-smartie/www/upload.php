@@ -1,0 +1,1 @@
+<script>alert('error');location.href='./'; </script>

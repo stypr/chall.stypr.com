@@ -1,0 +1,557 @@
+# googlemaster
+server {
+	listen 80;
+	listen 443 ssl http2;
+
+	include nginx-security.conf;
+	root /var/www/html;
+	index index.php index.html index.htm;
+
+	server_name googlemaster.eagle-jump.org;
+	access_log /etc/nginx/log/sandbox.log sandbox;
+
+	location ^~ / {
+		proxy_pass http://10.1.0.217;
+		proxy_intercept_errors on;
+		proxy_buffering off;
+		proxy_connect_timeout 3s;
+		proxy_set_header Host $host;
+		proxy_set_header X-Real-IP $remote_addr;
+		proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+		error_page 404 403 /error/resource.html;
+		error_page 500 501 502 503 504 505 =403 /error/down.html; # fuck cloudflare
+	}
+}
+
+# windowspro
+server {
+	listen 80;
+	listen 443 ssl http2;
+
+	include nginx-security.conf;
+	root /var/www/html;
+	index index.php index.html index.htm;
+
+	server_name windowspro.eagle-jump.org;
+	access_log /etc/nginx/log/sandbox.log sandbox;
+
+	location ^~ / {
+		proxy_pass http://10.1.0.215;
+		proxy_intercept_errors on;
+		proxy_buffering off;
+		proxy_connect_timeout 3s;
+		proxy_set_header Host $host;
+		proxy_set_header X-Real-IP $remote_addr;
+		proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+		error_page 404 403 /error/resource.html;
+		error_page 500 501 502 503 504 505 =403 /error/down.html; # fuck cloudflare
+	}
+}
+
+# smartie
+server {
+	listen 80;
+	listen 443 ssl http2;
+
+	include nginx-security.conf;
+	root /var/www/html;
+	index index.php index.html index.htm;
+
+	server_name smartie.eagle-jump.org;
+	access_log /etc/nginx/log/sandbox.log sandbox;
+
+	location ^~ / {
+		proxy_pass http://10.1.0.216;
+		proxy_intercept_errors on;
+		proxy_buffering off;
+		proxy_connect_timeout 3s;
+		proxy_set_header Host $host;
+		proxy_set_header X-Real-IP $remote_addr;
+		proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+		error_page 404 403 /error/resource.html;
+		error_page 500 501 502 503 504 505 =403 /error/down.html; # fuck cloudflare
+	}
+}
+
+# phpreverse
+server {
+	listen 80;
+	listen 443 ssl http2;
+
+	include nginx-security.conf;
+	root /var/www/html;
+	index index.php index.html index.htm;
+
+	server_name phpreverse.eagle-jump.org;
+	access_log /etc/nginx/log/sandbox.log sandbox;
+
+	location ^~ / {
+		proxy_pass http://10.1.0.206;
+		proxy_intercept_errors on;
+		proxy_buffering off;
+		proxy_connect_timeout 3s;
+		proxy_set_header Host $host;
+		proxy_set_header X-Real-IP $remote_addr;
+		proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+		error_page 404 403 /error/resource.html;
+		error_page 500 501 502 503 504 505 =403 /error/down.html; # fuck cloudflare
+	}
+}
+
+# yetanothersql
+server {
+	listen 80;
+	listen 443 ssl http2;
+
+	include nginx-security.conf;
+	root /var/www/html;
+	index index.php index.html index.htm;
+
+	server_name yetanothersql.eagle-jump.org;
+	access_log /etc/nginx/log/sandbox.log sandbox;
+
+	location ^~ / {
+		proxy_pass http://10.1.0.207;
+		proxy_intercept_errors on;
+		proxy_buffering off;
+		proxy_connect_timeout 3s;
+		proxy_set_header Host $host;
+		proxy_set_header X-Real-IP $remote_addr;
+		proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+		error_page 404 403 /error/resource.html;
+		error_page 500 501 502 503 504 505 =403 /error/down.html; # fuck cloudflare
+	}
+}
+
+# guesser
+server {
+	listen 80;
+	listen 443 ssl http2;
+
+	include nginx-security.conf;
+	root /var/www/html;
+	index index.php index.html index.htm;
+
+	server_name guesser.eagle-jump.org;
+	access_log /etc/nginx/log/sandbox.log sandbox;
+
+	location ^~ / {
+		proxy_pass http://10.1.0.203;
+		proxy_intercept_errors on;
+		proxy_buffering off;
+		proxy_connect_timeout 3s;
+		proxy_set_header Host $host;
+		proxy_set_header X-Real-IP $remote_addr;
+		proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+		error_page 404 403 /error/resource.html;
+		error_page 500 501 502 503 504 505 =403 /error/down.html; # fuck cloudflare
+	}
+}
+
+# phpreverse2
+server {
+	listen 80;
+	listen 443 ssl http2;
+
+	include nginx-security.conf;
+	root /var/www/html;
+	index index.php index.html index.htm;
+
+	server_name phpreverse2.eagle-jump.org;
+	access_log /etc/nginx/log/sandbox.log sandbox;
+
+	location ^~ / {
+		proxy_pass http://10.1.0.210;
+		proxy_intercept_errors on;
+		proxy_buffering off;
+		proxy_connect_timeout 3s;
+		proxy_set_header Host $host;
+		proxy_set_header X-Real-IP $remote_addr;
+		proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+		error_page 404 403 /error/resource.html;
+		error_page 500 501 502 503 504 505 =403 /error/down.html; # fuck cloudflare
+	}
+}
+
+# phpsandbox
+server {
+	listen 80;
+	listen 443 ssl http2;
+
+	include nginx-security.conf;
+	root /var/www/html;
+	index index.php index.html index.htm;
+
+	server_name phpsandbox.eagle-jump.org;
+	access_log /etc/nginx/log/sandbox.log sandbox;
+
+	location ^~ / {
+		proxy_pass http://10.1.0.201;
+		proxy_intercept_errors on;
+		proxy_buffering off;
+		proxy_connect_timeout 3s;
+		proxy_set_header Host $host;
+		proxy_set_header X-Real-IP $remote_addr;
+		proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+		error_page 404 403 /error/resource.html;
+		error_page 500 501 502 503 504 505 =403 /error/down.html; # fuck cloudflare
+	}
+}
+
+# phpsandbox2
+server {
+	listen 80;
+	listen 443 ssl http2;
+
+	include nginx-security.conf;
+	root /var/www/html;
+	index index.php index.html index.htm;
+
+	server_name phpsandbox2.eagle-jump.org;
+	access_log /etc/nginx/log/sandbox.log sandbox;
+
+	location ^~ / {
+		proxy_pass http://10.1.0.218;
+		proxy_intercept_errors on;
+		proxy_buffering off;
+		proxy_connect_timeout 3s;
+		proxy_set_header Host $host;
+		proxy_set_header X-Real-IP $remote_addr;
+		proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+		error_page 404 403 /error/resource.html;
+		error_page 500 501 502 503 504 505 =403 /error/down.html; # fuck cloudflare
+	}
+}
+
+# tofukimchi
+server {
+	listen 80;
+	listen 443 ssl http2;
+
+	include nginx-security.conf;
+	root /var/www/html;
+	index index.php index.html index.htm;
+
+	server_name tofukimchi.eagle-jump.org;
+	access_log /etc/nginx/log/sandbox.log sandbox;
+
+	location ^~ / {
+		proxy_pass http://10.1.0.211;
+		proxy_intercept_errors on;
+		proxy_buffering off;
+		proxy_connect_timeout 3s;
+		proxy_set_header Host $host;
+		proxy_set_header X-Real-IP $remote_addr;
+		proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+		error_page 404 403 /error/resource.html;
+		error_page 500 501 502 503 504 505 =403 /error/down.html; # fuck cloudflare
+	}
+}
+
+
+# patchinject
+server {
+	listen 80;
+	listen 443 ssl http2;
+
+	include nginx-security.conf;
+	root /var/www/html;
+	index index.php index.html index.htm;
+
+	server_name patchinject.eagle-jump.org;
+	access_log /etc/nginx/log/sandbox.log sandbox;
+
+	location ^~ / {
+		proxy_pass http://10.1.0.208;
+		proxy_intercept_errors on;
+		proxy_buffering off;
+		proxy_connect_timeout 3s;
+		proxy_set_header Host $host;
+		proxy_set_header X-Real-IP $remote_addr;
+		proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+		error_page 404 403 /error/resource.html;
+		error_page 500 501 502 503 504 505 =403 /error/down.html; # fuck cloudflare
+	}
+}
+
+# phptrick
+server {
+	listen 80;
+	listen 443 ssl http2;
+
+	include nginx-security.conf;
+	root /var/www/html;
+	index index.php index.html index.htm;
+
+	server_name phptrick.eagle-jump.org;
+	access_log /etc/nginx/log/sandbox.log sandbox;
+
+	location ^~ / {
+		proxy_pass http://10.1.0.205;
+		proxy_intercept_errors on;
+		proxy_buffering off;
+		proxy_connect_timeout 3s;
+		proxy_set_header Host $host;
+		proxy_set_header X-Real-IP $remote_addr;
+		proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+		error_page 404 403 /error/resource.html;
+		error_page 500 501 502 503 504 505 =403 /error/down.html; # fuck cloudflare
+	}
+}
+
+
+# slashslash
+server {
+	listen 80;
+	listen 443 ssl http2;
+
+	include nginx-security.conf;
+	root /var/www/html;
+	index index.php index.html index.htm;
+
+	server_name slashslash.eagle-jump.org;
+	access_log /etc/nginx/log/sandbox.log sandbox;
+
+	location ^~ / {
+		proxy_pass http://10.1.0.209;
+		proxy_intercept_errors on;
+		proxy_buffering off;
+		proxy_connect_timeout 3s;
+		proxy_set_header Host $host;
+		proxy_set_header X-Real-IP $remote_addr;
+		proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+		error_page 404 403 /error/resource.html;
+		error_page 500 501 502 503 504 505 =403 /error/down.html; # fuck cloudflare
+	}
+}
+
+
+# pysandbox
+server {
+	listen 80;
+	listen 443 ssl http2;
+
+	include nginx-security.conf;
+	root /var/www/html;
+	index index.php index.html index.htm;
+
+	server_name pysandbox.eagle-jump.org;
+	access_log /etc/nginx/log/sandbox.log sandbox;
+
+	location ^~ / {
+		proxy_pass http://10.1.0.202;
+		proxy_intercept_errors on;
+		proxy_buffering off;
+		proxy_connect_timeout 3s;
+		proxy_set_header Host $host;
+		proxy_set_header X-Real-IP $remote_addr;
+		proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+		error_page 404 403 /error/resource.html;
+		error_page 500 501 502 503 504 505 =403 /error/down.html; # fuck cloudflare
+	}
+}
+
+# secretforum
+server {
+	listen 80;
+	listen 443 ssl http2;
+
+	include nginx-security.conf;
+	root /var/www/html;
+	index index.php index.html index.htm;
+
+	server_name secretforum.eagle-jump.org;
+	access_log /etc/nginx/log/sandbox.log sandbox;
+
+	location ^~ / {
+		proxy_pass http://10.1.0.221;
+		proxy_intercept_errors on;
+		proxy_buffering off;
+		proxy_connect_timeout 3s;
+		proxy_set_header Host $host;
+		proxy_set_header X-Real-IP $remote_addr;
+		proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+		error_page 404 403 /error/resource.html;
+		error_page 500 501 502 503 504 505 =403 /error/down.html; # fuck cloudflare
+	}
+}
+
+
+# bashfuldream
+server {
+        listen 80;
+        listen 443 ssl http2;
+
+        include nginx-security.conf;
+        root /var/www/html;
+        index index.php index.html index.htm;
+
+        server_name bashfuldream.eagle-jump.org;
+	access_log /etc/nginx/log/sandbox.log sandbox;
+
+        location ^~ / {
+                proxy_pass http://10.1.0.213;
+                proxy_intercept_errors on;
+                proxy_buffering off;
+                proxy_connect_timeout 3s;
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                error_page 404 403 /error/resource.html;
+                error_page 500 501 502 503 504 505 =403 /error/down.html; # fuck cloudflare
+        }
+}
+
+# interview
+server {
+	listen 80;
+	listen 443 ssl http2;
+
+	include nginx-security.conf;
+	root /var/www/html;
+	index index.php index.html index.htm;
+
+	server_name interview.eagle-jump.org;
+	access_log /etc/nginx/log/sandbox.log sandbox;
+
+	location ^~ / {
+		proxy_pass http://10.1.0.212;
+		proxy_intercept_errors on;
+		proxy_buffering off;
+		proxy_connect_timeout 3s;
+		proxy_set_header Host $host;
+		proxy_set_header X-Real-IP $remote_addr;
+		proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+		error_page 404 403 /error/resource.html;
+		error_page 500 501 502 503 504 505 =403 /error/down.html; # fuck cloudflare
+	}
+}
+
+
+# lameass
+server {
+	listen 80;
+	listen 443 ssl http2;
+
+	include nginx-security.conf;
+	root /var/www/html;
+	index index.php index.html index.htm;
+
+	server_name lameass.eagle-jump.org;
+	access_log /etc/nginx/log/sandbox.log sandbox;
+
+	location ^~ / {
+		proxy_pass http://10.1.0.204;
+		proxy_intercept_errors on;
+		proxy_buffering off;
+		proxy_connect_timeout 3s;
+		proxy_set_header Host $host;
+		proxy_set_header X-Real-IP $remote_addr;
+		proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+		error_page 404 403 /error/resource.html;
+		error_page 500 501 502 503 504 505 =403 /error/down.html; # fuck cloudflare
+	}
+}
+
+# sqlsandbox
+server {
+	listen 80;
+	listen 443 ssl http2;
+
+	include nginx-security.conf;
+	root /var/www/html;
+	index index.php index.html index.htm;
+
+	server_name sqlsandbox.eagle-jump.org;
+	access_log /etc/nginx/log/sandbox.log sandbox;
+
+	location ^~ / {
+		proxy_pass http://10.1.0.214;
+		proxy_intercept_errors on;
+		proxy_buffering off;
+		proxy_connect_timeout 3s;
+		proxy_set_header Host $host;
+		proxy_set_header X-Real-IP $remote_addr;
+		proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+		error_page 404 403 /error/resource.html;
+		error_page 500 501 502 503 504 505 =403 /error/down.html; # fuck cloudflare
+	}
+}
+
+
+# eagle-jump
+server {
+	listen 80;
+	listen 443 ssl http2;
+
+	include nginx-security.conf;
+	root /var/www/html;
+	index index.php index.html index.htm;
+
+	server_name eagle-jump.eagle-jump.org;
+	access_log /etc/nginx/log/sandbox.log sandbox;
+
+	location ^~ / {
+		client_max_body_size 20M;
+		proxy_pass http://10.1.0.219;
+		proxy_intercept_errors on;
+		proxy_buffering off;
+		proxy_connect_timeout 3s;
+		proxy_set_header Host $host;
+		proxy_set_header X-Real-IP $remote_addr;
+		proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+		error_page 404 403 /error/resource.html;
+		error_page 500 501 502 503 504 505 =403 /error/down.html; # fuck cloudflare
+	}
+}
+
+# rmt
+server {
+	listen 80;
+	listen 443 ssl http2;
+
+	include nginx-security.conf;
+	root /var/www/html;
+	index index.php index.html index.htm;
+
+	server_name rmt.eagle-jump.org;
+	access_log /etc/nginx/log/sandbox.log sandbox;
+
+	location ^~ / {
+		proxy_pass http://10.1.0.222;
+		proxy_intercept_errors on;
+		proxy_buffering off;
+		proxy_connect_timeout 3s;
+		proxy_set_header Host $host;
+		proxy_set_header X-Real-IP $remote_addr;
+		proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+		error_page 404 403 /error/resource.html;
+		error_page 500 501 502 503 504 505 =403 /error/down.html; # fuck cloudflare
+	}
+}
+
+# tofukimchi2
+server {
+	listen 80;
+	listen 443 ssl http2;
+
+	include nginx-security.conf;
+	root /var/www/html;
+	index index.php index.html index.htm;
+
+	server_name tofukimchi2.eagle-jump.org;
+	access_log /etc/nginx/log/sandbox.log sandbox;
+
+	location ^~ / {
+		proxy_pass http://10.1.0.223;
+		proxy_intercept_errors on;
+		proxy_buffering off;
+		proxy_connect_timeout 3s;
+		proxy_set_header Host $host;
+		proxy_set_header X-Real-IP $remote_addr;
+		proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+		error_page 404 403 /error/resource.html;
+		error_page 500 501 502 503 504 505 =403 /error/down.html; # fuck cloudflare
+	}
+}
+
