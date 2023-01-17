@@ -9,11 +9,10 @@
 * `www/`: Files from `/var/www`
     * `www/html/deploy`: Configuration scripts for deploying challenge instances
 
-## Ratelimits
+## Setting Ratelimits
 
 ```sh
 #!/bin/sh
 
 ./wondershaper -a enp1s0 -d 12000 -u 12000
 ```
-
